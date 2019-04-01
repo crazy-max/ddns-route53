@@ -1,10 +1,12 @@
 <p align="center">
+  <a href="https://github.com/crazy-max/ddns-route53/releases/latest"><img src="https://img.shields.io/github/release/crazy-max/ddns-route53.svg?style=flat-square" alt="GitHub release"></a>
+  <a href="https://github.com/crazy-max/ddns-route53/releases/latest"><img src="https://img.shields.io/github/downloads/crazy-max/ddns-route53/total.svg?style=flat-square" alt="Total downloads"></a>
   <a href="https://microbadger.com/images/crazymax/ddns-route53"><img src="https://images.microbadger.com/badges/version/crazymax/ddns-route53.svg?style=flat-square" alt="Version"></a>
   <a href="https://travis-ci.com/crazy-max/ddns-route53"><img src="https://img.shields.io/travis/com/crazy-max/ddns-route53/master.svg?style=flat-square" alt="Build Status"></a>
   <a href="https://hub.docker.com/r/crazymax/ddns-route53/"><img src="https://img.shields.io/docker/stars/crazymax/ddns-route53.svg?style=flat-square" alt="Docker Stars"></a>
   <a href="https://hub.docker.com/r/crazymax/ddns-route53/"><img src="https://img.shields.io/docker/pulls/crazymax/ddns-route53.svg?style=flat-square" alt="Docker Pulls"></a>
-  <a href="https://quay.io/repository/crazymax/ddns-route53"><img src="https://quay.io/repository/crazymax/ddns-route53/status?style=flat-square" alt="Docker Repository on Quay"></a>
-  <br /><a href="https://goreportcard.com/report/github.com/crazy-max/ddns-route53"><img src="https://goreportcard.com/badge/github.com/crazy-max/ddns-route53?style=flat-square" alt="Go Report"></a>
+  <br /><a href="https://quay.io/repository/crazymax/ddns-route53"><img src="https://quay.io/repository/crazymax/ddns-route53/status?style=flat-square" alt="Docker Repository on Quay"></a>
+  <a href="https://goreportcard.com/report/github.com/crazy-max/ddns-route53"><img src="https://goreportcard.com/badge/github.com/crazy-max/ddns-route53?style=flat-square" alt="Go Report"></a>
   <a href="https://www.codacy.com/app/crazy-max/ddns-route53"><img src="https://img.shields.io/codacy/grade/93db381dca8b441cb69b45b75f5e10ed.svg?style=flat-square" alt="Code Quality"></a>
   <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=KLCPAAPLKWJAG"><img src="https://img.shields.io/badge/donate-paypal-7057ff.svg?style=flat-square" alt="Donate Paypal"></a>
 </p>
