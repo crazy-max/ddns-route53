@@ -71,7 +71,7 @@ func (c *Client) Run() {
 
 	// Skip if last IP is identical
 	if wanIPv4 == c.lastIPv4 && wanIPv6 == c.lastIPv6 {
-		log.Info().Msg("WAN IPv4 and IPv6 address are the same. Skipping...")
+		log.Info().Msg("WAN IPv4/IPv6 addresses have not changed since the last update. Skipping...")
 		return
 	}
 
