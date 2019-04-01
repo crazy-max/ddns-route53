@@ -107,7 +107,7 @@ credentials:
   secret_access_key: "<AWS_SECRET_ACCESS_KEY>"
 
 route53:
-  hosted_zone_id: "Z123456789ABCD"
+  hosted_zone_id: "<HOSTED_ZONE_ID>"
   records_set:
     - name: "ddns.example.com."
       type: "A"
