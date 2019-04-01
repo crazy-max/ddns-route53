@@ -40,6 +40,5 @@ RUN apk --update --no-cache add \
 
 COPY --from=builder /app/ddns-route53 /usr/local/bin/ddns-route53
 COPY --from=builder /app/zoneinfo.zip /usr/local/go/lib/time/zoneinfo.zip
-COPY assets /
 
 ENTRYPOINT [ "ddns-route53", "--config", "/ddns-route53.yml" ]
