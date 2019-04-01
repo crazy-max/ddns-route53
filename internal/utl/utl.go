@@ -6,10 +6,12 @@ import (
 	"strings"
 )
 
+// WanIPv4 returns WAN IPv4 address
 func WanIPv4() (string, error) {
 	return wanIP("https://v4.ident.me/")
 }
 
+// WanIPv6 returns WAN IPv6 address
 func WanIPv6() (string, error) {
 	return wanIP("https://v6.ident.me/")
 }
