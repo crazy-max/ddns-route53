@@ -125,4 +125,8 @@ func (c *Client) Run() {
 		log.Error().Err(err).Msg("Cannot update records set")
 	}
 	log.Info().Interface("changes", resp).Msgf("%d records set updated", len(c.cfg.Route53.RecordsSet))
+
+	// Update last IPv4/IPv6
+	c.lastIPv4 = wanIPv4
+	c.lastIPv6 = wanIPv6
 }
