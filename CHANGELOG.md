@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.0 (2019/04/02)
+
+* Handle IPv4 or IPv6 only if included in a record set (Issue #1)
+* Update libs
+
 ## 0.1.1 (2019/04/02)
 
 * Fix update of last IPv4/IPv6
