@@ -48,25 +48,35 @@ func New(cfg *config.Configuration, loc *time.Location) (*Client, error) {
 
 // Run starts ddns-route53 process
 func (c *Client) Run() {
+	var err error
 	if !atomic.CompareAndSwapUint32(&c.locker, 0, 1) {
 		log.Warn().Msg("Already running")
 		return
 	}
 	defer atomic.StoreUint32(&c.locker, 0)
+	log.Debug().Msgf("cfg: %v", c.cfg)
 
 	// Get current WAN IP
-	wanIPv4, err := utl.WanIPv4()
-	if err != nil {
-		log.Warn().Err(err).Msg("Cannot get WAN IPv4 address")
+	wanIPv4 := ""
+	if c.cfg.Route53.HandleIPv4 {
+		wanIPv4, err = utl.WanIPv4()
+		if err != nil {
+			log.Warn().Err(err).Msg("Cannot get WAN IPv4 address")
+		} else {
+			log.Info().Msgf("Current WAN IPv4: %s", wanIPv4)
+		}
 	} else {
-		log.Info().Msgf("Current WAN IPv4: %s", wanIPv4)
+		log.Debug().Msg("")
 	}
 
-	wanIPv6, err := utl.WanIPv6()
-	if err != nil {
-		log.Warn().Err(err).Msg("Cannot get WAN IPv6 address")
-	} else {
-		log.Info().Msgf("Current WAN IPv6: %s", wanIPv6)
+	wanIPv6 := ""
+	if c.cfg.Route53.HandleIPv6 {
+		wanIPv6, err = utl.WanIPv6()
+		if err != nil {
+			log.Warn().Err(err).Msg("Cannot get WAN IPv6 address")
+		} else {
+			log.Info().Msgf("Current WAN IPv6: %s", wanIPv6)
+		}
 	}
 
 	// Skip if last IP is identical

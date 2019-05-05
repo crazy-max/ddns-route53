@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/aws/aws-sdk-go/service/route53"
 	"gopkg.in/yaml.v2"
 )
 
@@ -45,6 +46,8 @@ type Credentials struct {
 type Route53 struct {
 	HostedZoneID string      `yaml:"hosted_zone_id,omitempty"`
 	RecordsSet   []RecordSet `yaml:"records_set,omitempty"`
+	HandleIPv4   bool
+	HandleIPv6   bool
 }
 
 // RecordSet holds data necessary for record set configuration
@@ -65,6 +68,10 @@ func Load(fl Flags, version string) (*Configuration, error) {
 			URL:     "https://github.com/crazy-max/ddns-route53",
 			Author:  "CrazyMax",
 			Version: version,
+		},
+		Route53: Route53{
+			HandleIPv4: false,
+			HandleIPv6: false,
 		},
 	}
 
@@ -105,11 +112,17 @@ func (cfg *Configuration) Check() error {
 		if rs.Type == "" {
 			return fmt.Errorf("missing record set type for %s", rs.Name)
 		}
-		if rs.Type != "A" && rs.Type != "AAAA" {
+		if rs.Type != route53.RRTypeA && rs.Type != route53.RRTypeAaaa {
 			return fmt.Errorf("invalid record set type %s for %s", rs.Type, rs.Name)
 		}
 		if rs.TTL < 1 {
 			return fmt.Errorf("invalid record set TTL %d for %s", rs.TTL, rs.Name)
+		}
+		if rs.Type == route53.RRTypeA {
+			cfg.Route53.HandleIPv4 = true
+		}
+		if rs.Type == route53.RRTypeAaaa {
+			cfg.Route53.HandleIPv6 = true
 		}
 	}
 
