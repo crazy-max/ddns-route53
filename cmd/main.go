@@ -66,13 +66,13 @@ func main() {
 		log.Fatal().Err(err).Msg("Cannot initialize ddns-route53")
 	}
 
-	// Run immediately if schedule is not defined
+	// First run
+	ddnsRoute53.Run()
+
+	// Cronjob
 	if flags.Schedule == "" {
-		ddnsRoute53.Run()
 		return
 	}
-
-	// Start cronjob
 	c = cron.NewWithLocation(location)
 	log.Info().Msgf("Add cronjob with schedule %s", flags.Schedule)
 	if err := c.AddJob(flags.Schedule, ddnsRoute53); err != nil {
