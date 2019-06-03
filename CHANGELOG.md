@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.0 (2019/06/03)
+
+* Run once on startup (Issue #2)
+* Update libs
+
 ## 0.2.0 (2019/04/02)
 
 * Handle IPv4 or IPv6 only if included in a record set (Issue #1)
