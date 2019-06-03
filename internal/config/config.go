@@ -118,12 +118,8 @@ func (cfg *Configuration) Check() error {
 		if rs.TTL < 1 {
 			return fmt.Errorf("invalid record set TTL %d for %s", rs.TTL, rs.Name)
 		}
-		if rs.Type == route53.RRTypeA {
-			cfg.Route53.HandleIPv4 = true
-		}
-		if rs.Type == route53.RRTypeAaaa {
-			cfg.Route53.HandleIPv6 = true
-		}
+		cfg.Route53.HandleIPv4 = rs.Type == route53.RRTypeA
+		cfg.Route53.HandleIPv6 = rs.Type == route53.RRTypeAaaa
 	}
 
 	return nil
