@@ -11,6 +11,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/route53"
 	"github.com/crazy-max/ddns-route53/internal/config"
 	"github.com/crazy-max/ddns-route53/internal/utl"
+	"github.com/hako/durafmt"
+	"github.com/robfig/cron/v3"
 	"github.com/rs/zerolog/log"
 )
 
@@ -18,7 +20,9 @@ import (
 type Client struct {
 	cfg      *config.Configuration
 	loc      *time.Location
+	cron     *cron.Cron
 	r53      *route53.Route53
+	jobID    cron.EntryID
 	lastIPv4 string
 	lastIPv6 string
 	locker   uint32
@@ -40,13 +44,42 @@ func New(cfg *config.Configuration, loc *time.Location) (*Client, error) {
 	}
 
 	return &Client{
-		cfg: cfg,
-		loc: loc,
-		r53: route53.New(sess, &aws.Config{Credentials: creds}),
+		cfg:  cfg,
+		loc:  loc,
+		cron: cron.New(cron.WithLocation(loc), cron.WithSeconds()),
+		r53:  route53.New(sess, &aws.Config{Credentials: creds}),
 	}, nil
 }
 
-// Run starts ddns-route53 process
+// Start starts ddns-route53
+func (c *Client) Start() error {
+	var err error
+
+	// Run on startup
+	c.Run()
+
+	// Check scheduler enabled
+	if c.cfg.Flags.Schedule == "" {
+		return nil
+	}
+
+	// Init scheduler
+	c.jobID, err = c.cron.AddJob(c.cfg.Flags.Schedule, c)
+	if err != nil {
+		return err
+	}
+	log.Info().Msgf("Cron initialized with schedule %s", c.cfg.Flags.Schedule)
+
+	// Start scheduler
+	c.cron.Start()
+	log.Info().Msgf("Next run in %s (%s)",
+		durafmt.ParseShort(c.cron.Entry(c.jobID).Next.Sub(time.Now())).String(),
+		c.cron.Entry(c.jobID).Next)
+
+	select {}
+}
+
+// Run runs ddns-route53 process
 func (c *Client) Run() {
 	var err error
 	if !atomic.CompareAndSwapUint32(&c.locker, 0, 1) {
@@ -54,7 +87,11 @@ func (c *Client) Run() {
 		return
 	}
 	defer atomic.StoreUint32(&c.locker, 0)
-	log.Debug().Msgf("cfg: %v", c.cfg)
+	if c.jobID > 0 {
+		defer log.Info().Msgf("Next run in %s (%s)",
+			durafmt.ParseShort(c.cron.Entry(c.jobID).Next.Sub(time.Now())).String(),
+			c.cron.Entry(c.jobID).Next)
+	}
 
 	// Get current WAN IP
 	wanIPv4 := ""
@@ -139,4 +176,11 @@ func (c *Client) Run() {
 	// Update last IPv4/IPv6
 	c.lastIPv4 = wanIPv4
 	c.lastIPv6 = wanIPv6
+}
+
+// Close closes ddns-route53
+func (c *Client) Close() {
+	if c.cron != nil {
+		c.cron.Stop()
+	}
 }

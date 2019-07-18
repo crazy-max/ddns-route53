@@ -6,7 +6,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/crazy-max/cron"
 	"github.com/crazy-max/ddns-route53/internal/app"
 	"github.com/crazy-max/ddns-route53/internal/config"
 	"github.com/crazy-max/ddns-route53/internal/logging"
@@ -17,7 +16,6 @@ import (
 var (
 	ddnsRoute53 *app.Client
 	flags       config.Flags
-	c           *cron.Cron
 	version     = "dev"
 )
 
@@ -48,6 +46,7 @@ func main() {
 	signal.Notify(channel, os.Interrupt, syscall.SIGTERM)
 	go func() {
 		sig := <-channel
+		ddnsRoute53.Close()
 		log.Warn().Msgf("Caught signal %v", sig)
 		os.Exit(0)
 	}()
@@ -66,19 +65,8 @@ func main() {
 		log.Fatal().Err(err).Msg("Cannot initialize ddns-route53")
 	}
 
-	// First run
-	ddnsRoute53.Run()
-
-	// Cronjob
-	if flags.Schedule == "" {
-		return
+	// Start
+	if err = ddnsRoute53.Start(); err != nil {
+		log.Fatal().Err(err).Msg("Cannot start ddns-route53")
 	}
-	c = cron.NewWithLocation(location)
-	log.Info().Msgf("Add cronjob with schedule %s", flags.Schedule)
-	if err := c.AddJob(flags.Schedule, ddnsRoute53); err != nil {
-		log.Fatal().Err(err).Msg("Cannot create cron task")
-	}
-	c.Start()
-
-	select {}
 }

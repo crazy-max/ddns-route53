@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0 (2019/07/18)
+
+* Display next execution time
+* Use v3 robfig/cron
+* Go 1.12.4
+
 ## 1.0.0 (2019/06/03)
 
 * Run once on startup (Issue #2)
