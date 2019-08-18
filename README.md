@@ -65,7 +65,7 @@ Choose the archive matching the destination platform and extract ddns-route53:
 
 ```
 $ cd /opt
-$ wget -qO- https://github.com/crazy-max/ddns-route53/releases/download/v1.0.0/ddns-route53_1.0.0_linux_x86_64.tar.gz | tar -zxvf - ddns-route53
+$ wget -qO- https://github.com/crazy-max/ddns-route53/releases/download/v1.1.0/ddns-route53_1.1.0_linux_x86_64.tar.gz | tar -zxvf - ddns-route53
 ```
 
 After getting the binary, it can be tested with `./ddns-route53 --help` or moved to a permanent location.
