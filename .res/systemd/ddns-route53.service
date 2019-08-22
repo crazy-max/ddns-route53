@@ -1,0 +1,16 @@
+[Unit]
+Description=Dynamic DNS service with Amazon Route 53
+Documentation=https://github.com/crazy-max/ddns-route53
+After=syslog.target
+After=network.target
+
+[Service]
+RestartSec=2s
+Type=simple
+User=ddnsr53
+Group=ddnsr53
+ExecStart=/usr/local/bin/ddns-route53 --config /etc/ddns-route53/ddns-route53.yml --schedule "0 */30 * * * *" --log-level info
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
