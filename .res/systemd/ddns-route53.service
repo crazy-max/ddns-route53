@@ -1,5 +1,5 @@
 [Unit]
-Description=Dynamic DNS service with Amazon Route 53
+Description=ddns-route53
 Documentation=https://github.com/crazy-max/ddns-route53
 After=syslog.target
 After=network.target
