@@ -10,7 +10,7 @@ Run the below command in a terminal:
 sudo vim /etc/systemd/system/ddns-route53.service
 ```
 
-Copy the sample [ddns-route53.service](https://github.com/crazy-max/ddns-route53/tree/master/.res/systemd/ddns-route53.service).
+Copy the sample [ddns-route53.service](../../.res/systemd/ddns-route53.service).
 
 Change the user, group, and other required startup values following your needs.
 

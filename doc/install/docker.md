@@ -9,7 +9,7 @@ Environment variables can be used within your container :
 * `LOG_LEVEL` : Log level output (default `info`)
 * `LOG_JSON`: Enable JSON logging output (default `false`)
 
-Docker compose is the recommended way to run this image. Copy the content of folder [.res/compose](https://github.com/crazy-max/ddns-route53/tree/master/.res/compose) in `/opt/ddns-route53/` on your host for example. Edit the compose and config file with your preferences and run the following commands:
+Docker compose is the recommended way to run this image. Copy the content of folder [.res/compose](../../.res/compose) in `/opt/ddns-route53/` on your host for example. Edit the compose and config file with your preferences and run the following commands:
 
 ```
 docker-compose up -d
