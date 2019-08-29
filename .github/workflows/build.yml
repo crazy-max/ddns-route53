@@ -47,8 +47,6 @@ jobs:
           echo "##[set-env name=DOCKER_IMAGE;]crazymax/${{ github.event.repository.name }}"
           echo "##[set-env name=QUAY_USERNAME;]crazymax"
           echo "##[set-env name=QUAY_IMAGE;]quay.io/crazymax/${{ github.event.repository.name }}"
-          echo "##[set-env name=GITHUB_PKG_USERNAME;]${GITHUB_ACTOR}"
-          echo "##[set-env name=GITHUB_PKG_IMAGE;]docker.pkg.github.com/${GITHUB_REPOSITORY}/${{ github.event.repository.name }}"
       -
         name: Set up Go
         uses: actions/setup-go@v1
@@ -92,7 +90,6 @@ jobs:
         run: |
           docker tag docker_build ${DOCKER_IMAGE}:${VERSION}
           docker tag docker_build ${QUAY_IMAGE}:${VERSION}
-          docker tag docker_build ${GITHUB_PKG_IMAGE}:${VERSION}
           docker image ls | grep ${{ github.event.repository.name }}
       -
         name: Docker Tags (push tag)
@@ -100,7 +97,6 @@ jobs:
         run: |
           docker tag docker_build ${DOCKER_IMAGE}:latest
           docker tag docker_build ${QUAY_IMAGE}:latest
-          docker tag docker_build ${GITHUB_PKG_IMAGE}:latest
           docker image ls | grep ${{ github.event.repository.name }}
       -
         name: GitHub Release
@@ -117,15 +113,12 @@ jobs:
         env:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
-          GITHUB_PKG_TOKEN: ${{ secrets.GITHUB_PKG_TOKEN }}
         run: |
           echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin
           echo "${QUAY_PASSWORD}" | docker login quay.io --username "${QUAY_USERNAME}" --password-stdin
-          echo "${GITHUB_PKG_TOKEN}" | docker login docker.pkg.github.com --username "${GITHUB_PKG_USERNAME}" --password-stdin
       -
         name: Docker Push
         if: success() && startsWith(github.ref, 'refs/tags/v')
         run: |
           docker push ${DOCKER_IMAGE}
           docker push ${QUAY_IMAGE}
-          docker push ${GITHUB_PKG_IMAGE}

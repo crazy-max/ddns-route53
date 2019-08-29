@@ -1,6 +1,6 @@
 # Installation with Docker
 
-ddns-route53 provides automatically updated Docker :whale: images within [Docker Hub](https://hub.docker.com/r/crazymax/ddns-route53), [Quay](https://quay.io/repository/crazymax/ddns-route53) and [GitHub Package](https://github.com/crazy-max/ddns-route53/packages). It is possible to always use the latest stable tag or to use another service that handles updating Docker images.
+ddns-route53 provides automatically updated Docker :whale: images within [Docker Hub](https://hub.docker.com/r/crazymax/ddns-route53) and [Quay](https://quay.io/repository/crazymax/ddns-route53). It is possible to always use the latest stable tag or to use another service that handles updating Docker images.
 
 Environment variables can be used within your container :
 
