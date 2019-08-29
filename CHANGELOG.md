@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.0 (2019/08/29)
+
+* Switch to GitHub Actions
+
 ## 1.1.0 (2019/07/18)
 
 * Display next execution time

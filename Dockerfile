@@ -1,7 +1,5 @@
 FROM golang:1.12.4 as builder
 
-ARG BUILD_DATE
-ARG VCS_REF
 ARG VERSION
 
 WORKDIR /app
@@ -12,22 +10,15 @@ RUN go mod download
 COPY . ./
 RUN cp /usr/local/go/lib/time/zoneinfo.zip ./ \
   && CGO_ENABLED=0 GOOS=linux go build \
-    -ldflags "-w -s -X 'main.version=${VERSION}'" \
+    -ldflags "-w -s -X 'main.version=${VERSION:-snapshot}'" \
     -v -o ddns-route53 cmd/main.go
 
 FROM alpine:latest
 
-ARG BUILD_DATE
-ARG VCS_REF
-ARG VERSION
-
 LABEL maintainer="CrazyMax" \
-  org.label-schema.build-date=$BUILD_DATE \
   org.label-schema.name="ddns-route53" \
   org.label-schema.description="Dynamic DNS for Amazon Route 53‎ on a time-based schedule" \
-  org.label-schema.version=$VERSION \
   org.label-schema.url="https://github.com/crazy-max/ddns-route53" \
-  org.label-schema.vcs-ref=$VCS_REF \
   org.label-schema.vcs-url="https://github.com/crazy-max/ddns-route53" \
   org.label-schema.vendor="CrazyMax" \
   org.label-schema.schema-version="1.0"
