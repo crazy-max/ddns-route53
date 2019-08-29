@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.1 (2019/08/29)
+
+* Push Docker image to GitHub Package
+
 ## 1.2.0 (2019/08/29)
 
 * Switch to GitHub Actions
