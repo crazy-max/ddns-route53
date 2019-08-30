@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.0 (2019/08/31)
+
+* Add multi-platform Docker images (Issue #4)
+* Remove GitHub Package support
+
 ## 1.2.1 (2019/08/29)
 
 * Push Docker image to GitHub Package

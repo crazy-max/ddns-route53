@@ -42,11 +42,38 @@ jobs:
           echo "##[set-env name=VERSION;]PR-$(basename ${{ github.event.pull_request.url }})"
       -
         name: Set up Docker
+        env:
+          DOCKER_CLI_EXPERIMENTAL: enabled
+          DOCKER_BUILDKIT: 1
+          PREFER_BUILDCTL: 1
         run: |
+          echo '{"experimental":true,"features":{"buildkit": true}}' | sudo tee /etc/docker/daemon.json
+          sudo apt-get remove docker docker-engine docker.io containerd runc
+          sudo apt-get update
+          sudo apt-get install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+          sudo apt-key fingerprint 0EBFCD88
+          sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+          sudo apt-get update
+          sudo apt-get install docker-ce docker-ce-cli containerd.io qemu-user-static
+          docker info
+
           echo "##[set-env name=DOCKER_USERNAME;]crazymax"
           echo "##[set-env name=DOCKER_IMAGE;]crazymax/${{ github.event.repository.name }}"
           echo "##[set-env name=QUAY_USERNAME;]crazymax"
           echo "##[set-env name=QUAY_IMAGE;]quay.io/crazymax/${{ github.event.repository.name }}"
+      -
+        name: Set up Buildx
+        env:
+          DOCKER_CLI_EXPERIMENTAL: enabled
+          DOCKER_BUILDKIT: 1
+          PREFER_BUILDCTL: 1
+        run: |
+          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+          docker buildx version
+          docker buildx create --name builder --use
+          docker buildx inspect --bootstrap
+          docker buildx ls
       -
         name: Set up Go
         uses: actions/setup-go@v1
@@ -75,29 +102,38 @@ jobs:
           fi
           ls -al dist/
       -
-        name: Docker Build
+        name: Docker Buildx (no push)
+        env:
+          DOCKER_PLATFORMS: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/386,linux/ppc64le,linux/s390x
+          DOCKER_CLI_EXPERIMENTAL: enabled
+          DOCKER_BUILDKIT: 1
+          PREFER_BUILDCTL: 1
+        run: |
+          docker buildx build --platform ${DOCKER_PLATFORMS} --progress plain \
+            --cache-to "type=local,mode=max,dest=bin/buildxcache" \
+            --output "type=image,push=false" \
+            --build-arg "VERSION=${VERSION}" \
+            --label "org.label-schema.build-date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
+            --label "org.label-schema.version=${VERSION}" \
+            --label "org.label-schema.vcs-ref=${GITHUB_SHA::8}" \
+            --file Dockerfile .
+      -
+        name: Docker Build (quay.io)
+        env:
+          DOCKER_CLI_EXPERIMENTAL: enabled
+          DOCKER_BUILDKIT: 1
+          PREFER_BUILDCTL: 1
+        # quay does not currently support multi-arch images
+        # https://github.com/moby/buildkit/issues/409
         run: |
           docker build \
             --build-arg VERSION=${VERSION} \
             --label "org.label-schema.build-date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
             --label "org.label-schema.version=${VERSION}" \
             --label "org.label-schema.vcs-ref=${GITHUB_SHA::8}" \
-            -t docker_build -f Dockerfile .
-          docker image inspect docker_build
-      -
-        name: Docker Tags
-        if: success()
-        run: |
-          docker tag docker_build ${DOCKER_IMAGE}:${VERSION}
-          docker tag docker_build ${QUAY_IMAGE}:${VERSION}
-          docker image ls | grep ${{ github.event.repository.name }}
-      -
-        name: Docker Tags (push tag)
-        if: success() && startsWith(github.ref, 'refs/tags/v')
-        run: |
-          docker tag docker_build ${DOCKER_IMAGE}:latest
-          docker tag docker_build ${QUAY_IMAGE}:latest
-          docker image ls | grep ${{ github.event.repository.name }}
+            --tag "${QUAY_IMAGE}:${VERSION}" \
+            --tag "${QUAY_IMAGE}:latest" \
+            --file Dockerfile .
       -
         name: GitHub Release
         if: success() && startsWith(github.ref, 'refs/tags/v')
@@ -111,14 +147,49 @@ jobs:
         name: Docker Login
         if: success() && startsWith(github.ref, 'refs/tags/v')
         env:
+          DOCKER_CLI_EXPERIMENTAL: enabled
+          DOCKER_BUILDKIT: 1
+          PREFER_BUILDCTL: 1
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
         run: |
           echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin
           echo "${QUAY_PASSWORD}" | docker login quay.io --username "${QUAY_USERNAME}" --password-stdin
       -
-        name: Docker Push
+        name: Docker Buildx (push)
         if: success() && startsWith(github.ref, 'refs/tags/v')
+        env:
+          DOCKER_PLATFORMS: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/386,linux/ppc64le,linux/s390x
+          DOCKER_CLI_EXPERIMENTAL: enabled
+          DOCKER_BUILDKIT: 1
+          PREFER_BUILDCTL: 1
         run: |
-          docker push ${DOCKER_IMAGE}
+          docker buildx build --platform ${DOCKER_PLATFORMS} --progress plain \
+            --cache-from "type=local,src=bin/buildxcache" \
+            --output "type=image,push=true" \
+            --build-arg "VERSION=${VERSION}" \
+            --label "org.label-schema.build-date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
+            --label "org.label-schema.version=${VERSION}" \
+            --label "org.label-schema.vcs-ref=${GITHUB_SHA::8}" \
+            --tag "${DOCKER_IMAGE}:${VERSION}" \
+            --tag "${DOCKER_IMAGE}:latest" \
+            --file Dockerfile .
+      -
+        name: Docker Push (quay.io)
+        if: success() && startsWith(github.ref, 'refs/tags/v')
+        env:
+          DOCKER_CLI_EXPERIMENTAL: enabled
+          DOCKER_BUILDKIT: 1
+          PREFER_BUILDCTL: 1
+        run: |
           docker push ${QUAY_IMAGE}
+      -
+        name: Docker Check Manifest
+        if: always() && startsWith(github.ref, 'refs/tags/v')
+        env:
+          DOCKER_CLI_EXPERIMENTAL: enabled
+          DOCKER_BUILDKIT: 1
+          PREFER_BUILDCTL: 1
+        run: |
+          docker buildx imagetools inspect ${DOCKER_IMAGE}:${VERSION}
+          docker buildx imagetools inspect ${QUAY_IMAGE}:${VERSION}

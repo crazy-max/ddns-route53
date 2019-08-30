@@ -3,12 +3,14 @@
 
 /.dev
 /.git
+/.github
 /.res
 /bin
 /dist
+/doc
 /vendor
 /.editorconfig
+/.gitattributes
 /.gitignore
-/build.sh
 /CHANGELOG.md
 /README.md
