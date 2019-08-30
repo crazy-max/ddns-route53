@@ -64,6 +64,7 @@ jobs:
           echo "##[set-env name=QUAY_IMAGE;]quay.io/crazymax/${{ github.event.repository.name }}"
       -
         name: Set up Buildx
+        if: github.ref == 'skip'
         env:
           DOCKER_CLI_EXPERIMENTAL: enabled
           DOCKER_BUILDKIT: 1
@@ -103,6 +104,7 @@ jobs:
           ls -al dist/
       -
         name: Docker Buildx (no push)
+        if: github.ref == 'skip'
         env:
           DOCKER_PLATFORMS: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/386,linux/ppc64le,linux/s390x
           DOCKER_CLI_EXPERIMENTAL: enabled
@@ -118,7 +120,7 @@ jobs:
             --label "org.label-schema.vcs-ref=${GITHUB_SHA::8}" \
             --file Dockerfile .
       -
-        name: Docker Build (quay.io)
+        name: Docker Build
         env:
           DOCKER_CLI_EXPERIMENTAL: enabled
           DOCKER_BUILDKIT: 1
@@ -131,6 +133,8 @@ jobs:
             --label "org.label-schema.build-date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
             --label "org.label-schema.version=${VERSION}" \
             --label "org.label-schema.vcs-ref=${GITHUB_SHA::8}" \
+            --tag "${DOCKER_IMAGE}:${VERSION}" \
+            --tag "${DOCKER_IMAGE}:latest" \
             --tag "${QUAY_IMAGE}:${VERSION}" \
             --tag "${QUAY_IMAGE}:latest" \
             --file Dockerfile .
@@ -157,7 +161,7 @@ jobs:
           echo "${QUAY_PASSWORD}" | docker login quay.io --username "${QUAY_USERNAME}" --password-stdin
       -
         name: Docker Buildx (push)
-        if: success() && startsWith(github.ref, 'refs/tags/v')
+        if: github.ref == 'skip'
         env:
           DOCKER_PLATFORMS: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/386,linux/ppc64le,linux/s390x
           DOCKER_CLI_EXPERIMENTAL: enabled
@@ -175,7 +179,7 @@ jobs:
             --tag "${DOCKER_IMAGE}:latest" \
             --file Dockerfile .
       -
-        name: Docker Push (quay.io)
+        name: Docker Push
         if: success() && startsWith(github.ref, 'refs/tags/v')
         env:
           DOCKER_CLI_EXPERIMENTAL: enabled
@@ -185,7 +189,7 @@ jobs:
           docker push ${QUAY_IMAGE}
       -
         name: Docker Check Manifest
-        if: always() && startsWith(github.ref, 'refs/tags/v')
+        if: github.ref == 'skip'
         env:
           DOCKER_CLI_EXPERIMENTAL: enabled
           DOCKER_BUILDKIT: 1
