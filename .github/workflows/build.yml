@@ -186,6 +186,7 @@ jobs:
           DOCKER_BUILDKIT: 1
           PREFER_BUILDCTL: 1
         run: |
+          docker push ${DOCKER_IMAGE}
           docker push ${QUAY_IMAGE}
       -
         name: Docker Check Manifest
