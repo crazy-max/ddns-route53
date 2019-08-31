@@ -1,7 +1,5 @@
-# syntax=docker/dockerfile:experimental
-FROM --platform=amd64 golang:1.12.4 as builder
+FROM golang:1.12.4 as builder
 
-ARG TARGETPLATFORM
 ARG VERSION
 
 WORKDIR /app
@@ -11,9 +9,9 @@ RUN go version
 RUN go mod download
 COPY . ./
 RUN cp /usr/local/go/lib/time/zoneinfo.zip ./
-RUN bash gobuild.sh ${TARGETPLATFORM} ${VERSION}
+RUN bash gobuild.sh "linux/amd64" ${VERSION}
 
-FROM --platform=$TARGETPLATFORM alpine:latest
+FROM alpine:latest
 
 LABEL maintainer="CrazyMax" \
   org.label-schema.name="ddns-route53" \

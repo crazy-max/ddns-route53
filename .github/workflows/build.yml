@@ -122,11 +122,6 @@ jobs:
       -
         name: Docker Build
         env:
-          DOCKER_CLI_EXPERIMENTAL: enabled
-          DOCKER_BUILDKIT: 1
-          PREFER_BUILDCTL: 1
-        # quay does not currently support multi-arch images
-        # https://github.com/moby/buildkit/issues/409
         run: |
           docker build \
             --build-arg VERSION=${VERSION} \
@@ -151,9 +146,6 @@ jobs:
         name: Docker Login
         if: success() && startsWith(github.ref, 'refs/tags/v')
         env:
-          DOCKER_CLI_EXPERIMENTAL: enabled
-          DOCKER_BUILDKIT: 1
-          PREFER_BUILDCTL: 1
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
         run: |
@@ -181,10 +173,6 @@ jobs:
       -
         name: Docker Push
         if: success() && startsWith(github.ref, 'refs/tags/v')
-        env:
-          DOCKER_CLI_EXPERIMENTAL: enabled
-          DOCKER_BUILDKIT: 1
-          PREFER_BUILDCTL: 1
         run: |
           docker push ${DOCKER_IMAGE}
           docker push ${QUAY_IMAGE}
