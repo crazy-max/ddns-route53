@@ -42,12 +42,7 @@ jobs:
           echo "##[set-env name=VERSION;]PR-$(basename ${{ github.event.pull_request.url }})"
       -
         name: Set up Docker
-        env:
-          DOCKER_CLI_EXPERIMENTAL: enabled
-          DOCKER_BUILDKIT: 1
-          PREFER_BUILDCTL: 1
         run: |
-          echo '{"experimental":true,"features":{"buildkit": true}}' | sudo tee /etc/docker/daemon.json
           sudo apt-get remove docker docker-engine docker.io containerd runc
           sudo apt-get update
           sudo apt-get install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
@@ -55,7 +50,7 @@ jobs:
           sudo apt-key fingerprint 0EBFCD88
           sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
           sudo apt-get update
-          sudo apt-get install docker-ce docker-ce-cli containerd.io qemu-user-static
+          sudo apt-get install docker-ce docker-ce-cli containerd.io
           docker info
 
           echo "##[set-env name=DOCKER_USERNAME;]crazymax"
