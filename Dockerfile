@@ -9,7 +9,9 @@ RUN go version
 RUN go mod download
 COPY . ./
 RUN cp /usr/local/go/lib/time/zoneinfo.zip ./
-RUN bash gobuild.sh "linux/amd64" ${VERSION}
+RUN CGO_ENABLED=0 GOOS=linux go build \
+  -ldflags "-w -s -X 'main.version=${VERSION}'" \
+  -v -o ddns-route53 cmd/main.go
 
 FROM alpine:latest
 
