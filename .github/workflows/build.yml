@@ -121,7 +121,6 @@ jobs:
             --file Dockerfile .
       -
         name: Docker Build
-        env:
         run: |
           docker build \
             --build-arg VERSION=${VERSION} \
