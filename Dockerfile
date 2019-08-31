@@ -1,5 +1,7 @@
-FROM golang:1.12.4 as builder
+# syntax=docker/dockerfile:experimental
+FROM --platform=amd64 golang:1.12.4 as builder
 
+ARG TARGETPLATFORM
 ARG VERSION
 
 WORKDIR /app
@@ -9,11 +11,9 @@ RUN go version
 RUN go mod download
 COPY . ./
 RUN cp /usr/local/go/lib/time/zoneinfo.zip ./
-RUN CGO_ENABLED=0 GOOS=linux go build \
-  -ldflags "-w -s -X 'main.version=${VERSION}'" \
-  -v -o ddns-route53 cmd/main.go
+RUN bash gobuild.sh ${TARGETPLATFORM} ${VERSION}
 
-FROM alpine:latest
+FROM --platform=$TARGETPLATFORM alpine:latest
 
 LABEL maintainer="CrazyMax" \
   org.label-schema.name="ddns-route53" \
@@ -23,7 +23,8 @@ LABEL maintainer="CrazyMax" \
   org.label-schema.vendor="CrazyMax" \
   org.label-schema.schema-version="1.0"
 
-RUN apk --update --no-cache add \
+RUN uname -a \
+  && apk --update --no-cache add \
     ca-certificates \
     libressl \
     tzdata \
