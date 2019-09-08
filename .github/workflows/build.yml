@@ -61,6 +61,8 @@ jobs:
           echo "##[set-env name=DOCKER_IMAGE;]crazymax/${{ github.event.repository.name }}"
           echo "##[set-env name=QUAY_USERNAME;]crazymax"
           echo "##[set-env name=QUAY_IMAGE;]quay.io/crazymax/${{ github.event.repository.name }}"
+          echo "##[set-env name=GITHUB_PKG_USERNAME;]${{ github.event.repository.owner.name }}"
+          echo "##[set-env name=GITHUB_PKG_IMAGE;]docker.pkg.github.com/${GITHUB_REPOSITORY}/${{ github.event.repository.name }}"
       -
         name: Set up Buildx
         env:
@@ -117,6 +119,8 @@ jobs:
             --label "org.label-schema.vcs-ref=${GITHUB_SHA::8}" \
             --tag "${DOCKER_IMAGE}:${VERSION}" \
             --tag "${DOCKER_IMAGE}:latest" \
+            --tag "${GITHUB_PKG_IMAGE}:${VERSION}" \
+            --tag "${GITHUB_PKG_IMAGE}:latest" \
             --file Dockerfile .
       -
         name: Docker Build (quay.io)
@@ -153,9 +157,11 @@ jobs:
           PREFER_BUILDCTL: 1
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin
           echo "${QUAY_PASSWORD}" | docker login quay.io --username "${QUAY_USERNAME}" --password-stdin
+          echo "${GITHUB_TOKEN}" | docker login docker.pkg.github.com --username "${GITHUB_PKG_USERNAME}" --password-stdin
       -
         name: Docker Buildx (push)
         if: success() && startsWith(github.ref, 'refs/tags/v')
@@ -174,6 +180,8 @@ jobs:
             --label "org.label-schema.vcs-ref=${GITHUB_SHA::8}" \
             --tag "${DOCKER_IMAGE}:${VERSION}" \
             --tag "${DOCKER_IMAGE}:latest" \
+            --tag "${GITHUB_PKG_IMAGE}:${VERSION}" \
+            --tag "${GITHUB_PKG_IMAGE}:latest" \
             --file Dockerfile .
       -
         name: Docker Push (quay.io)
@@ -194,3 +202,4 @@ jobs:
         run: |
           docker buildx imagetools inspect ${DOCKER_IMAGE}:${VERSION}
           docker buildx imagetools inspect ${QUAY_IMAGE}:${VERSION}
+          docker buildx imagetools inspect ${GITHUB_PKG_IMAGE}:${VERSION}
