@@ -1,9 +1,6 @@
 # syntax=docker/dockerfile:experimental
 FROM --platform=amd64 golang:1.12.4 as builder
 
-ARG TARGETPLATFORM
-ARG VERSION
-
 WORKDIR /app
 COPY go.mod .
 COPY go.sum .
@@ -11,6 +8,10 @@ RUN go version
 RUN go mod download
 COPY . ./
 RUN cp /usr/local/go/lib/time/zoneinfo.zip ./
+
+ARG TARGETPLATFORM
+ARG VERSION
+
 RUN bash gobuild.sh ${TARGETPLATFORM} ${VERSION}
 
 FROM --platform=$TARGETPLATFORM alpine:latest
