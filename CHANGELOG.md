@@ -1,9 +1,5 @@
 # Changelog
 
-## 1.3.3 (2019/09/08)
-
-* Push Docker image to [GitHub Package Registry](https://github.com/features/package-registry) (see [this blog post](https://github.blog/changelog/2019-09-06-publishing-a-package-no-longer-creates-a-release-and-other-github-package-registry-updates/))
-
 ## 1.3.2 (2019/08/31)
 
 * Reenable multi-platform Docker images (Issue #4)
