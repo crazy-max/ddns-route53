@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.3 (2019/09/08)
+
+* Fix DockerHub latest tag
+
 ## 1.3.2 (2019/08/31)
 
 * Reenable multi-platform Docker images (Issue #4)
