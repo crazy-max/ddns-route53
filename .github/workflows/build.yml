@@ -112,7 +112,6 @@ jobs:
           PREFER_BUILDCTL: 1
         run: |
           docker buildx build --platform ${DOCKER_PLATFORMS} --progress plain \
-            --cache-to "type=local,mode=max,dest=bin/buildxcache" \
             --output "type=image,push=false" \
             --build-arg "VERSION=${VERSION}" \
             --label "org.label-schema.build-date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
@@ -173,7 +172,6 @@ jobs:
           PREFER_BUILDCTL: 1
         run: |
           docker buildx build --platform ${DOCKER_PLATFORMS} --progress plain \
-            --cache-from "type=local,src=bin/buildxcache" \
             --output "type=image,push=true" \
             --build-arg "VERSION=${VERSION}" \
             --label "org.label-schema.build-date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
