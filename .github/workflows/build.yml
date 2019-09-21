@@ -2,80 +2,35 @@ name: build
 
 on:
   pull_request:
-    branches:
-      - master
+    branches: master
   push:
-    branches:
-      - master
-    tags:
-      - v*
+    branches: master
+    tags: v*
 
 jobs:
-  release:
+  init:
     runs-on: ubuntu-latest
     steps:
       -
-        name: Dump GitHub env
-        run: |
-          env
-      -
-        name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: |
-          echo "$GITHUB_CONTEXT"
-      -
-        name: Init (push branch)
+        name: Prepare
+        id: prepare
         if: startsWith(github.ref, 'refs/heads/')
         run: |
-          echo "##[set-env name=VERSION;]${GITHUB_REF#refs/heads/}"
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            echo ::set-output name=tag_name::${GITHUB_REF#refs/tags/}
+            echo ::set-output name=version::${GITHUB_REF#refs/tags/v}
+          else
+            echo ::set-output name=version::snapshot
+          fi
+          echo ::set-output name=docker_platforms::linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/386,linux/ppc64le,linux/s390x
+  go:
+    runs-on: ubuntu-latest
+    needs: init
+    steps:
       -
-        name: Init (push tag)
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          echo "##[set-env name=TAG_NAME;]${GITHUB_REF#refs/tags/}"
-          echo "##[set-env name=VERSION;]${GITHUB_REF#refs/tags/v}"
-      -
-        name: Init (pull request)
-        if: github.event_name == 'pull_request'
-        run: |
-          echo "##[set-env name=VERSION;]PR-$(basename ${{ github.event.pull_request.url }})"
-      -
-        name: Set up Docker
-        env:
-          DOCKER_CLI_EXPERIMENTAL: enabled
-          DOCKER_BUILDKIT: 1
-          PREFER_BUILDCTL: 1
-        run: |
-          sudo apt-get remove docker docker-engine docker.io containerd runc
-          sudo apt-get update
-          sudo apt-get install apt-transport-https ca-certificates curl gnupg-agent software-properties-common
-          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-          sudo apt-key fingerprint 0EBFCD88
-          sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-          sudo apt-get update
-          sudo apt-get install docker-ce docker-ce-cli containerd.io qemu-user-static
-          docker info
-
-          echo "##[set-env name=DOCKER_USERNAME;]crazymax"
-          echo "##[set-env name=DOCKER_IMAGE;]crazymax/${{ github.event.repository.name }}"
-          echo "##[set-env name=QUAY_USERNAME;]crazymax"
-          echo "##[set-env name=QUAY_IMAGE;]quay.io/crazymax/${{ github.event.repository.name }}"
-      -
-        name: Set up Buildx
-        env:
-          DOCKER_CLI_EXPERIMENTAL: enabled
-          DOCKER_BUILDKIT: 1
-          PREFER_BUILDCTL: 1
-        run: |
-          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-          docker buildx version
-          docker buildx create --name builder --use
-          docker buildx inspect --bootstrap
-          docker buildx ls
-      -
+        # https://github.com/actions/setup-go
         name: Set up Go
-        uses: actions/setup-go@v1
+        uses: actions/setup-go@master
         with:
           go-version: 1.12.4
       -
@@ -85,72 +40,71 @@ jobs:
           echo "##[set-env name=GOPATH;]$(dirname $GITHUB_WORKSPACE)"
           echo "##[add-path]$(dirname $GITHUB_WORKSPACE)/bin"
       -
+        # https://github.com/actions/checkout
         name: Checkout
         uses: actions/checkout@v1
       -
+        # https://github.com/crazy-max/ghaction-goreleaser
         name: GoReleaser
-        run: |
-          curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh -s v0.117.0
-          if [[ -z "$TAG_NAME" ]]; then
-            echo GoReleaser Snapshot
-            ./bin/goreleaser release --snapshot --rm-dist
-          else
-            echo GoReleaser Release
-            ./bin/goreleaser release --skip-publish --rm-dist
-            rm -f dist/CHANGELOG.md dist/config.yaml
-          fi
-          ls -al dist/
+        uses: crazy-max/ghaction-goreleaser@master
+        with:
+          version: latest
+          args: release --skip-publish --rm-dist
+      -
+        # https://github.com/softprops/action-gh-release
+        name: GitHub Release
+        uses: softprops/action-gh-release@v1
+        if: success() && startsWith(github.ref, 'refs/tags/')
+        with:
+          draft: true
+          files: release/*
+          name: ${{ jobs.init.steps.prepare.outputs.tag_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  docker:
+    runs-on: ubuntu-latest
+    needs: [init, go]
+    steps:
+      -
+        # https://github.com/crazy-max/ghaction-docker-buildx
+        name: Set up Docker Buildx
+        uses: crazy-max/ghaction-docker-buildx@master
+        with:
+          version: latest
+      -
+        # https://github.com/actions/checkout
+        name: Checkout
+        uses: actions/checkout@v1
       -
         name: Docker Buildx (no push)
         if: startsWith(github.ref, 'refs/heads/') || github.event_name == 'pull_request'
-        env:
-          DOCKER_PLATFORMS: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/386,linux/ppc64le,linux/s390x
-          DOCKER_CLI_EXPERIMENTAL: enabled
-          DOCKER_BUILDKIT: 1
-          PREFER_BUILDCTL: 1
         run: |
-          docker buildx build --platform ${DOCKER_PLATFORMS} --progress plain \
+          docker buildx build --platform ${{ jobs.init.steps.prepare.outputs.docker_platforms }} \
             --output "type=image,push=false" \
-            --build-arg "VERSION=${VERSION}" \
+            --build-arg "VERSION=${{ jobs.init.steps.prepare.outputs.version }}" \
             --label "org.label-schema.build-date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
-            --label "org.label-schema.version=${VERSION}" \
+            --label "org.label-schema.version=${{ jobs.init.steps.prepare.outputs.version }}" \
             --label "org.label-schema.vcs-ref=${GITHUB_SHA::8}" \
             --tag "${DOCKER_IMAGE}:latest" \
-            --tag "${DOCKER_IMAGE}:${VERSION}" \
+            --tag "${DOCKER_IMAGE}:${{ jobs.init.steps.prepare.outputs.version }}" \
             --file Dockerfile .
       -
-        name: Docker Build (quay.io)
-        env:
-          DOCKER_CLI_EXPERIMENTAL: enabled
-          DOCKER_BUILDKIT: 1
-          PREFER_BUILDCTL: 1
         # quay does not currently support multi-arch images
         # https://github.com/moby/buildkit/issues/409
+        name: Docker Build (quay.io)
         run: |
           docker build \
-            --build-arg VERSION=${VERSION} \
+            --build-arg VERSION=${{ jobs.init.steps.prepare.outputs.version }} \
             --label "org.label-schema.build-date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
-            --label "org.label-schema.version=${VERSION}" \
+            --label "org.label-schema.version=${{ jobs.init.steps.prepare.outputs.version }}" \
             --label "org.label-schema.vcs-ref=${GITHUB_SHA::8}" \
-            --tag "${QUAY_IMAGE}:${VERSION}" \
+            --tag "${QUAY_IMAGE}:${{ jobs.init.steps.prepare.outputs.version }}" \
             --tag "${QUAY_IMAGE}:latest" \
             --file Dockerfile .
-      -
-        name: GitHub Release
-        if: success() && startsWith(github.ref, 'refs/tags/v')
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          go get -u github.com/tcnksm/ghr
-          ghr --version
-          ghr -n ${TAG_NAME} -draft ${TAG_NAME} dist/
       -
         name: Docker Login
         if: success() && startsWith(github.ref, 'refs/tags/v')
         env:
-          DOCKER_CLI_EXPERIMENTAL: enabled
-          DOCKER_BUILDKIT: 1
-          PREFER_BUILDCTL: 1
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
         run: |
@@ -159,40 +113,27 @@ jobs:
       -
         name: Docker Buildx (push)
         if: success() && startsWith(github.ref, 'refs/tags/v')
-        env:
-          DOCKER_PLATFORMS: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/386,linux/ppc64le,linux/s390x
-          DOCKER_CLI_EXPERIMENTAL: enabled
-          DOCKER_BUILDKIT: 1
-          PREFER_BUILDCTL: 1
         run: |
-          docker buildx build --platform ${DOCKER_PLATFORMS} --progress plain \
+          docker buildx build --platform ${{ jobs.init.steps.prepare.outputs.docker_platforms }} \
             --output "type=image,push=true" \
-            --build-arg "VERSION=${VERSION}" \
+            --build-arg "VERSION=${{ jobs.init.steps.prepare.outputs.version }}" \
             --label "org.label-schema.build-date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
-            --label "org.label-schema.version=${VERSION}" \
+            --label "org.label-schema.version=${{ jobs.init.steps.prepare.outputs.version }}" \
             --label "org.label-schema.vcs-ref=${GITHUB_SHA::8}" \
-            --tag "${DOCKER_IMAGE}:${VERSION}" \
+            --tag "${DOCKER_IMAGE}:${{ jobs.init.steps.prepare.outputs.version }}" \
             --tag "${DOCKER_IMAGE}:latest" \
             --file Dockerfile .
       -
         name: Docker Push (quay.io)
         if: success() && startsWith(github.ref, 'refs/tags/v')
-        env:
-          DOCKER_CLI_EXPERIMENTAL: enabled
-          DOCKER_BUILDKIT: 1
-          PREFER_BUILDCTL: 1
         run: |
           docker push ${QUAY_IMAGE}
       -
         name: Docker Check Manifest
         if: always() && startsWith(github.ref, 'refs/tags/v')
-        env:
-          DOCKER_CLI_EXPERIMENTAL: enabled
-          DOCKER_BUILDKIT: 1
-          PREFER_BUILDCTL: 1
         run: |
-          docker buildx imagetools inspect ${DOCKER_IMAGE}:${VERSION}
-          docker buildx imagetools inspect ${QUAY_IMAGE}:${VERSION}
+          docker run --rm mplatform/mquery ${DOCKER_IMAGE}:${{ jobs.init.steps.prepare.outputs.version }}
+          docker run --rm mplatform/mquery ${QUAY_IMAGE}:${{ jobs.init.steps.prepare.outputs.version }}
       -
         name: Clear
         if: always() && startsWith(github.ref, 'refs/tags/v')
