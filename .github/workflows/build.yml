@@ -65,7 +65,11 @@ jobs:
           else
             echo ::set-output name=version::snapshot
           fi
-          echo ::set-output name=docker_platforms::linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/386,linux/ppc64le,linux/s390x
+          echo ::set-output name=platforms::linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/386,linux/ppc64le,linux/s390x
+          echo ::set-output name=docker_username::crazymax
+          echo ::set-output name=docker_image::crazymax/${{ github.event.repository.name }}
+          echo ::set-output name=quay_username::crazymax
+          echo ::set-output name=quay_image::quay.io/crazymax/${{ github.event.repository.name }}
       -
         # https://github.com/crazy-max/ghaction-docker-buildx
         name: Set up Docker Buildx
@@ -80,14 +84,14 @@ jobs:
         name: Docker Buildx (no push)
         if: startsWith(github.ref, 'refs/heads/') || github.event_name == 'pull_request'
         run: |
-          docker buildx build --platform ${{ steps.prepare.outputs.docker_platforms }} \
+          docker buildx build --platform ${{ steps.prepare.outputs.platforms }} \
             --output "type=image,push=false" \
             --build-arg "VERSION=${{ steps.prepare.outputs.version }}" \
             --label "org.label-schema.build-date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
             --label "org.label-schema.version=${{ steps.prepare.outputs.version }}" \
             --label "org.label-schema.vcs-ref=${GITHUB_SHA::8}" \
-            --tag "${DOCKER_IMAGE}:latest" \
-            --tag "${DOCKER_IMAGE}:${{ steps.prepare.outputs.version }}" \
+            --tag "${{ steps.prepare.outputs.docker_image }}:latest" \
+            --tag "${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }}" \
             --file Dockerfile .
       -
         # quay does not currently support multi-arch images
@@ -99,8 +103,8 @@ jobs:
             --label "org.label-schema.build-date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
             --label "org.label-schema.version=${{ steps.prepare.outputs.version }}" \
             --label "org.label-schema.vcs-ref=${GITHUB_SHA::8}" \
-            --tag "${QUAY_IMAGE}:${{ steps.prepare.outputs.version }}" \
-            --tag "${QUAY_IMAGE}:latest" \
+            --tag "${{ steps.prepare.outputs.quay_image }}:${{ steps.prepare.outputs.version }}" \
+            --tag "${{ steps.prepare.outputs.quay_image }}:latest" \
             --file Dockerfile .
       -
         name: Docker Login
@@ -109,32 +113,32 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
         run: |
-          echo "${DOCKER_PASSWORD}" | docker login --username "${DOCKER_USERNAME}" --password-stdin
-          echo "${QUAY_PASSWORD}" | docker login quay.io --username "${QUAY_USERNAME}" --password-stdin
+          echo "${DOCKER_PASSWORD}" | docker login --username "${{ steps.prepare.outputs.docker_username }}" --password-stdin
+          echo "${QUAY_PASSWORD}" | docker login quay.io --username "${{ steps.prepare.outputs.quay_username }}" --password-stdin
       -
         name: Docker Buildx (push)
         if: success() && startsWith(github.ref, 'refs/tags/v')
         run: |
-          docker buildx build --platform ${{ steps.prepare.outputs.docker_platforms }} \
+          docker buildx build --platform ${{ steps.prepare.outputs.platforms }} \
             --output "type=image,push=true" \
             --build-arg "VERSION=${{ steps.prepare.outputs.version }}" \
             --label "org.label-schema.build-date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
             --label "org.label-schema.version=${{ steps.prepare.outputs.version }}" \
             --label "org.label-schema.vcs-ref=${GITHUB_SHA::8}" \
-            --tag "${DOCKER_IMAGE}:${{ steps.prepare.outputs.version }}" \
-            --tag "${DOCKER_IMAGE}:latest" \
+            --tag "${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }}" \
+            --tag "${{ steps.prepare.outputs.docker_image }}:latest" \
             --file Dockerfile .
       -
         name: Docker Push (quay.io)
         if: success() && startsWith(github.ref, 'refs/tags/v')
         run: |
-          docker push ${QUAY_IMAGE}
+          docker push ${{ steps.prepare.outputs.quay_image }}
       -
         name: Docker Check Manifest
         if: always() && startsWith(github.ref, 'refs/tags/v')
         run: |
-          docker run --rm mplatform/mquery ${DOCKER_IMAGE}:${{ steps.prepare.outputs.version }}
-          docker run --rm mplatform/mquery ${QUAY_IMAGE}:${{ steps.prepare.outputs.version }}
+          docker run --rm mplatform/mquery ${{ steps.prepare.outputs.docker_image }}:${{ steps.prepare.outputs.version }}
+          docker run --rm mplatform/mquery ${{ steps.prepare.outputs.quay_image }}:${{ steps.prepare.outputs.version }}
       -
         name: Clear
         if: always() && startsWith(github.ref, 'refs/tags/v')
