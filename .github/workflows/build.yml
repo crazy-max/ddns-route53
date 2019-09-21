@@ -8,7 +8,7 @@ on:
     tags: v*
 
 jobs:
-  init:
+  go:
     runs-on: ubuntu-latest
     steps:
       -
@@ -18,15 +18,7 @@ jobs:
         run: |
           if [[ $GITHUB_REF == refs/tags/* ]]; then
             echo ::set-output name=tag_name::${GITHUB_REF#refs/tags/}
-            echo ::set-output name=version::${GITHUB_REF#refs/tags/v}
-          else
-            echo ::set-output name=version::snapshot
           fi
-          echo ::set-output name=docker_platforms::linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/386,linux/ppc64le,linux/s390x
-  go:
-    runs-on: ubuntu-latest
-    needs: init
-    steps:
       -
         # https://github.com/actions/setup-go
         name: Set up Go
@@ -58,13 +50,24 @@ jobs:
         with:
           draft: true
           files: release/*
-          name: ${{ jobs.init.steps.prepare.outputs.tag_name }}
+          name: ${{ steps.prepare.outputs.tag_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   docker:
     runs-on: ubuntu-latest
-    needs: [init, go]
+    needs: go
     steps:
+      -
+        name: Prepare
+        id: prepare
+        if: startsWith(github.ref, 'refs/heads/')
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            echo ::set-output name=version::${GITHUB_REF#refs/tags/v}
+          else
+            echo ::set-output name=version::snapshot
+          fi
+          echo ::set-output name=docker_platforms::linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64,linux/386,linux/ppc64le,linux/s390x
       -
         # https://github.com/crazy-max/ghaction-docker-buildx
         name: Set up Docker Buildx
@@ -79,14 +82,14 @@ jobs:
         name: Docker Buildx (no push)
         if: startsWith(github.ref, 'refs/heads/') || github.event_name == 'pull_request'
         run: |
-          docker buildx build --platform ${{ jobs.init.steps.prepare.outputs.docker_platforms }} \
+          docker buildx build --platform ${{ steps.prepare.outputs.docker_platforms }} \
             --output "type=image,push=false" \
-            --build-arg "VERSION=${{ jobs.init.steps.prepare.outputs.version }}" \
+            --build-arg "VERSION=${{ steps.prepare.outputs.version }}" \
             --label "org.label-schema.build-date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
-            --label "org.label-schema.version=${{ jobs.init.steps.prepare.outputs.version }}" \
+            --label "org.label-schema.version=${{ steps.prepare.outputs.version }}" \
             --label "org.label-schema.vcs-ref=${GITHUB_SHA::8}" \
             --tag "${DOCKER_IMAGE}:latest" \
-            --tag "${DOCKER_IMAGE}:${{ jobs.init.steps.prepare.outputs.version }}" \
+            --tag "${DOCKER_IMAGE}:${{ steps.prepare.outputs.version }}" \
             --file Dockerfile .
       -
         # quay does not currently support multi-arch images
@@ -94,11 +97,11 @@ jobs:
         name: Docker Build (quay.io)
         run: |
           docker build \
-            --build-arg VERSION=${{ jobs.init.steps.prepare.outputs.version }} \
+            --build-arg VERSION=${{ steps.prepare.outputs.version }} \
             --label "org.label-schema.build-date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
-            --label "org.label-schema.version=${{ jobs.init.steps.prepare.outputs.version }}" \
+            --label "org.label-schema.version=${{ steps.prepare.outputs.version }}" \
             --label "org.label-schema.vcs-ref=${GITHUB_SHA::8}" \
-            --tag "${QUAY_IMAGE}:${{ jobs.init.steps.prepare.outputs.version }}" \
+            --tag "${QUAY_IMAGE}:${{ steps.prepare.outputs.version }}" \
             --tag "${QUAY_IMAGE}:latest" \
             --file Dockerfile .
       -
@@ -114,13 +117,13 @@ jobs:
         name: Docker Buildx (push)
         if: success() && startsWith(github.ref, 'refs/tags/v')
         run: |
-          docker buildx build --platform ${{ jobs.init.steps.prepare.outputs.docker_platforms }} \
+          docker buildx build --platform ${{ steps.prepare.outputs.docker_platforms }} \
             --output "type=image,push=true" \
-            --build-arg "VERSION=${{ jobs.init.steps.prepare.outputs.version }}" \
+            --build-arg "VERSION=${{ steps.prepare.outputs.version }}" \
             --label "org.label-schema.build-date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
-            --label "org.label-schema.version=${{ jobs.init.steps.prepare.outputs.version }}" \
+            --label "org.label-schema.version=${{ steps.prepare.outputs.version }}" \
             --label "org.label-schema.vcs-ref=${GITHUB_SHA::8}" \
-            --tag "${DOCKER_IMAGE}:${{ jobs.init.steps.prepare.outputs.version }}" \
+            --tag "${DOCKER_IMAGE}:${{ steps.prepare.outputs.version }}" \
             --tag "${DOCKER_IMAGE}:latest" \
             --file Dockerfile .
       -
@@ -132,8 +135,8 @@ jobs:
         name: Docker Check Manifest
         if: always() && startsWith(github.ref, 'refs/tags/v')
         run: |
-          docker run --rm mplatform/mquery ${DOCKER_IMAGE}:${{ jobs.init.steps.prepare.outputs.version }}
-          docker run --rm mplatform/mquery ${QUAY_IMAGE}:${{ jobs.init.steps.prepare.outputs.version }}
+          docker run --rm mplatform/mquery ${DOCKER_IMAGE}:${{ steps.prepare.outputs.version }}
+          docker run --rm mplatform/mquery ${QUAY_IMAGE}:${{ steps.prepare.outputs.version }}
       -
         name: Clear
         if: always() && startsWith(github.ref, 'refs/tags/v')
