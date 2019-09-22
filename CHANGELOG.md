@@ -7,6 +7,7 @@
   * Use softprops/action-gh-release to create GitHub release
   * Use [ghaction-goreleaser](https://github.com/crazy-max/ghaction-goreleaser) GitHub Action
   * Use [ghaction-docker-buildx](https://github.com/crazy-max/ghaction-docker-buildx) GitHub Action
+* Stop publishing Docker image on Quay
 
 ## 1.3.3 (2019/09/08)
 

@@ -1,8 +1,8 @@
 # Installation with Docker
 
-ddns-route53 provides automatically updated Docker :whale: images within [Docker Hub](https://hub.docker.com/r/crazymax/ddns-route53) and [Quay](https://quay.io/repository/crazymax/ddns-route53). It is possible to always use the latest stable tag or to use another service that handles updating Docker images.
+ddns-route53 provides automatically updated Docker :whale: images within [Docker Hub](https://hub.docker.com/r/crazymax/ddns-route53). It is possible to always use the latest stable tag or to use another service that handles updating Docker images.
 
-Following multi-platform images are available through Docker Hub:
+Following multi-platform images are available:
 
 ```
 $ docker run --rm mplatform/mquery crazymax/ddns-route53:latest
