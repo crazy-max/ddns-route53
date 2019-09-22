@@ -48,7 +48,10 @@ jobs:
         if: success() && startsWith(github.ref, 'refs/tags/')
         with:
           draft: true
-          files: release/*
+          files: |
+            dist/checksums.txt
+            dist/*.tar.gz
+            dist/*.zip
           name: ${{ steps.prepare.outputs.tag_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
