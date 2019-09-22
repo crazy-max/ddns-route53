@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.4 (2019/09/22)
+
+* Use GOPROXY
+* Update workflow
+  * Use softprops/action-gh-release to create GitHub release
+  * Use [ghaction-goreleaser](https://github.com/crazy-max/ghaction-goreleaser) GitHub Action
+  * Use [ghaction-docker-buildx](https://github.com/crazy-max/ghaction-docker-buildx) GitHub Action
+
 ## 1.3.3 (2019/09/08)
 
 * Fix DockerHub latest tag
