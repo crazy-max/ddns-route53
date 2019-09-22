@@ -48,5 +48,9 @@ echo "GOOS=${GOOS}"
 echo "GOARCH=${GOARCH}"
 echo "GOARM=${GOARM}"
 
-CGO_ENABLED=0 go env
-CGO_ENABLED=0 go build -ldflags "-w -s -X 'main.version=${VERSION}'" -v -o ddns-route53 cmd/main.go
+export CGO_ENABLED=0
+export GO111MODULE=on
+export GOPROXY=https://goproxy.io
+
+go env
+go build -ldflags "-w -s -X 'main.version=${VERSION}'" -v -o ddns-route53 cmd/main.go
