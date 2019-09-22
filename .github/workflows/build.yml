@@ -100,6 +100,7 @@ jobs:
         run: |
           docker build \
             --build-arg VERSION=${{ steps.prepare.outputs.version }} \
+            --build-arg TARGETPLATFORM=linux/amd64 \
             --label "org.label-schema.build-date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
             --label "org.label-schema.version=${{ steps.prepare.outputs.version }}" \
             --label "org.label-schema.vcs-ref=${GITHUB_SHA::8}" \
