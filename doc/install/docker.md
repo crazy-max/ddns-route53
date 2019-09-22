@@ -2,7 +2,23 @@
 
 ddns-route53 provides automatically updated Docker :whale: images within [Docker Hub](https://hub.docker.com/r/crazymax/ddns-route53) and [Quay](https://quay.io/repository/crazymax/ddns-route53). It is possible to always use the latest stable tag or to use another service that handles updating Docker images.
 
-Environment variables can be used within your container :
+Following multi-platform images are available through DockerHub:
+
+```
+$ docker run --rm mplatform/mquery crazymax/ddns-route53:latest
+Image: crazymax/ddns-route53:latest
+ * Manifest List: Yes
+ * Supported platforms:
+   - linux/amd64
+   - linux/arm/v6
+   - linux/arm/v7
+   - linux/arm64
+   - linux/386
+   - linux/ppc64le
+   - linux/s390x
+```
+
+Environment variables can be used within your container:
 
 * `TZ` : Timezone assigned to ddns-route53
 * `SCHEDULE` : [CRON expression](https://godoc.org/github.com/crazy-max/cron#hdr-CRON_Expression_Format) to schedule ddns-route53
