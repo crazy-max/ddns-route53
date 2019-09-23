@@ -24,8 +24,7 @@ LABEL maintainer="CrazyMax" \
   org.label-schema.vendor="CrazyMax" \
   org.label-schema.schema-version="1.0"
 
-RUN uname -a \
-  && apk --update --no-cache add \
+RUN apk --update --no-cache add \
     ca-certificates \
     libressl \
     tzdata \
