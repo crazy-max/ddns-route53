@@ -37,6 +37,8 @@ LABEL maintainer="CrazyMax" \
   org.label-schema.vendor="CrazyMax" \
   org.label-schema.schema-version="1.0"
 
+ENV TZ="UTC"
+
 RUN apk --update --no-cache add \
     ca-certificates \
     libressl \
