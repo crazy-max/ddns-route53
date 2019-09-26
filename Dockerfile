@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:experimental
-FROM --platform=${TARGETPLATFORM:-linux/amd64} golang:1.12.4-alpine as builder
+FROM --platform=${TARGETPLATFORM:-linux/amd64} golang:1.12-alpine as builder
 
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
@@ -19,6 +19,7 @@ ENV GOPROXY https://goproxy.io
 COPY go.mod .
 COPY go.sum .
 RUN go version
+RUN go mod tidy
 RUN go mod download
 COPY . ./
 
