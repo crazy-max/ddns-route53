@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:experimental
-FROM --platform=${BUILDPLATFORM:-linux/amd64} golang:1.12.4-alpine as builder
+FROM --platform=${TARGETPLATFORM:-linux/amd64} golang:1.12.4-alpine as builder
 
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
@@ -23,9 +23,7 @@ RUN go mod download
 COPY . ./
 
 ARG VERSION=dev
-ENV GO111MODULE on
-ENV GOPROXY https://goproxy.io
-RUN bash gobuild.sh ${TARGETPLATFORM} ${VERSION}
+RUN go build -ldflags "-w -s -X 'main.version=${VERSION}'" -v -o ddns-route53 cmd/main.go
 
 FROM --platform=${TARGETPLATFORM:-linux/amd64} alpine:latest
 
@@ -37,13 +35,10 @@ LABEL maintainer="CrazyMax" \
   org.label-schema.vendor="CrazyMax" \
   org.label-schema.schema-version="1.0"
 
-ENV TZ="UTC"
-
 RUN apk --update --no-cache add \
     ca-certificates \
     libressl \
     shadow \
-    tzdata \
   && addgroup -g 1000 ddns-route53 \
   && adduser -u 1000 -G ddns-route53 -s /sbin/nologin -D ddns-route53 \
   && rm -rf /tmp/* /var/cache/apk/*
