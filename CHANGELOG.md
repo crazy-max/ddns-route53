@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.0 (2019/09/26)
+
+* Run container as non-root user
+
 ## 1.3.4 (2019/09/22)
 
 * Use GOPROXY
