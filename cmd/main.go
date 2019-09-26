@@ -6,11 +6,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/alecthomas/kingpin"
 	"github.com/crazy-max/ddns-route53/internal/app"
 	"github.com/crazy-max/ddns-route53/internal/config"
 	"github.com/crazy-max/ddns-route53/internal/logging"
 	"github.com/rs/zerolog/log"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 var (
