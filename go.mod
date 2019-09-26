@@ -10,3 +10,5 @@ require (
 	github.com/rs/zerolog v1.14.3
 	gopkg.in/yaml.v3 v3.0.0-20190924164351-c8b7dadae555
 )
+
+replace golang.org/x/crypto => golang.org/x/crypto v0.0.0-20190926180335-cea2066c6411
