@@ -1,12 +1,20 @@
 # syntax=docker/dockerfile:experimental
-FROM --platform=${BUILDPLATFORM:-linux/amd64} golang:1.12.4-alpine as builder
+FROM --platform=${BUILDPLATFORM:-linux/amd64} golang:1.12.10-alpine as builder
 
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
 RUN printf "I am running on ${BUILDPLATFORM:-linux/amd64}, building for ${TARGETPLATFORM:-linux/amd64}\n$(uname -a)\n"
 
+RUN [ "$TARGETPLATFORM" = "linux/amd64"   ] && echo GOOS=linux GOARCH=amd64 > /tmp/.env || true
+RUN [ "$TARGETPLATFORM" = "linux/arm/v6"  ] && echo GOOS=linux GOARCH=arm GOARM=6 > /tmp/.env || true
+RUN [ "$TARGETPLATFORM" = "linux/arm/v7"  ] && echo GOOS=linux GOARCH=arm GOARM=7 > /tmp/.env || true
+RUN [ "$TARGETPLATFORM" = "linux/arm64"   ] && echo GOOS=linux GOARCH=arm64 > /tmp/.env || true
+RUN [ "$TARGETPLATFORM" = "linux/386"     ] && echo GOOS=linux GOARCH=386 > /tmp/.env || true
+RUN [ "$TARGETPLATFORM" = "linux/ppc64le" ] && echo GOOS=linux GOARCH=ppc64le > /tmp/.env || true
+RUN [ "$TARGETPLATFORM" = "linux/s390x"   ] && echo GOOS=linux GOARCH=s390x > /tmp/.env || true
+RUN env $(cat /tmp/.env | xargs) go env
+
 RUN apk --update --no-cache add \
-    bash \
     build-base \
     gcc \
     git \
@@ -18,14 +26,11 @@ ENV GO111MODULE on
 ENV GOPROXY https://goproxy.io
 COPY go.mod .
 COPY go.sum .
-RUN go version
-RUN go mod download
+RUN env $(cat /tmp/.env | xargs) go mod download
 COPY . ./
 
 ARG VERSION=dev
-ENV GO111MODULE on
-ENV GOPROXY https://goproxy.io
-RUN bash gobuild.sh ${TARGETPLATFORM} ${VERSION}
+RUN env $(cat /tmp/.env | xargs) go build -ldflags "-w -s -X 'main.version=${VERSION}'" -v -o ddns-route53 cmd/main.go
 
 FROM --platform=${TARGETPLATFORM:-linux/amd64} alpine:latest
 
@@ -37,13 +42,10 @@ LABEL maintainer="CrazyMax" \
   org.label-schema.vendor="CrazyMax" \
   org.label-schema.schema-version="1.0"
 
-ENV TZ="UTC"
-
 RUN apk --update --no-cache add \
     ca-certificates \
     libressl \
     shadow \
-    tzdata \
   && addgroup -g 1000 ddns-route53 \
   && adduser -u 1000 -G ddns-route53 -s /sbin/nologin -D ddns-route53 \
   && rm -rf /tmp/* /var/cache/apk/*
@@ -54,5 +56,5 @@ RUN ddns-route53 --version
 
 USER ddns-route53
 
-ENTRYPOINT [ "ddns-route53" ]
+ENTRYPOINT [ "/usr/local/bin/ddns-route53" ]
 CMD [ "--config", "/ddns-route53.yml" ]
