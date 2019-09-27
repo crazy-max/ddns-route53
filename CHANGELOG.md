@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.1 (2019/09/27)
+
+* Build on respective platforms
+* Update libs
+* Go 1.12.10
+
 ## 1.4.0 (2019/09/26)
 
 * Run container as non-root user
@@ -23,11 +29,11 @@
 
 ## 1.3.1 (2019/08/31)
 
-* Remove multi-platform Docker images, need rework (Issue #4)
+* Remove multi-platform Docker image, need rework (Issue #4)
 
 ## 1.3.0 (2019/08/31)
 
-* Add multi-platform Docker images (Issue #4)
+* Multi-platform Docker image (Issue #4)
 * Remove GitHub Package support
 
 ## 1.2.1 (2019/08/29)
