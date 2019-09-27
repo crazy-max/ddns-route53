@@ -56,5 +56,5 @@ RUN ddns-route53 --version
 
 USER ddns-route53
 
-ENTRYPOINT [ "ddns-route53" ]
+ENTRYPOINT [ "/usr/local/bin/ddns-route53" ]
 CMD [ "--config", "/ddns-route53.yml" ]
