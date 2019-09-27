@@ -7,8 +7,6 @@ require (
 	github.com/aws/aws-sdk-go v1.19.41
 	github.com/hako/durafmt v0.0.0-20190612201238-650ed9f29a84
 	github.com/robfig/cron/v3 v3.0.0
-	github.com/rs/zerolog v1.14.3
+	github.com/rs/zerolog v1.15.0
 	gopkg.in/yaml.v3 v3.0.0-20190924164351-c8b7dadae555
 )
-
-replace golang.org/x/crypto => golang.org/x/crypto v0.0.0-20190926180335-cea2066c6411
