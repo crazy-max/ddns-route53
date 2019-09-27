@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:experimental
-FROM --platform=${BUILDPLATFORM:-linux/amd64} golang:1.12-alpine as builder
+FROM --platform=${BUILDPLATFORM:-linux/amd64} golang:1.12.10-alpine as builder
 
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
