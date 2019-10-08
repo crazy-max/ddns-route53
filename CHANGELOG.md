@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.2 (2019/10/08)
+
+* Allow both IPv4 and IPv6 records (#7)
+* Use Docker buildx action v1
+
 ## 1.4.1 (2019/09/27)
 
 * Build on respective platforms
@@ -8,7 +13,7 @@
 
 ## 1.4.0 (2019/09/26)
 
-* Run container as non-root user
+* :warning: Run Docker container as non-root user
 
 ## 1.3.4 (2019/09/22)
 
@@ -17,7 +22,7 @@
   * Use softprops/action-gh-release to create GitHub release
   * Use [ghaction-goreleaser](https://github.com/crazy-max/ghaction-goreleaser) GitHub Action
   * Use [ghaction-docker-buildx](https://github.com/crazy-max/ghaction-docker-buildx) GitHub Action
-* Stop publishing Docker image on Quay
+* :warning: Stop publishing Docker image on Quay
 
 ## 1.3.3 (2019/09/08)
 

@@ -28,7 +28,7 @@ func main() {
 	kingpin.Flag("log-json", "Enable JSON logging output.").Envar("LOG_JSON").Default("false").BoolVar(&flags.LogJson)
 	kingpin.UsageTemplate(kingpin.CompactUsageTemplate).Version(version).Author("CrazyMax")
 	kingpin.CommandLine.Name = "ddns-route53"
-	kingpin.CommandLine.Help = `Dynamic DNS for Amazon Route 53‎ on a time-based schedule. More info on https://github.com/crazy-max/ddns-route53`
+	kingpin.CommandLine.Help = `Dynamic DNS for Amazon Route 53‎ on a time-based schedule.\nMore info: https://github.com/crazy-max/ddns-route53`
 	kingpin.Parse()
 
 	// Load timezone location
