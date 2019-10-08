@@ -37,7 +37,7 @@ jobs:
       -
         # https://github.com/goreleaser/goreleaser-action
         name: GoReleaser
-        uses: goreleaser/goreleaser-action@master
+        uses: goreleaser/goreleaser-action@v1
         with:
           version: latest
           args: release --skip-publish --rm-dist
