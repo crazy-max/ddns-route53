@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.0 (2019/11/11)
+
+* [aws-sdk-go](https://github.com/aws/aws-sdk-go) 1.25.31
+* Cache go modules
+
 ## 1.4.2 (2019/10/08)
 
 * Allow both IPv4 and IPv6 records (#7)
