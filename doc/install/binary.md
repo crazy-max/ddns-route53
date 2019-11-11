@@ -79,7 +79,7 @@ See how to create [Linux service](linux-service.md) to start ddns-route53 automa
 ### 2. Running from command-line/terminal
 
 ```
-/usr/local/bin/ddns-route53 --config /etc/ddns-route53/ddns-route53.yml --schedule "0 */30 * * * *"
+/usr/local/bin/ddns-route53 --config /etc/ddns-route53/ddns-route53.yml --schedule "*/30 * * * *"
 ```
 
 ## Updating to a new version

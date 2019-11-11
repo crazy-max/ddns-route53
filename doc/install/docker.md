@@ -21,7 +21,7 @@ Image: crazymax/ddns-route53:latest
 Environment variables can be used within your container:
 
 * `TZ` : Timezone assigned to ddns-route53
-* `SCHEDULE` : [CRON expression](https://godoc.org/github.com/crazy-max/cron#hdr-CRON_Expression_Format) to schedule ddns-route53
+* `SCHEDULE` : [CRON expression](https://godoc.org/github.com/robfig/cron#hdr-CRON_Expression_Format) to schedule ddns-route53
 * `LOG_LEVEL` : Log level output (default `info`)
 * `LOG_JSON`: Enable JSON logging output (default `false`)
 
@@ -37,7 +37,7 @@ Or use the following command :
 ```
 docker run -d --name ddns-route53 \
   -e "TZ=Europe/Paris" \
-  -e "SCHEDULE=0 */30 * * * *" \
+  -e "SCHEDULE=*/30 * * * *" \
   -e "LOG_LEVEL=info" \
   -e "LOG_JSON=false" \
   -v "$(pwd)/ddns-route53.yml:/ddns-route53.yml:ro" \

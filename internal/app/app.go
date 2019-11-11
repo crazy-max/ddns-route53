@@ -44,10 +44,12 @@ func New(cfg *config.Configuration, loc *time.Location) (*Client, error) {
 	}
 
 	return &Client{
-		cfg:  cfg,
-		loc:  loc,
-		cron: cron.New(cron.WithLocation(loc), cron.WithSeconds()),
-		r53:  route53.New(sess, &aws.Config{Credentials: creds}),
+		cfg: cfg,
+		loc: loc,
+		cron: cron.New(cron.WithLocation(loc), cron.WithParser(cron.NewParser(
+			cron.SecondOptional|cron.Minute|cron.Hour|cron.Dom|cron.Month|cron.Dow|cron.Descriptor),
+		)),
+		r53: route53.New(sess, &aws.Config{Credentials: creds}),
 	}, nil
 }
 

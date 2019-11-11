@@ -2,6 +2,7 @@
 
 ## 1.5.0 (2019/11/11)
 
+* Seconds field is now optional
 * [aws-sdk-go](https://github.com/aws/aws-sdk-go) 1.25.31
 * Cache go modules
 
