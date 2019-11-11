@@ -28,6 +28,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       -
+        # https://github.com/actions/checkout
+        name: Checkout
+        uses: actions/checkout@v1
+      -
         name: Prepare
         id: prepare
         run: |
@@ -47,9 +51,14 @@ jobs:
           echo "##[set-env name=GOPATH;]$(dirname $GITHUB_WORKSPACE)"
           echo "##[add-path]$(dirname $GITHUB_WORKSPACE)/bin"
       -
-        # https://github.com/actions/checkout
-        name: Checkout
-        uses: actions/checkout@v1
+        # https://github.com/actions/cache
+        name: Cache Go modules
+        uses: actions/cache@v1
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
       -
         # https://github.com/goreleaser/goreleaser-action
         name: GoReleaser
