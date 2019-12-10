@@ -4,7 +4,7 @@ go 1.12
 
 require (
 	github.com/alecthomas/kingpin v0.0.0-20190816080609-dce89ec0b9f1
-	github.com/aws/aws-sdk-go v1.25.48
+	github.com/aws/aws-sdk-go v1.25.49
 	github.com/hako/durafmt v0.0.0-20190612201238-650ed9f29a84
 	github.com/robfig/cron/v3 v3.0.0
 	github.com/rs/zerolog v1.17.2
