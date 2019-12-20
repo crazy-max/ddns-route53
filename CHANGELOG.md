@@ -5,6 +5,8 @@
 * Strengthen WAN IP address retrieval and validation
 * Move ident.me client to pkg
 * Add `--max-retries` flag
+* [aws-sdk-go](https://github.com/aws/aws-sdk-go) 1.26.6
+* Update libs
 * Go 1.13.5
 
 ## 1.5.0 (2019/11/11)
