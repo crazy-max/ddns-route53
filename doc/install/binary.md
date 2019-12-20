@@ -18,7 +18,7 @@ After getting the binary, it can be tested with `./ddns-route53 --help` or moved
 $ ./ddns-route53 --help
 usage: ddns-route53 --config=CONFIG [<flags>]
 
-Dynamic DNS for Amazon Route 53‎ on a time-based schedule. More info on
+Dynamic DNS for Amazon Route 53‎ on a time-based schedule. More info:
 https://github.com/crazy-max/ddns-route53
 
 Flags:
@@ -26,6 +26,7 @@ Flags:
                        --help-man).
   --config=CONFIG      ddns-route53 configuration file.
   --schedule=SCHEDULE  CRON expression format.
+  --max-retries=3      Number of retries in case of WAN IP retrieval failure.
   --timezone="UTC"     Timezone assigned to ddns-route53.
   --log-level="info"   Set log level.
   --log-json           Enable JSON logging output.

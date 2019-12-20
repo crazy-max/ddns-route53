@@ -22,6 +22,7 @@ Environment variables can be used within your container:
 
 * `TZ` : Timezone assigned to ddns-route53
 * `SCHEDULE` : [CRON expression](https://godoc.org/github.com/robfig/cron#hdr-CRON_Expression_Format) to schedule ddns-route53
+* `MAX_RETRIES` : Number of retries in case of WAN IP retrieval failure (default `3`)
 * `LOG_LEVEL` : Log level output (default `info`)
 * `LOG_JSON`: Enable JSON logging output (default `false`)
 

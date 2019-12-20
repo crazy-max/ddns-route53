@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.6.0 (2019/12/20)
+
+* Strengthen WAN IP address retrieval and validation
+* Move ident.me client to pkg
+* Add `--max-retries` flag
+* Go 1.13.5
+
 ## 1.5.0 (2019/11/11)
 
 * Seconds field is now optional

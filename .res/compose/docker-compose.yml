@@ -9,6 +9,7 @@ services:
     environment:
       - "TZ=Europe/Paris"
       - "SCHEDULE=*/30 * * * *"
+      - "MAX_RETRIES=3"
       - "LOG_LEVEL=info"
       - "LOG_JSON=false"
     restart: always

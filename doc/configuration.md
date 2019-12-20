@@ -25,7 +25,7 @@ route53:
   * `secret_access_key`: AWS Secret Key.
 * `route53`
   * `hosted_zone_id`: AWS Route53 hosted zone ID.
-  * `records_set`: Map of records set.
+  * `records_set`: Slice of records set.
     * `name`: AWS Route53 record set name (don't forget to add a dot at the end).
     * `type`: AWS Route53 record set type, can be `A` or `AAAA`.
     * `ttl`: AWS Route53 record TTL (time to live) in seconds.

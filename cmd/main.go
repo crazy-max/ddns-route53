@@ -23,6 +23,7 @@ func main() {
 	// Parse command line
 	kingpin.Flag("config", "ddns-route53 configuration file.").Envar("CONFIG").Required().StringVar(&flags.Cfgfile)
 	kingpin.Flag("schedule", "CRON expression format.").Envar("SCHEDULE").StringVar(&flags.Schedule)
+	kingpin.Flag("max-retries", "Number of retries in case of WAN IP retrieval failure.").Envar("MAX_RETRIES").Default("3").IntVar(&flags.MaxRetries)
 	kingpin.Flag("timezone", "Timezone assigned to ddns-route53.").Envar("TZ").Default("UTC").StringVar(&flags.Timezone)
 	kingpin.Flag("log-level", "Set log level.").Envar("LOG_LEVEL").Default("info").StringVar(&flags.LogLevel)
 	kingpin.Flag("log-json", "Enable JSON logging output.").Envar("LOG_JSON").Default("false").BoolVar(&flags.LogJson)

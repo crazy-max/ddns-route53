@@ -1,12 +1,12 @@
 package config
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
 
 	"github.com/aws/aws-sdk-go/service/route53"
+	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 )
 
@@ -20,11 +20,12 @@ type Configuration struct {
 
 // Flags holds flags from command line
 type Flags struct {
-	Cfgfile  string
-	Schedule string
-	Timezone string
-	LogLevel string
-	LogJson  bool
+	Cfgfile    string
+	Schedule   string
+	MaxRetries int
+	Timezone   string
+	LogLevel   string
+	LogJson    bool
 }
 
 // App holds application details
@@ -76,16 +77,16 @@ func Load(fl Flags, version string) (*Configuration, error) {
 	}
 
 	if _, err = os.Lstat(fl.Cfgfile); err != nil {
-		return nil, fmt.Errorf("unable to open config file, %s", err)
+		return nil, errors.Wrap(err, "unable to open config file")
 	}
 
 	bytes, err := ioutil.ReadFile(fl.Cfgfile)
 	if err != nil {
-		return nil, fmt.Errorf("unable to read config file, %s", err)
+		return nil, errors.Wrap(err, "unable to read config file")
 	}
 
 	if err := yaml.Unmarshal(bytes, &cfg); err != nil {
-		return nil, fmt.Errorf("unable to decode into struct, %v", err)
+		return nil, errors.Wrap(err, "unable to decode into struct")
 	}
 
 	return &cfg, nil
