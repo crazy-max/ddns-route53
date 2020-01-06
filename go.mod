@@ -8,7 +8,7 @@ require (
 	github.com/hako/durafmt v0.0.0-20190612201238-650ed9f29a84
 	github.com/jpillora/backoff v1.0.0
 	github.com/pkg/errors v0.8.1
-	github.com/robfig/cron/v3 v3.0.0
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/rs/zerolog v1.17.2
 	gopkg.in/yaml.v3 v3.0.0-20190924164351-c8b7dadae555
 )
