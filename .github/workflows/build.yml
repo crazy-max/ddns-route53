@@ -127,7 +127,7 @@ jobs:
         name: Docker Buildx (push)
         if: success() && startsWith(github.ref, 'refs/tags/v')
         run: |
-          docker buildx build --output "type=image,push=false" ${{ steps.prepare.outputs.buildx_args }}
+          docker buildx build --output "type=image,push=true" ${{ steps.prepare.outputs.buildx_args }}
       -
         name: Docker Check Manifest
         if: always() && startsWith(github.ref, 'refs/tags/v')
