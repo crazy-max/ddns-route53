@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.7.0 (2020/04/06)
+
+* Switch to kong command-line parser
+* Use Open Container Specification labels as label-schema.org ones are deprecated
+* [aws-sdk-go](https://github.com/aws/aws-sdk-go) 1.30.3
+* Update libs
+
 ## 1.6.0 (2019/12/20)
 
 * Strengthen WAN IP address retrieval and validation
