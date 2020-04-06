@@ -56,7 +56,7 @@ func New(cfg *config.Configuration, loc *time.Location) (*Client, error) {
 		r53: route53.New(sess, &aws.Config{Credentials: creds}),
 		im: identme.NewClient(
 			fmt.Sprintf("ddns-route53/%s go/%s %s", cfg.App.Version, runtime.Version()[2:], strings.Title(runtime.GOOS)),
-			cfg.Flags.MaxRetries,
+			cfg.Cli.MaxRetries,
 		),
 	}, nil
 }
@@ -69,16 +69,16 @@ func (c *Client) Start() error {
 	c.Run()
 
 	// Check scheduler enabled
-	if c.cfg.Flags.Schedule == "" {
+	if c.cfg.Cli.Schedule == "" {
 		return nil
 	}
 
 	// Init scheduler
-	c.jobID, err = c.cron.AddJob(c.cfg.Flags.Schedule, c)
+	c.jobID, err = c.cron.AddJob(c.cfg.Cli.Schedule, c)
 	if err != nil {
 		return err
 	}
-	log.Info().Msgf("Cron initialized with schedule %s", c.cfg.Flags.Schedule)
+	log.Info().Msgf("Cron initialized with schedule %s", c.cfg.Cli.Schedule)
 
 	// Start scheduler
 	c.cron.Start()

@@ -10,7 +10,7 @@ import (
 )
 
 // Configure configures logger
-func Configure(fl *config.Flags, location *time.Location) {
+func Configure(cli *config.Cli, location *time.Location) {
 	var err error
 
 	zerolog.TimestampFunc = func() time.Time {
@@ -22,7 +22,7 @@ func Configure(fl *config.Flags, location *time.Location) {
 		TimeFormat: time.RFC1123,
 	}).With().Timestamp().Logger()
 
-	logLevel, err := zerolog.ParseLevel(fl.LogLevel)
+	logLevel, err := zerolog.ParseLevel(cli.LogLevel)
 	if err != nil {
 		log.Fatal().Err(err).Msgf("Unknown log level")
 	} else {

@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/alecthomas/kong"
 	"github.com/aws/aws-sdk-go/service/route53"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
@@ -12,20 +13,21 @@ import (
 
 // Configuration holds configuration details
 type Configuration struct {
-	Flags       Flags
+	Cli         Cli
 	App         App
 	Credentials Credentials `yaml:"credentials,omitempty"`
 	Route53     Route53     `yaml:"route53,omitempty"`
 }
 
-// Flags holds flags from command line
-type Flags struct {
-	Cfgfile    string
-	Schedule   string
-	MaxRetries int
-	Timezone   string
-	LogLevel   string
-	LogJson    bool
+// Cli holds command line args, flags and cmds
+type Cli struct {
+	Version    kong.VersionFlag
+	Cfgfile    string `kong:"required,name='config',env='CONFIG',help='ddns-route53 configuration file.'"`
+	Schedule   string `kong:"name='schedule',env='SCHEDULE',help='CRON expression format.'"`
+	MaxRetries int    `kong:"name='max-retries',env='MAX_RETRIES',default='3',help='Number of retries in case of WAN IP retrieval failure.'"`
+	Timezone   string `kong:"name='timezone',env='TZ',default='UTC',help='Timezone assigned to ddns-route53.'"`
+	LogLevel   string `kong:"name='log-level',env='LOG_LEVEL',default='info',help='Set log level.'"`
+	LogJSON    bool   `kong:"name='log-json',env='LOG_JSON',default='false',help='Enable JSON logging output.'"`
 }
 
 // App holds application details
@@ -59,10 +61,10 @@ type RecordSet struct {
 }
 
 // Load returns Configuration struct
-func Load(fl Flags, version string) (*Configuration, error) {
+func Load(cli Cli, version string) (*Configuration, error) {
 	var err error
 	var cfg = Configuration{
-		Flags: fl,
+		Cli: cli,
 		App: App{
 			Name:    "ddns-route53",
 			Desc:    "Dynamic DNS for Amazon Route 53‎ on a time-based schedule",
@@ -76,11 +78,11 @@ func Load(fl Flags, version string) (*Configuration, error) {
 		},
 	}
 
-	if _, err = os.Lstat(fl.Cfgfile); err != nil {
+	if _, err = os.Lstat(cli.Cfgfile); err != nil {
 		return nil, errors.Wrap(err, "unable to open config file")
 	}
 
-	bytes, err := ioutil.ReadFile(fl.Cfgfile)
+	bytes, err := ioutil.ReadFile(cli.Cfgfile)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to read config file")
 	}

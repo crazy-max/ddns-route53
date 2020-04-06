@@ -1,12 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"github.com/alecthomas/kingpin"
+	"github.com/alecthomas/kong"
 	"github.com/crazy-max/ddns-route53/internal/app"
 	"github.com/crazy-max/ddns-route53/internal/config"
 	"github.com/crazy-max/ddns-route53/internal/logging"
@@ -15,31 +16,32 @@ import (
 
 var (
 	ddnsRoute53 *app.Client
-	flags       config.Flags
+	cli         config.Cli
 	version     = "dev"
 )
 
 func main() {
 	// Parse command line
-	kingpin.Flag("config", "ddns-route53 configuration file.").Envar("CONFIG").Required().StringVar(&flags.Cfgfile)
-	kingpin.Flag("schedule", "CRON expression format.").Envar("SCHEDULE").StringVar(&flags.Schedule)
-	kingpin.Flag("max-retries", "Number of retries in case of WAN IP retrieval failure.").Envar("MAX_RETRIES").Default("3").IntVar(&flags.MaxRetries)
-	kingpin.Flag("timezone", "Timezone assigned to ddns-route53.").Envar("TZ").Default("UTC").StringVar(&flags.Timezone)
-	kingpin.Flag("log-level", "Set log level.").Envar("LOG_LEVEL").Default("info").StringVar(&flags.LogLevel)
-	kingpin.Flag("log-json", "Enable JSON logging output.").Envar("LOG_JSON").Default("false").BoolVar(&flags.LogJson)
-	kingpin.UsageTemplate(kingpin.CompactUsageTemplate).Version(version).Author("CrazyMax")
-	kingpin.CommandLine.Name = "ddns-route53"
-	kingpin.CommandLine.Help = `Dynamic DNS for Amazon Route 53‎ on a time-based schedule. More info: https://github.com/crazy-max/ddns-route53`
-	kingpin.Parse()
+	_ = kong.Parse(&cli,
+		kong.Name("ddns-route53"),
+		kong.Description(`Dynamic DNS for Amazon Route 53‎ on a time-based schedule. More info: https://github.com/crazy-max/ddns-route53`),
+		kong.UsageOnError(),
+		kong.Vars{
+			"version": fmt.Sprintf("%s", version),
+		},
+		kong.ConfigureHelp(kong.HelpOptions{
+			Compact: true,
+			Summary: true,
+		}))
 
 	// Load timezone location
-	location, err := time.LoadLocation(flags.Timezone)
+	location, err := time.LoadLocation(cli.Timezone)
 	if err != nil {
-		log.Panic().Err(err).Msgf("Cannot load timezone %s", flags.Timezone)
+		log.Panic().Err(err).Msgf("Cannot load timezone %s", cli.Timezone)
 	}
 
 	// Init
-	logging.Configure(&flags, location)
+	logging.Configure(&cli, location)
 	log.Info().Msgf("Starting ddns-route53 %s", version)
 
 	// Handle os signals
@@ -53,7 +55,7 @@ func main() {
 	}()
 
 	// Load and check configuration
-	cfg, err := config.Load(flags, version)
+	cfg, err := config.Load(cli, version)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Cannot load configuration")
 	}
