@@ -1,5 +1,3 @@
-github.com/alecthomas/kong v0.2.8 h1:VSWWkD1TZij2967FcfVwgRwlp3khCA0liZIkUI9hTdU=
-github.com/alecthomas/kong v0.2.8/go.mod h1:kQOmtJgV+Lb4aj+I2LEn40cbtawdWJ9Y8QLq+lElKxE=
 github.com/alecthomas/kong v0.2.9 h1:WGuTS/N2/NQ/9LymVqpr1ifZ4EEkQPvwFHqZs6ak5IU=
 github.com/alecthomas/kong v0.2.9/go.mod h1:kQOmtJgV+Lb4aj+I2LEn40cbtawdWJ9Y8QLq+lElKxE=
 github.com/aws/aws-sdk-go v1.30.18 h1:aRdRUA5V7RMvScHBBg+4elOrSM+5oHsYzUngLuSK6lY=
