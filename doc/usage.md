@@ -1,7 +1,5 @@
 # Usage
 
-## Command line
-
 `ddns-route53 --config=STRING`
 
 * `--help`: Show help text and exit.
