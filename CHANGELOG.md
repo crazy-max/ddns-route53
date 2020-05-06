@@ -1,11 +1,18 @@
 # Changelog
 
+## 1.8.0 (2020/05/06)
+
+* Add `--log-caller` flag
+* Flag `--log-json` not handled
+* [aws-sdk-go](https://github.com/aws/aws-sdk-go) 1.30.20
+* Update deps
+
 ## 1.7.0 (2020/04/06)
 
 * Switch to kong command-line parser
 * Use Open Container Specification labels as label-schema.org ones are deprecated
 * [aws-sdk-go](https://github.com/aws/aws-sdk-go) 1.30.3
-* Update libs
+* Update deps
 
 ## 1.6.0 (2019/12/20)
 
@@ -13,7 +20,7 @@
 * Move ident.me client to pkg
 * Add `--max-retries` flag
 * [aws-sdk-go](https://github.com/aws/aws-sdk-go) 1.26.6
-* Update libs
+* Update deps
 * Go 1.13.5
 
 ## 1.5.0 (2019/11/11)
@@ -30,12 +37,12 @@
 ## 1.4.1 (2019/09/27)
 
 * Build on respective platforms
-* Update libs
+* Update deps
 * Go 1.12.10
 
 ## 1.4.0 (2019/09/26)
 
-* :warning: Run Docker container as non-root user
+* Run Docker container as non-root user
 
 ## 1.3.4 (2019/09/22)
 
@@ -44,7 +51,7 @@
   * Use softprops/action-gh-release to create GitHub release
   * Use [ghaction-goreleaser](https://github.com/crazy-max/ghaction-goreleaser) GitHub Action
   * Use [ghaction-docker-buildx](https://github.com/crazy-max/ghaction-docker-buildx) GitHub Action
-* :warning: Stop publishing Docker image on Quay
+* Stop publishing Docker image on Quay
 
 ## 1.3.3 (2019/09/08)
 

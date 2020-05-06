@@ -16,21 +16,22 @@ After getting the binary, it can be tested with `./ddns-route53 --help` or moved
 
 ```
 $ ./ddns-route53 --help
-usage: ddns-route53 --config=CONFIG [<flags>]
+Usage: ddns-route53 --config=STRING
 
 Dynamic DNS for Amazon Route 53‎ on a time-based schedule. More info:
 https://github.com/crazy-max/ddns-route53
 
 Flags:
-  --help               Show context-sensitive help (also try --help-long and
-                       --help-man).
-  --config=CONFIG      ddns-route53 configuration file.
-  --schedule=SCHEDULE  CRON expression format.
-  --max-retries=3      Number of retries in case of WAN IP retrieval failure.
-  --timezone="UTC"     Timezone assigned to ddns-route53.
-  --log-level="info"   Set log level.
-  --log-json           Enable JSON logging output.
-  --version            Show application version.
+  --help                Show context-sensitive help.
+  --version
+  --config=STRING       ddns-route53 configuration file ($CONFIG).
+  --schedule=STRING     CRON expression format ($SCHEDULE).
+  --max-retries=3       Number of retries in case of WAN IP retrieval failure
+                        ($MAX_RETRIES).
+  --timezone="UTC"      Timezone assigned to ddns-route53 ($TZ).
+  --log-level="info"    Set log level ($LOG_LEVEL).
+  --log-json            Enable JSON logging output ($LOG_JSON).
+  --log-caller          Add file:line of the caller to log output ($LOG_CALLER).
 ```
 
 ## Server configuration

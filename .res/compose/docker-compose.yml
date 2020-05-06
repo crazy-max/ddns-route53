@@ -12,4 +12,5 @@ services:
       - "MAX_RETRIES=3"
       - "LOG_LEVEL=info"
       - "LOG_JSON=false"
+      - "LOG_CALLER=false"
     restart: always

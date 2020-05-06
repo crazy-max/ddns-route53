@@ -20,11 +20,12 @@ Image: crazymax/ddns-route53:latest
 
 Environment variables can be used within your container:
 
-* `TZ` : Timezone assigned to ddns-route53
-* `SCHEDULE` : [CRON expression](https://godoc.org/github.com/robfig/cron#hdr-CRON_Expression_Format) to schedule ddns-route53
-* `MAX_RETRIES` : Number of retries in case of WAN IP retrieval failure (default `3`)
-* `LOG_LEVEL` : Log level output (default `info`)
+* `TZ`: Timezone assigned to ddns-route53
+* `SCHEDULE`: [CRON expression](https://godoc.org/github.com/robfig/cron#hdr-CRON_Expression_Format) to schedule ddns-route53
+* `MAX_RETRIES`: Number of retries in case of WAN IP retrieval failure (default `3`)
+* `LOG_LEVEL`: Log level output (default `info`)
 * `LOG_JSON`: Enable JSON logging output (default `false`)
+* `LOG_CALLER`: Add file:line of the caller to log output (default `false`)
 
 Docker compose is the recommended way to run this image. Copy the content of folder [.res/compose](../../.res/compose) in `/opt/ddns-route53/` on your host for example. Edit the compose and config file with your preferences and run the following commands:
 
