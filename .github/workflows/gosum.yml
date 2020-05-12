@@ -17,7 +17,6 @@ jobs:
         name: Checkout
         uses: actions/checkout@v2
       -
-        # https://github.com/actions/setup-go
         name: Set up Go
         uses: actions/setup-go@v2
         with:
@@ -28,18 +27,51 @@ jobs:
           rm -f go.sum
           go mod tidy
       -
-        name: Set up Git
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git config user.name "${GITHUB_ACTOR}"
-          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-      -
-        name: Commit and push changes
-        run: |
-          git add .
-          if output=$(git status --porcelain) && [ ! -z "$output" ]; then
-            git commit -m 'Fix go modules'
-            git push
-          fi
+        name: Raise pull request
+        uses: actions/github-script@0.9.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { readFileSync } = require('fs');
+            const { resolve } = require('path');
+            const { execSync } = require('child_process');
+
+            const changedFiles = execSync('git diff --name-only').toString().split('\n').filter(Boolean);
+            const time = new Date().toISOString().split('.')[0];
+            const title = `Fix go.sum`;
+            const baseBranch = execSync('git branch').toString().split('\n').map(branch => {
+              const match = /^\* (.*)$/.exec(branch);
+              return match && match[1];
+            }).find(Boolean);
+
+            const parentSha = execSync('git rev-parse HEAD').toString().trim();
+            const branch = `fix-gosum-${time.replace(/[T:]/g, '-')}`;
+            const tree = await github.git.createTree({
+              ...context.repo,
+              base_tree: parentSha,
+              tree: changedFiles.map(path => ({
+                path,
+                mode: '100644',
+                content: readFileSync(resolve(process.cwd(), path), 'utf8')
+              }))
+            });
+
+            const commit = await github.git.createCommit({
+              ...context.repo,
+              message: title,
+              tree: tree.data.sha,
+              parents: [parentSha]
+            });
+
+            await github.git.createRef({
+              ...context.repo,
+              ref: `refs/heads/${branch}`,
+              sha: commit.data.sha
+            });
+
+            await github.pulls.create({
+              ...context.repo,
+              title,
+              head: branch,
+              base: baseBranch
+            });
