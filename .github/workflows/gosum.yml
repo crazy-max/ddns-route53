@@ -37,6 +37,10 @@ jobs:
             const { execSync } = require('child_process');
 
             const changedFiles = execSync('git diff --name-only').toString().split('\n').filter(Boolean);
+            if (!changedFiles.includes('go.sum')) {
+              return;
+            }
+
             const time = new Date().toISOString().split('.')[0];
             const title = `Fix go.sum`;
             const baseBranch = execSync('git branch').toString().split('\n').map(branch => {
