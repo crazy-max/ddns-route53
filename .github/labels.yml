@@ -59,6 +59,10 @@
   name: ":thinking: needs more info"
   color: "795548"
   description: ""
+- # pinned
+  name: ":pushpin: pinned"
+  color: "28008e"
+  description: ""
 - # question
   name: ":question: question"
   color: "3f51b5"
