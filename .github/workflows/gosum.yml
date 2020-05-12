@@ -27,7 +27,7 @@ jobs:
           rm -f go.sum
           go mod tidy
       -
-        name: Raise pull request
+        name: Commit changes
         uses: actions/github-script@0.9.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -37,19 +37,12 @@ jobs:
             const { execSync } = require('child_process');
 
             const changedFiles = execSync('git diff --name-only').toString().split('\n').filter(Boolean);
-            if (!changedFiles.includes('go.sum')) {
+            if (changedFiles.length == 0) {
+              core.info('No changes');
               return;
             }
 
-            const time = new Date().toISOString().split('.')[0];
-            const title = `Fix go.sum`;
-            const baseBranch = execSync('git branch').toString().split('\n').map(branch => {
-              const match = /^\* (.*)$/.exec(branch);
-              return match && match[1];
-            }).find(Boolean);
-
             const parentSha = execSync('git rev-parse HEAD').toString().trim();
-            const branch = `fix-gosum-${time.replace(/[T:]/g, '-')}`;
             const tree = await github.git.createTree({
               ...context.repo,
               base_tree: parentSha,
@@ -62,20 +55,13 @@ jobs:
 
             const commit = await github.git.createCommit({
               ...context.repo,
-              message: title,
+              message: 'Fix go.sum',
               tree: tree.data.sha,
               parents: [parentSha]
             });
 
             await github.git.createRef({
               ...context.repo,
-              ref: `refs/heads/${branch}`,
+              ref: github.context.ref,
               sha: commit.data.sha
-            });
-
-            await github.pulls.create({
-              ...context.repo,
-              title,
-              head: branch,
-              base: baseBranch
             });
