@@ -43,6 +43,11 @@ jobs:
             }
 
             const parentSha = execSync('git rev-parse HEAD').toString().trim();
+            const baseBranch = execSync('git branch').toString().split('\n').map(branch => {
+              const match = /^\* (.*)$/.exec(branch);
+              return match && match[1];
+            }).find(Boolean);
+
             const tree = await github.git.createTree({
               ...context.repo,
               base_tree: parentSha,
@@ -56,7 +61,7 @@ jobs:
             const commit = await github.git.createCommit({
               ...context.repo,
               message: 'Fix go.sum',
-              tree: tree.data.sha,
+              tree: `refs/heads/${baseBranch}`,
               parents: [parentSha]
             });
 
