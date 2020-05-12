@@ -62,6 +62,6 @@ jobs:
 
             await github.git.createRef({
               ...context.repo,
-              ref: github.context.ref,
+              ref: process.env.GITHUB_REF,
               sha: commit.data.sha
             });
