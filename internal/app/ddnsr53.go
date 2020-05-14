@@ -41,6 +41,18 @@ func New(cfg *config.Configuration, loc *time.Location) (*Client, error) {
 		"",
 	)
 
+	//creds := credentials.NewChainCredentials(
+	//	[]credentials.Provider{
+	//		&credentials.EnvProvider{},
+	//		&credentials.StaticProvider{
+	//			Value: credentials.Value{
+	//				AccessKeyID:     cfg.Credentials.AccessKeyID,
+	//				SecretAccessKey: cfg.Credentials.SecretAccessKey,
+	//				SessionToken:    "",
+	//			}},
+	//	},
+	//)
+
 	// AWS SDK session
 	sess, err := session.NewSession()
 	if err != nil {

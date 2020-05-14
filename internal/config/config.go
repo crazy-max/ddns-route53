@@ -97,12 +97,19 @@ func Load(cli Cli, version string) (*Configuration, error) {
 
 // Check verifies Configuration values
 func (cfg *Configuration) Check() error {
+	cfg.Credentials.AccessKeyID = getEnv("AWS_ACCESS_KEY_ID", cfg.Credentials.AccessKeyID)
 	if cfg.Credentials.AccessKeyID == "" {
 		return errors.New("AWS Access ID is required")
 	}
 
+	cfg.Credentials.SecretAccessKey = getEnv("AWS_SECRET_ACCESS_KEY", cfg.Credentials.AccessKeyID)
 	if cfg.Credentials.SecretAccessKey == "" {
 		return errors.New("AWS Secret Access Key is required")
+	}
+
+	cfg.Route53.HostedZoneID = getEnv("AWS_HOSTED_ZONE_ID", cfg.Route53.HostedZoneID)
+	if cfg.Route53.HostedZoneID == "" {
+		return errors.New("AWS Route53 hosted zone ID")
 	}
 
 	if len(cfg.Route53.RecordsSet) == 0 {
@@ -130,4 +137,13 @@ func (cfg *Configuration) Check() error {
 	}
 
 	return nil
+}
+
+// getEnv retrieves the value of the environment variable named by the key
+// or fallback if not found
+func getEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
 }

@@ -26,6 +26,9 @@ Environment variables can be used within your container:
 * `LOG_LEVEL`: Log level output (default `info`)
 * `LOG_JSON`: Enable JSON logging output (default `false`)
 * `LOG_CALLER`: Add file:line of the caller to log output (default `false`)
+* `AWS_ACCESS_KEY_ID`: AWS Access Key.
+* `AWS_SECRET_ACCESS_KEY`: AWS Secret Key.
+* `AWS_HOSTED_ZONE_ID`: AWS Route53 hosted zone ID.
 
 Docker compose is the recommended way to run this image. Copy the content of folder [.res/compose](../../.res/compose) in `/opt/ddns-route53/` on your host for example. Edit the compose and config file with your preferences and run the following commands:
 
