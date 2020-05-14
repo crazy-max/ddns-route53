@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.1 (2020/05/14)
+
+* Typo
+
 ## 1.9.0 (2020/05/14)
 
 * Allow to use `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_HOSTED_ZONE_ID` environment variables (#130)

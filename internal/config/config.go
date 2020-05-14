@@ -102,7 +102,7 @@ func (cfg *Configuration) Check() error {
 		return errors.New("AWS Access ID is required")
 	}
 
-	cfg.Credentials.SecretAccessKey = getEnv("AWS_SECRET_ACCESS_KEY", cfg.Credentials.AccessKeyID)
+	cfg.Credentials.SecretAccessKey = getEnv("AWS_SECRET_ACCESS_KEY", cfg.Credentials.SecretAccessKey)
 	if cfg.Credentials.SecretAccessKey == "" {
 		return errors.New("AWS Secret Access Key is required")
 	}
