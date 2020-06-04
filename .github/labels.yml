@@ -67,6 +67,10 @@
   name: ":question: question"
   color: "3f51b5"
   description: ""
+- # stale
+  name: ":skull: stale"
+  color: "237da0"
+  description: ""
 - # upstream
   name: ":eyes: upstream"
   color: "fbca04"
