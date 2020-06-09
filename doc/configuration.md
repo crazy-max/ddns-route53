@@ -4,7 +4,7 @@ Here is a YAML structure example:
 
 ```yml
 credentials:
-  access_key_id: "<awd_key_id>"
+  access_key_id: "<aws_key_id>"
   secret_access_key: "<aws_secret_key>"
 
 route53:
