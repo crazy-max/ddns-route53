@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.10.0 (2020/06/19)
+
+* Add support for mips architectures (#160)
+* [aws-sdk-go](https://github.com/aws/aws-sdk-go) 1.32.1
+* Update deps
+
 ## 1.9.1 (2020/05/14)
 
 * Typo
