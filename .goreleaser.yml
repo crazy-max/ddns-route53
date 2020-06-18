@@ -23,9 +23,16 @@ builds:
       - amd64
       - arm
       - arm64
+      - mips
+      - mipsle
+      - mips64
+      - mips64le
     goarm:
       - 6
       - 7
+    gomips:
+      - softfloat
+      - hardfloat
     ignore:
       - goos: freebsd
         goarch: arm
