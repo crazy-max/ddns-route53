@@ -7,7 +7,7 @@ ddns-route53 binaries are available in [releases](https://github.com/crazy-max/d
 Choose the archive matching the destination platform and extract ddns-route53:
 
 ```
-wget -qO- https://github.com/crazy-max/ddns-route53/releases/download/v1.10.0/ddns-route53_1.10.0_linux_x86_64.tar.gz | tar -zxvf - ddns-route53
+wget -qO- https://github.com/crazy-max/ddns-route53/releases/download/v1.10.1/ddns-route53_1.10.1_linux_x86_64.tar.gz | tar -zxvf - ddns-route53
 ```
 
 ## Test
