@@ -27,6 +27,7 @@
   * [With Docker](doc/install/docker.md)
   * [From binary](doc/install/binary.md)
   * [Linux service](doc/install/linux-service.md)
+  * [On a UniFi Security Gateway](doc/install/unifi.md)
 * [Usage](doc/usage.md)
 * [Configuration](doc/configuration.md)
 
