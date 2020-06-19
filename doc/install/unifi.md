@@ -12,9 +12,15 @@ Determine which architecture the USG is using:
 uname -a
 ```
 
+Determine if the USG is using softfloat or hardfloat optimizations:
+
+```
+readelf -A /bin/sh | grep ABI_FP
+```
+
 > To ensure that ddns-route53 persists across reboots, it should be stored in the `/config/scripts` directory.
 
-Install the ddns-route53 binary that matches the reported architecture by following the [install from binary](binary.md) instructions.
+Install the ddns-route53 binary that matches the reported architecture & float type by following the [install from binary](binary.md) instructions.
 
 #### Create the config file
 
