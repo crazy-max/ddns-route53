@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.10.1 (2020/06/19)
+
+* Fix unpublished Docker image
+
 ## 1.10.0 (2020/06/19)
 
 * Add support for mips architectures (#160)
