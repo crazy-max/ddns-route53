@@ -3,7 +3,7 @@ module github.com/crazy-max/ddns-route53
 go 1.13
 
 require (
-	github.com/alecthomas/kong v0.2.9
+	github.com/alecthomas/kong v0.2.10
 	github.com/aws/aws-sdk-go v1.32.1
 	github.com/hako/durafmt v0.0.0-20190612201238-650ed9f29a84
 	github.com/jpillora/backoff v1.0.0
