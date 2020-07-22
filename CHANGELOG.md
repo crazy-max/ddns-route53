@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.0.0 (2020/07/22)
+
+* Configuration transposed into environment variables
+* `AWS_HOSTED_ZONE_ID` env var renamed `DDNSR53_ROUTE53_HOSTEDZONEID`
+* Improve configuration validation
+* All fields in configuration now _camelCased_
+* Add tests and coverage
+* Dockerfile enhanced
+* Seek configuration file from default places
+* Configuration file not required anymore
+* Switch to [gonfig](https://github.com/crazy-max/gonfig)
+* Add fields to load sensitive values from file
+* Handle AWS EnvProvider for credentials
+* Docs website with mkdocs
+* Update deps
+
 ## 1.10.1 (2020/06/19)
 
 * Fix unpublished Docker image
