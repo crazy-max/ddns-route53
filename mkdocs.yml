@@ -12,8 +12,8 @@ extra:
   seo:
     google: zczpYiFTLpd1jgOb3K5zGqERX2gZrkm7aRjtDqxP0a4
     bing: D188E0BEC1AB6E7C1E0194BFC35D0033
-  #alexa:
-  #yandex:
+    #alexa:
+    #yandex:
   social:
     - icon: fontawesome/brands/github-alt
       link: https://github.com/crazy-max/ddns-route53
@@ -67,7 +67,7 @@ plugins:
         - en
 
 google_analytics:
-  - UA-12516800-3
+  - UA-12516800-11
   - auto
 
 nav:
