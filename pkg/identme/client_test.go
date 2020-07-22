@@ -25,7 +25,7 @@ func TestMain(m *testing.M) {
 
 func TestClient_IPv4(t *testing.T) {
 	ip, err := c.IPv4()
-	if err != nil && strings.Contains(err.Error(), "dial tcp: lookup v4.ident.me: no such host") {
+	if err != nil && isNetworkUnavailable(err) {
 		t.Skip("Skipping unsupported IPv4 on host")
 	}
 	require.NoError(t, err)
@@ -35,10 +35,15 @@ func TestClient_IPv4(t *testing.T) {
 
 func TestClient_IPv6(t *testing.T) {
 	ip, err := c.IPv6()
-	if err != nil && strings.Contains(err.Error(), "dial tcp: lookup v6.ident.me: no such host") {
+	if err != nil && isNetworkUnavailable(err) {
 		t.Skip("Skipping unsupported IPv6 on host")
 	}
 	require.NoError(t, err)
 	assert.NotEmpty(t, ip)
 	fmt.Println("IPv6:", ip)
+}
+
+func isNetworkUnavailable(err error) bool {
+	return strings.Contains(err.Error(), "no such host") ||
+		strings.Contains(err.Error(), "network is unreachable")
 }
