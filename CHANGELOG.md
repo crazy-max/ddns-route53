@@ -2,6 +2,8 @@
 
 ## 2.0.0 (2020/07/22)
 
+:warning: See **Migration notes** in the documentation for breaking changes.
+
 * Configuration transposed into environment variables
 * `AWS_HOSTED_ZONE_ID` env var renamed `DDNSR53_ROUTE53_HOSTEDZONEID`
 * Improve configuration validation
