@@ -22,7 +22,7 @@ Then click on **JSON** tab and paste the following content :
 }
 ```
 
-!!! tips
+!!! tip
     Replace `<HOSTED_ZONE_ID>` with your current hosted zone id you can find on
     [Route 53 Hosted Zones page](https://console.aws.amazon.com/route53/home#hosted-zones:).
 

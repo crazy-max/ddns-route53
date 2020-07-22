@@ -14,7 +14,7 @@ Determine if the USG is using `softfloat` or `hardfloat` optimizations:
 $ readelf -A /bin/sh | grep ABI_FP
 ```
 
-!!! tips
+!!! tip
     To ensure that ddns-route53 persists across reboots, it should be stored in the `/config/scripts` directory.
 
 Install the ddns-route53 binary that matches the reported architecture and float type by following
@@ -54,7 +54,7 @@ the following contents:
 }
 ```
 
-!!! tips
+!!! tip
     The `interval` field sets how often ddns-route53 will run (e.g. 1 minute).
 
 !!! info
