@@ -9,12 +9,18 @@ on:
       - 'v*'
     paths-ignore:
       - '**.md'
+      - '.github/workflows/docs.yml'
+      - 'docs/**'
+      - 'mkdocs.yml'
   pull_request:
     branches:
       - 'master'
       - 'v*'
     paths-ignore:
       - '**.md'
+      - '.github/workflows/docs.yml'
+      - 'docs/**'
+      - 'mkdocs.yml'
 
 jobs:
 
@@ -50,6 +56,17 @@ jobs:
         with:
           version: latest
           args: release --skip-publish --rm-dist
+      -
+        name: Test
+        run: |
+          go test -coverprofile=coverage.txt -covermode=atomic ./...
+      -
+        name: Upload coverage
+        uses: codecov/codecov-action@v1.0.10
+        if: success()
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.txt
       -
         name: GitHub Release
         uses: softprops/action-gh-release@v1
