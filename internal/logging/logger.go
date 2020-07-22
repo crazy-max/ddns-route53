@@ -5,13 +5,13 @@ import (
 	"os"
 	"time"
 
-	"github.com/crazy-max/ddns-route53/internal/config"
+	"github.com/crazy-max/ddns-route53/v2/internal/config"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
 // Configure configures logger
-func Configure(cli *config.Cli, location *time.Location) {
+func Configure(cli config.Cli, location *time.Location) {
 	var err error
 	var w io.Writer
 

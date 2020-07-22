@@ -33,7 +33,7 @@ func (c *Client) IPv4() (net.IP, error) {
 		return nil, err
 	}
 	if ip == nil || !strings.Contains(ip.String(), ".") {
-		return nil, errors.New("invalid IPv4 address")
+		return nil, fmt.Errorf("invalid IPv4 address: %s", ip.String())
 	}
 	return ip, nil
 }
@@ -45,7 +45,7 @@ func (c *Client) IPv6() (net.IP, error) {
 		return nil, err
 	}
 	if ip == nil || !strings.Contains(ip.String(), ":") {
-		return nil, errors.New("invalid IPv6 address")
+		return nil, fmt.Errorf("invalid IPv6 address: %s", ip.String())
 	}
 	return ip, nil
 }

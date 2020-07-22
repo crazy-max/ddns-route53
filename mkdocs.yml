@@ -1,0 +1,93 @@
+site_name: ddns-route53
+site_description: Dynamic DNS for Amazon Route 53‎ on a time-based schedule
+site_author: CrazyMax
+site_url: https://crazy-max.github.io/ddns-route53/
+edit_uri: edit/master/docs/
+docs_dir: docs
+
+repo_name: crazy-max/ddns-route53
+repo_url: https://github.com/crazy-max/ddns-route53
+
+extra:
+  seo:
+    google: zczpYiFTLpd1jgOb3K5zGqERX2gZrkm7aRjtDqxP0a4
+    bing: D188E0BEC1AB6E7C1E0194BFC35D0033
+  #alexa:
+  #yandex:
+  social:
+    - icon: fontawesome/brands/github-alt
+      link: https://github.com/crazy-max/ddns-route53
+
+theme:
+  name: material
+  custom_dir: docs/_overrides
+  language: en
+  palette:
+    scheme: default
+    primary: blue
+    accent: blue
+  font:
+    text: Roboto
+    code: Roboto Mono
+  logo: assets/logo.png
+  favicon: assets/favicon.ico
+  include_search_page: false
+  search_index_only: true
+
+extra_css:
+  - assets/stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - footnotes
+  - markdown_include.include:
+      base_path: docs
+  - meta
+  - pymdownx.details
+  - pymdownx.tabbed
+  - pymdownx.superfences
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - toc:
+      permalink: true
+
+plugins:
+  - exclude:
+      glob:
+        - "_overrides/*"
+        - "Dockerfile"
+  - git-revision-date-localized:
+      type: iso_datetime
+  - macros
+  - search:
+      prebuild_index: python
+      lang:
+        - en
+
+google_analytics:
+  - UA-12516800-3
+  - auto
+
+nav:
+  - Home: index.md
+  - Installation:
+    - With Docker: install/docker.md
+    - From binary: install/binary.md
+    - Linux service: install/linux-service.md
+    - UniFi device: install/unifi.md
+  - Usage:
+    - Prerequisites: usage/prerequisites.md
+    - Command line: usage/cli.md
+    - Basic example: usage/basic-example.md
+  - Configuration:
+    - Overview: config/index.md
+    - .credentials: config/credentials.md
+    - .route53: config/route53.md
+  - Changelog: changelog.md
+  - Migration:
+    - ddns-route53 v1 to v2: migration/v1-to-v2.md
+  - Reporting an issue: reporting-issue.md
+  - Contributing: contributing.md
+  - Donate: donate.md

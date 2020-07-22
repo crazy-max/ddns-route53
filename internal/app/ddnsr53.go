@@ -3,8 +3,6 @@ package app
 import (
 	"fmt"
 	"net"
-	"runtime"
-	"strings"
 	"sync/atomic"
 	"time"
 
@@ -12,16 +10,19 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/route53"
-	"github.com/crazy-max/ddns-route53/internal/config"
-	"github.com/crazy-max/ddns-route53/pkg/identme"
+	"github.com/crazy-max/ddns-route53/v2/internal/config"
+	"github.com/crazy-max/ddns-route53/v2/internal/model"
+	"github.com/crazy-max/ddns-route53/v2/pkg/identme"
+	"github.com/crazy-max/ddns-route53/v2/pkg/utl"
 	"github.com/hako/durafmt"
 	"github.com/robfig/cron/v3"
 	"github.com/rs/zerolog/log"
 )
 
-// Client represents an active ddns-route53 object
-type Client struct {
-	cfg      *config.Configuration
+// DDNSRoute53 represents an active ddns-route53 object
+type DDNSRoute53 struct {
+	meta     model.Meta
+	cfg      *config.Config
 	loc      *time.Location
 	cron     *cron.Cron
 	r53      *route53.Route53
@@ -33,25 +34,27 @@ type Client struct {
 }
 
 // New creates new ddns-route53 instance
-func New(cfg *config.Configuration, loc *time.Location) (*Client, error) {
-	// Static credentials
-	creds := credentials.NewStaticCredentials(
-		cfg.Credentials.AccessKeyID,
-		cfg.Credentials.SecretAccessKey,
-		"",
+func New(meta model.Meta, cfg *config.Config, loc *time.Location) (*DDNSRoute53, error) {
+	// AWS credentials
+	accessKeyID, err := utl.GetSecret(cfg.Credentials.AccessKeyID, cfg.Credentials.AccessKeyIDFile)
+	if err != nil {
+		log.Warn().Err(err).Msg("Cannot retrieve access key ID")
+	}
+	secretAccessKey, err := utl.GetSecret(cfg.Credentials.SecretAccessKey, cfg.Credentials.SecretAccessKeyFile)
+	if err != nil {
+		log.Warn().Err(err).Msg("Cannot retrieve secret access key")
+	}
+	creds := credentials.NewChainCredentials(
+		[]credentials.Provider{
+			&credentials.EnvProvider{},
+			&credentials.StaticProvider{
+				Value: credentials.Value{
+					AccessKeyID:     accessKeyID,
+					SecretAccessKey: secretAccessKey,
+					SessionToken:    "",
+				}},
+		},
 	)
-
-	//creds := credentials.NewChainCredentials(
-	//	[]credentials.Provider{
-	//		&credentials.EnvProvider{},
-	//		&credentials.StaticProvider{
-	//			Value: credentials.Value{
-	//				AccessKeyID:     cfg.Credentials.AccessKeyID,
-	//				SecretAccessKey: cfg.Credentials.SecretAccessKey,
-	//				SessionToken:    "",
-	//			}},
-	//	},
-	//)
 
 	// AWS SDK session
 	sess, err := session.NewSession()
@@ -59,7 +62,8 @@ func New(cfg *config.Configuration, loc *time.Location) (*Client, error) {
 		return nil, err
 	}
 
-	return &Client{
+	return &DDNSRoute53{
+		meta: meta,
 		cfg: cfg,
 		loc: loc,
 		cron: cron.New(cron.WithLocation(loc), cron.WithParser(cron.NewParser(
@@ -67,14 +71,14 @@ func New(cfg *config.Configuration, loc *time.Location) (*Client, error) {
 		)),
 		r53: route53.New(sess, &aws.Config{Credentials: creds}),
 		im: identme.NewClient(
-			fmt.Sprintf("ddns-route53/%s go/%s %s", cfg.App.Version, runtime.Version()[2:], strings.Title(runtime.GOOS)),
+			meta.UserAgent,
 			cfg.Cli.MaxRetries,
 		),
 	}, nil
 }
 
 // Start starts ddns-route53
-func (c *Client) Start() error {
+func (c *DDNSRoute53) Start() error {
 	var err error
 
 	// Run on startup
@@ -102,7 +106,7 @@ func (c *Client) Start() error {
 }
 
 // Run runs ddns-route53 process
-func (c *Client) Run() {
+func (c *DDNSRoute53) Run() {
 	var err error
 	if !atomic.CompareAndSwapUint32(&c.locker, 0, 1) {
 		log.Warn().Msg("Already running")
@@ -116,7 +120,7 @@ func (c *Client) Run() {
 	}
 
 	var wanIPv4 net.IP
-	if c.cfg.Route53.HandleIPv4 {
+	if *c.cfg.Route53.HandleIPv4 {
 		wanIPv4, err = c.im.IPv4()
 		if err != nil {
 			log.Error().Err(err).Msg("Cannot retrieve WAN IPv4 address")
@@ -126,7 +130,7 @@ func (c *Client) Run() {
 	}
 
 	var wanIPv6 net.IP
-	if c.cfg.Route53.HandleIPv6 {
+	if *c.cfg.Route53.HandleIPv6 {
 		wanIPv6, err = c.im.IPv6()
 		if err != nil {
 			log.Error().Err(err).Msg("Cannot retrieve WAN IPv6 address")
@@ -180,8 +184,8 @@ func (c *Client) Run() {
 	resRS := &route53.ChangeResourceRecordSetsInput{
 		ChangeBatch: &route53.ChangeBatch{
 			Comment: aws.String(fmt.Sprintf("Updated by %s %s at %s",
-				c.cfg.App.Name,
-				c.cfg.App.Version,
+				c.meta.Name,
+				c.meta.Version,
 				time.Now().In(c.loc).Format("2006-01-02 15:04:05"),
 			)),
 			Changes: r53Changes,
@@ -202,7 +206,7 @@ func (c *Client) Run() {
 }
 
 // Close closes ddns-route53
-func (c *Client) Close() {
+func (c *DDNSRoute53) Close() {
 	if c.cron != nil {
 		c.cron.Stop()
 	}
