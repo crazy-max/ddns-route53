@@ -3,7 +3,7 @@ module github.com/crazy-max/ddns-route53/v2
 go 1.13
 
 require (
-	github.com/alecthomas/kong v0.2.10
+	github.com/alecthomas/kong v0.2.11
 	github.com/aws/aws-sdk-go v1.32.1
 	github.com/crazy-max/gonfig v0.2.0
 	github.com/go-playground/validator/v10 v10.3.0
