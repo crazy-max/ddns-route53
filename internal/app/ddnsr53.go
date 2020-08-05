@@ -35,15 +35,21 @@ type DDNSRoute53 struct {
 
 // New creates new ddns-route53 instance
 func New(meta model.Meta, cfg *config.Config, loc *time.Location) (*DDNSRoute53, error) {
-	// AWS credentials
-	accessKeyID, err := utl.GetSecret(cfg.Credentials.AccessKeyID, cfg.Credentials.AccessKeyIDFile)
-	if err != nil {
-		log.Warn().Err(err).Msg("Cannot retrieve access key ID")
+	var err error
+	var accessKeyID string
+	var secretAccessKey string
+
+	if cfg.Credentials != nil {
+		accessKeyID, err = utl.GetSecret(cfg.Credentials.AccessKeyID, cfg.Credentials.AccessKeyIDFile)
+		if err != nil {
+			log.Warn().Err(err).Msg("Cannot retrieve access key ID")
+		}
+		secretAccessKey, err = utl.GetSecret(cfg.Credentials.SecretAccessKey, cfg.Credentials.SecretAccessKeyFile)
+		if err != nil {
+			log.Warn().Err(err).Msg("Cannot retrieve secret access key")
+		}
 	}
-	secretAccessKey, err := utl.GetSecret(cfg.Credentials.SecretAccessKey, cfg.Credentials.SecretAccessKeyFile)
-	if err != nil {
-		log.Warn().Err(err).Msg("Cannot retrieve secret access key")
-	}
+
 	creds := credentials.NewChainCredentials(
 		[]credentials.Provider{
 			&credentials.EnvProvider{},

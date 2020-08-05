@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1 (2020/08/05)
+
+* Fix nil pointer with AWS credentials (#186)
+
 ## 2.0.0 (2020/07/22)
 
 :warning: See **Migration notes** in the documentation for breaking changes.
