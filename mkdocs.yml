@@ -78,7 +78,8 @@ nav:
     - With Docker: install/docker.md
     - From binary: install/binary.md
     - Linux service: install/linux-service.md
-    - UniFi device: install/unifi.md
+    - UniFi (VyOS) device: install/unifi.md
+    - UniFi OS device: install/unifi-os.md
   - Usage:
     - Prerequisites: usage/prerequisites.md
     - Command line: usage/cli.md

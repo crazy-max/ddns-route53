@@ -1,4 +1,8 @@
-# Installing on a UniFi Security Gateway
+# Installing on a VyOS-based UniFi Gateway Devices
+
+This guide is for devices running VyOS such as:
+* USG 3P
+* USG Pro 4
 
 ## Install the binary
 
