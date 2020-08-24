@@ -7,7 +7,7 @@
 /.res
 /bin
 /dist
-/doc
+/docs
 /vendor
 /.editorconfig
 /.gitattributes
