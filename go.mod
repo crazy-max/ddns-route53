@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/alecthomas/kong v0.2.11
-	github.com/aws/aws-sdk-go v1.34.6
+	github.com/aws/aws-sdk-go v1.34.14
 	github.com/crazy-max/gonfig v0.3.0
 	github.com/go-playground/validator/v10 v10.3.0
 	github.com/hako/durafmt v0.0.0-20190612201238-650ed9f29a84
