@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.0 (2020/09/07)
+
+* Don't fill record change if IP address not available (#224)
+* Go 1.15
+* Update deps
+
 ## 2.0.1 (2020/08/05)
 
 * Fix nil pointer with AWS credentials (#186)
