@@ -204,7 +204,7 @@ func (c *DDNSRoute53) Run() {
 	if err != nil {
 		log.Error().Err(err).Msg("Cannot update records set")
 	}
-	log.Info().Interface("changes", resp).Msgf("%d records set updated", len(c.cfg.Route53.RecordsSet))
+	log.Info().Interface("changes", resp).Msgf("%d records set updated", len(r53Changes))
 
 	// Update last IPv4/IPv6
 	c.lastIPv4 = wanIPv4
