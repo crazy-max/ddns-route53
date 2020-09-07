@@ -6,7 +6,6 @@ ddns-route53 binaries are available on [releases]({{ config.repo_url }}releases/
 
 Choose the archive matching the destination platform:
 
-* [`ddns-route53_{{ git.tag | trim('v') }}_darwin_i386.tar.gz`]({{ config.repo_url }}releases/download/v{{ git.tag | trim('v') }}/ddns-route53_{{ git.tag | trim('v') }}_darwin_i386.tar.gz)
 * [`ddns-route53_{{ git.tag | trim('v') }}_darwin_x86_64.tar.gz`]({{ config.repo_url }}/releases/download/v{{ git.tag | trim('v') }}/ddns-route53_{{ git.tag | trim('v') }}_darwin_x86_64.tar.gz)
 * [`ddns-route53_{{ git.tag | trim('v') }}_freebsd_i386.tar.gz`]({{ config.repo_url }}/releases/download/v{{ git.tag | trim('v') }}/ddns-route53_{{ git.tag | trim('v') }}_freebsd_i386.tar.gz)
 * [`ddns-route53_{{ git.tag | trim('v') }}_freebsd_x86_64.tar.gz`]({{ config.repo_url }}/releases/download/v{{ git.tag | trim('v') }}/ddns-route53_{{ git.tag | trim('v') }}_freebsd_x86_64.tar.gz)
