@@ -156,8 +156,8 @@ func (c *DDNSRoute53) Run() {
 	}
 
 	// Create Route53 changes
-	r53Changes := make([]*route53.Change, len(c.cfg.Route53.RecordsSet))
-	for i, rs := range c.cfg.Route53.RecordsSet {
+	var r53Changes []*route53.Change
+	for _, rs := range c.cfg.Route53.RecordsSet {
 		if wanIPv4 == nil && rs.Type == route53.RRTypeA {
 			log.Error().Msgf("No WAN IPv4 address available to update %s record", rs.Name)
 			continue
@@ -169,7 +169,7 @@ func (c *DDNSRoute53) Run() {
 		if rs.Type == route53.RRTypeAaaa {
 			recordValue = aws.String(wanIPv6.String())
 		}
-		r53Changes[i] = &route53.Change{
+		r53Changes = append(r53Changes, &route53.Change{
 			Action: aws.String("UPSERT"),
 			ResourceRecordSet: &route53.ResourceRecordSet{
 				Name:            aws.String(rs.Name),
@@ -177,7 +177,7 @@ func (c *DDNSRoute53) Run() {
 				TTL:             aws.Int64(rs.TTL),
 				ResourceRecords: []*route53.ResourceRecord{{Value: recordValue}},
 			},
-		}
+		})
 	}
 
 	// Check changes
