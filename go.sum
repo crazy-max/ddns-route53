@@ -2,8 +2,6 @@ github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/alecthomas/kong v0.2.11 h1:RKeJXXWfg9N47RYfMm0+igkxBCTF4bzbneAxaqid0c4=
 github.com/alecthomas/kong v0.2.11/go.mod h1:kQOmtJgV+Lb4aj+I2LEn40cbtawdWJ9Y8QLq+lElKxE=
-github.com/aws/aws-sdk-go v1.34.6 h1:2aPXQGkR6xeheN5dns13mSoDWeUlj4wDmfZ+8ZDHauw=
-github.com/aws/aws-sdk-go v1.34.6/go.mod h1:5zCpMtNQVjRREroY7sYe8lOMRSxkhG6MZveU8YkpAk0=
 github.com/aws/aws-sdk-go v1.34.18 h1:Mo/Clq3u1dQFzpg8YQqBii8m+Vl3fWIfHi6kXs5wpuM=
 github.com/aws/aws-sdk-go v1.34.18/go.mod h1:5zCpMtNQVjRREroY7sYe8lOMRSxkhG6MZveU8YkpAk0=
 github.com/coreos/go-systemd v0.0.0-20190321100706-95778dfbb74e/go.mod h1:F5haX7vjVVG0kc13fIWeqUViNPyEJxv/OmvnBo0Yme4=
