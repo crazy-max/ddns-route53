@@ -6,7 +6,7 @@ require (
 	github.com/alecthomas/kong v0.2.11
 	github.com/aws/aws-sdk-go v1.35.10
 	github.com/crazy-max/gonfig v0.3.0
-	github.com/go-playground/validator/v10 v10.4.0
+	github.com/go-playground/validator/v10 v10.4.1
 	github.com/hako/durafmt v0.0.0-20190612201238-650ed9f29a84
 	github.com/jpillora/backoff v1.0.0
 	github.com/pkg/errors v0.9.1
