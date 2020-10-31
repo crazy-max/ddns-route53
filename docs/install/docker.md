@@ -2,7 +2,13 @@
 
 ## About
 
-ddns-route53 provides automatically updated Docker :whale: images within [Docker Hub](https://hub.docker.com/r/crazymax/ddns-route53).
+ddns-route53 provides automatically updated Docker :whale: images within several registries:
+
+| Registry                                                                                         | Image                           |
+|--------------------------------------------------------------------------------------------------|---------------------------------|
+| [Docker Hub](https://hub.docker.com/r/crazymax/ddns-route53/)                             | `crazymax/ddns-route53`                 |
+| [GitHub Container Registry](https://github.com/users/crazy-max/packages/container/package/ddns-route53)  | `ghcr.io/crazy-max/ddns-route53`        |
+
 It is possible to always use the latest stable tag or to use another service that handles updating Docker images.
 
 !!! note
