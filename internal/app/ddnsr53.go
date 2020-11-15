@@ -23,7 +23,6 @@ import (
 type DDNSRoute53 struct {
 	meta     model.Meta
 	cfg      *config.Config
-	loc      *time.Location
 	cron     *cron.Cron
 	r53      *route53.Route53
 	im       *identme.Client
@@ -34,7 +33,7 @@ type DDNSRoute53 struct {
 }
 
 // New creates new ddns-route53 instance
-func New(meta model.Meta, cfg *config.Config, loc *time.Location) (*DDNSRoute53, error) {
+func New(meta model.Meta, cfg *config.Config) (*DDNSRoute53, error) {
 	var err error
 	var accessKeyID string
 	var secretAccessKey string
@@ -71,8 +70,7 @@ func New(meta model.Meta, cfg *config.Config, loc *time.Location) (*DDNSRoute53,
 	return &DDNSRoute53{
 		meta: meta,
 		cfg: cfg,
-		loc: loc,
-		cron: cron.New(cron.WithLocation(loc), cron.WithParser(cron.NewParser(
+		cron: cron.New(cron.WithParser(cron.NewParser(
 			cron.SecondOptional|cron.Minute|cron.Hour|cron.Dom|cron.Month|cron.Dow|cron.Descriptor),
 		)),
 		r53: route53.New(sess, &aws.Config{Credentials: creds}),
