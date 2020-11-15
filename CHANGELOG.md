@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.2.0 (2020/11/15)
+
+* Use embedded tzdata package
+* Remove `--timezone` flag
+* Docker image also available on [GitHub Container Registry](https://github.com/users/crazy-max/packages/container/package/ddns-route53)
+* Switch to Docker actions
+* Update deps
+
 ## 2.1.0 (2020/09/07)
 
 * Don't fill record change if IP address not available (#224)

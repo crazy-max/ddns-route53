@@ -88,6 +88,7 @@ nav:
     - Overview: config/index.md
     - .credentials: config/credentials.md
     - .route53: config/route53.md
+  - FAQ: faq.md
   - Changelog: changelog.md
   - Migration:
     - ddns-route53 v1 to v2: migration/v1-to-v2.md
