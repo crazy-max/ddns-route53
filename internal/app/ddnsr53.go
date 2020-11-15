@@ -190,7 +190,7 @@ func (c *DDNSRoute53) Run() {
 			Comment: aws.String(fmt.Sprintf("Updated by %s %s at %s",
 				c.meta.Name,
 				c.meta.Version,
-				time.Now().In(c.loc).Format("2006-01-02 15:04:05"),
+				time.Now().Format("2006-01-02 15:04:05"),
 			)),
 			Changes: r53Changes,
 		},
