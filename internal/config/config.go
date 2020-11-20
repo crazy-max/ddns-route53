@@ -16,6 +16,7 @@ type Config struct {
 	Cli         Cli          `yaml:"-" json:"-" label:"-" file:"-"`
 	Credentials *Credentials `yaml:"credentials,omitempty" json:"credentials,omitempty" validate:"omitempty"`
 	Route53     *Route53     `yaml:"route53,omitempty" json:"route53,omitempty" validate:"required"`
+	Ipprovider  string       `yaml:"ipProvider,omitempty" json:"ipProvider,omitempty"`
 }
 
 // Load returns Configuration struct

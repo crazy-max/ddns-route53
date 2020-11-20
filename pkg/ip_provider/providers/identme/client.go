@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/crazy-max/ddns-route53/v2/pkg/ip_provider/commons"
 	"github.com/jpillora/backoff"
 	"github.com/pkg/errors"
 )
@@ -19,7 +20,7 @@ type Client struct {
 }
 
 // NewClient initializes a new identme client
-func NewClient(userAgent string, maxRetries int) (c *Client) {
+func NewClient(userAgent string, maxRetries int) (c commons.Client) {
 	return &Client{
 		UserAgent:  userAgent,
 		MaxRetries: maxRetries,

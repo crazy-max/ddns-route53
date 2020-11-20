@@ -65,6 +65,7 @@ func TestLoadFile(t *testing.T) {
 					HandleIPv4: utl.NewTrue(),
 					HandleIPv6: utl.NewTrue(),
 				},
+				Ipprovider: "identme",
 			},
 		},
 	}
@@ -109,6 +110,7 @@ func TestLoadEnv(t *testing.T) {
 				"DDNSR53_ROUTE53_RECORDSSET_0_NAME=ddns.example.com.",
 				"DDNSR53_ROUTE53_RECORDSSET_0_TYPE=A",
 				"DDNSR53_ROUTE53_RECORDSSET_0_TTL=300",
+				"DDNSR53_IPPROVIDER=ipify",
 			},
 			expected: &Config{
 				Credentials: &Credentials{
@@ -127,6 +129,7 @@ func TestLoadEnv(t *testing.T) {
 					HandleIPv4: utl.NewTrue(),
 					HandleIPv6: utl.NewFalse(),
 				},
+				Ipprovider: "ipify",
 			},
 			wantErr: false,
 		},

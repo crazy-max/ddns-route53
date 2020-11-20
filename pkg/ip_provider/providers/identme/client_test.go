@@ -7,12 +7,13 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/crazy-max/ddns-route53/v2/pkg/ip_provider/commons"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 var (
-	c *Client
+	c commons.Client
 )
 
 func TestMain(m *testing.M) {

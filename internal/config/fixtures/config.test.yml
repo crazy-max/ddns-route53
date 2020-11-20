@@ -14,3 +14,5 @@ route53:
     - name: "another.example2.com."
       type: "A"
       ttl: 600
+
+ipProvider: "identme"

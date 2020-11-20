@@ -12,7 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/route53"
 	"github.com/crazy-max/ddns-route53/v2/internal/config"
 	"github.com/crazy-max/ddns-route53/v2/internal/model"
-	"github.com/crazy-max/ddns-route53/v2/pkg/identme"
+	"github.com/crazy-max/ddns-route53/v2/pkg/ip_provider"
 	"github.com/crazy-max/ddns-route53/v2/pkg/utl"
 	"github.com/hako/durafmt"
 	"github.com/robfig/cron/v3"
@@ -25,7 +25,7 @@ type DDNSRoute53 struct {
 	cfg      *config.Config
 	cron     *cron.Cron
 	r53      *route53.Route53
-	im       *identme.Client
+	im       ip_provider.Client
 	jobID    cron.EntryID
 	lastIPv4 net.IP
 	lastIPv6 net.IP
@@ -69,12 +69,13 @@ func New(meta model.Meta, cfg *config.Config) (*DDNSRoute53, error) {
 
 	return &DDNSRoute53{
 		meta: meta,
-		cfg: cfg,
+		cfg:  cfg,
 		cron: cron.New(cron.WithParser(cron.NewParser(
-			cron.SecondOptional|cron.Minute|cron.Hour|cron.Dom|cron.Month|cron.Dow|cron.Descriptor),
+			cron.SecondOptional | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow | cron.Descriptor),
 		)),
 		r53: route53.New(sess, &aws.Config{Credentials: creds}),
-		im: identme.NewClient(
+		im: ip_provider.NewClient(
+			cfg.Ipprovider,
 			meta.UserAgent,
 			cfg.Cli.MaxRetries,
 		),
