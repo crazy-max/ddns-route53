@@ -40,6 +40,8 @@ You can override this using the [`--config` flag or `CONFIG` env var](../usage/c
         - name: "another.example2.com."
           type: "A"
           ttl: 600
+    
+    ipProvider: "identme"
     ```
 
 ## Environment variables
@@ -64,6 +66,8 @@ All configuration from file can be transposed into environment variables. As an 
         - name: "another.example2.com."
           type: "A"
           ttl: 600
+
+    ipProvider: "identme"
     ```
 
 Can be transposed to:
@@ -83,7 +87,16 @@ Can be transposed to:
     DDNSR53_ROUTE53_RECORDSSET_2_NAME=another.example2.com.
     DDNSR53_ROUTE53_RECORDSSET_2_TYPE=A
     DDNSR53_ROUTE53_RECORDSSET_2_TTL=600
+
+    DDNSR53_IPPROVIDER=identme
     ```
+
+# IP Provider
+
+You can choose between two different service to retrieve your external IP:
+
+- [IdentMe](https://ident.me) - (use the value `identme`)
+- [Ipify](https://www.ipify.org/) - (use the value `ipify`)
 
 ## Reference
 
