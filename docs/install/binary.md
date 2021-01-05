@@ -10,6 +10,7 @@ Choose the archive matching the destination platform:
 * [`ddns-route53_{{ git.tag | trim('v') }}_freebsd_i386.tar.gz`]({{ config.repo_url }}/releases/download/v{{ git.tag | trim('v') }}/ddns-route53_{{ git.tag | trim('v') }}_freebsd_i386.tar.gz)
 * [`ddns-route53_{{ git.tag | trim('v') }}_freebsd_x86_64.tar.gz`]({{ config.repo_url }}/releases/download/v{{ git.tag | trim('v') }}/ddns-route53_{{ git.tag | trim('v') }}_freebsd_x86_64.tar.gz)
 * [`ddns-route53_{{ git.tag | trim('v') }}_linux_arm64.tar.gz`]({{ config.repo_url }}/releases/download/v{{ git.tag | trim('v') }}/ddns-route53_{{ git.tag | trim('v') }}_linux_arm64.tar.gz)
+* [`ddns-route53_{{ git.tag | trim('v') }}_linux_armv5.tar.gz`]({{ config.repo_url }}/releases/download/v{{ git.tag | trim('v') }}/ddns-route53_{{ git.tag | trim('v') }}_linux_armv5.tar.gz)
 * [`ddns-route53_{{ git.tag | trim('v') }}_linux_armv6.tar.gz`]({{ config.repo_url }}/releases/download/v{{ git.tag | trim('v') }}/ddns-route53_{{ git.tag | trim('v') }}_linux_armv6.tar.gz)
 * [`ddns-route53_{{ git.tag | trim('v') }}_linux_armv7.tar.gz`]({{ config.repo_url }}/releases/download/v{{ git.tag | trim('v') }}/ddns-route53_{{ git.tag | trim('v') }}_linux_armv7.tar.gz)
 * [`ddns-route53_{{ git.tag | trim('v') }}_linux_i386.tar.gz`]({{ config.repo_url }}/releases/download/v{{ git.tag | trim('v') }}/ddns-route53_{{ git.tag | trim('v') }}_linux_i386.tar.gz)
