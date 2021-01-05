@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.3.0 (2021/01/05)
+
+* Bump github.com/aws/aws-sdk-go from 1.35.28 to 1.36.20 (#332)
+* Refactor CI and dev workflow with buildx bake (#333)
+    * Upload artifacts
+    * Add `image-local` target
+    * Single job for artifacts and image
+    * Add `armv5`, `ppc64le` and `s390x` artifacts
+* Handle multi IP providers (#331)
+* Bump github.com/alecthomas/kong from 0.2.11 to 0.2.12 (#307)
+
 ## 2.2.0 (2020/11/15)
 
 * Use embedded tzdata package
