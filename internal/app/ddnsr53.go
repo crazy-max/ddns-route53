@@ -12,8 +12,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/route53"
 	"github.com/crazy-max/ddns-route53/v2/internal/config"
 	"github.com/crazy-max/ddns-route53/v2/internal/model"
-	"github.com/crazy-max/ddns-route53/v2/pkg/identme"
 	"github.com/crazy-max/ddns-route53/v2/pkg/utl"
+	"github.com/crazy-max/ddns-route53/v2/pkg/wanip"
 	"github.com/hako/durafmt"
 	"github.com/robfig/cron/v3"
 	"github.com/rs/zerolog/log"
@@ -25,7 +25,7 @@ type DDNSRoute53 struct {
 	cfg      *config.Config
 	cron     *cron.Cron
 	r53      *route53.Route53
-	im       *identme.Client
+	im       *wanip.Client
 	jobID    cron.EntryID
 	lastIPv4 net.IP
 	lastIPv6 net.IP
@@ -69,12 +69,12 @@ func New(meta model.Meta, cfg *config.Config) (*DDNSRoute53, error) {
 
 	return &DDNSRoute53{
 		meta: meta,
-		cfg: cfg,
+		cfg:  cfg,
 		cron: cron.New(cron.WithParser(cron.NewParser(
-			cron.SecondOptional|cron.Minute|cron.Hour|cron.Dom|cron.Month|cron.Dow|cron.Descriptor),
+			cron.SecondOptional | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow | cron.Descriptor),
 		)),
 		r53: route53.New(sess, &aws.Config{Credentials: creds}),
-		im: identme.NewClient(
+		im: wanip.NewClient(
 			meta.UserAgent,
 			cfg.Cli.MaxRetries,
 		),
@@ -112,6 +112,8 @@ func (c *DDNSRoute53) Start() error {
 // Run runs ddns-route53 process
 func (c *DDNSRoute53) Run() {
 	var err error
+	var wanIPErrs wanip.Errors
+
 	if !atomic.CompareAndSwapUint32(&c.locker, 0, 1) {
 		log.Warn().Msg("Already running")
 		return
@@ -125,21 +127,35 @@ func (c *DDNSRoute53) Run() {
 
 	var wanIPv4 net.IP
 	if *c.cfg.Route53.HandleIPv4 {
-		wanIPv4, err = c.im.IPv4()
-		if err != nil {
-			log.Error().Err(err).Msg("Cannot retrieve WAN IPv4 address")
-		} else {
+		wanIPv4, wanIPErrs = c.im.IPv4()
+		if wanIPv4 != nil {
 			log.Info().Msgf("Current WAN IPv4: %s", wanIPv4)
+			if wanIPErrs != nil && len(wanIPErrs) > 0 {
+				for _, wanIPErr := range wanIPErrs {
+					log.Debug().Err(wanIPErr.Err).Str("provider-url", wanIPErr.ProviderURL).Msg("Cannot retrieve WAN IPv4 address")
+				}
+			}
+		} else if wanIPErrs != nil && len(wanIPErrs) > 0 {
+			for _, wanIPErr := range wanIPErrs {
+				log.Error().Err(wanIPErr.Err).Str("provider-url", wanIPErr.ProviderURL).Msg("Cannot retrieve WAN IPv4 address")
+			}
 		}
 	}
 
 	var wanIPv6 net.IP
 	if *c.cfg.Route53.HandleIPv6 {
-		wanIPv6, err = c.im.IPv6()
-		if err != nil {
-			log.Error().Err(err).Msg("Cannot retrieve WAN IPv6 address")
-		} else {
+		wanIPv6, wanIPErrs = c.im.IPv6()
+		if wanIPv6 != nil {
 			log.Info().Msgf("Current WAN IPv6: %s", wanIPv6)
+			if wanIPErrs != nil && len(wanIPErrs) > 0 {
+				for _, wanIPErr := range wanIPErrs {
+					log.Debug().Err(wanIPErr.Err).Str("provider-url", wanIPErr.ProviderURL).Msg("Cannot retrieve WAN IPv6 address")
+				}
+			}
+		} else if wanIPErrs != nil && len(wanIPErrs) > 0 {
+			for _, wanIPErr := range wanIPErrs {
+				log.Error().Err(wanIPErr.Err).Str("provider-url", wanIPErr.ProviderURL).Msg("Cannot retrieve WAN IPv6 address")
+			}
 		}
 	}
 

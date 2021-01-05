@@ -1,4 +1,4 @@
-package identme
+package wanip
 
 import (
 	"fmt"
@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -24,26 +23,29 @@ func TestMain(m *testing.M) {
 }
 
 func TestClient_IPv4(t *testing.T) {
-	ip, err := c.IPv4()
-	if err != nil && isNetworkUnavailable(err) {
+	ip, errs := c.IPv4()
+	if errs != nil && isNetworkUnreachable(errs) {
 		t.Skip("Skipping unsupported IPv4 on host")
 	}
-	require.NoError(t, err)
 	assert.NotEmpty(t, ip)
 	fmt.Println("IPv4:", ip)
 }
 
 func TestClient_IPv6(t *testing.T) {
-	ip, err := c.IPv6()
-	if err != nil && isNetworkUnavailable(err) {
+	ip, errs := c.IPv6()
+	if errs != nil && isNetworkUnreachable(errs) {
 		t.Skip("Skipping unsupported IPv6 on host")
 	}
-	require.NoError(t, err)
 	assert.NotEmpty(t, ip)
 	fmt.Println("IPv6:", ip)
 }
 
-func isNetworkUnavailable(err error) bool {
-	return strings.Contains(err.Error(), "no such host") ||
-		strings.Contains(err.Error(), "network is unreachable")
+func isNetworkUnreachable(errs Errors) bool {
+	for _, err := range errs {
+		if !(strings.Contains(err.Err.Error(), "no such host") ||
+			strings.Contains(err.Err.Error(), "network is unreachable")) {
+			return false
+		}
+	}
+	return true
 }
