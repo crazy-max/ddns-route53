@@ -1,16 +1,8 @@
 /.idea
 /*.iml
 
-/.dev
-/.git
-/.github
-/.res
+.dev
 /bin
 /dist
-/docs
-/vendor
-/.editorconfig
-/.gitattributes
-/.gitignore
-/CHANGELOG.md
-/README.md
+/site
+/coverage.txt

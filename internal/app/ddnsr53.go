@@ -103,7 +103,7 @@ func (c *DDNSRoute53) Start() error {
 	// Start scheduler
 	c.cron.Start()
 	log.Info().Msgf("Next run in %s (%s)",
-		durafmt.ParseShort(c.cron.Entry(c.jobID).Next.Sub(time.Now())).String(),
+		durafmt.ParseShort(time.Until(c.cron.Entry(c.jobID).Next)).String(),
 		c.cron.Entry(c.jobID).Next)
 
 	select {}
@@ -121,7 +121,7 @@ func (c *DDNSRoute53) Run() {
 	defer atomic.StoreUint32(&c.locker, 0)
 	if c.jobID > 0 {
 		defer log.Info().Msgf("Next run in %s (%s)",
-			durafmt.ParseShort(c.cron.Entry(c.jobID).Next.Sub(time.Now())).String(),
+			durafmt.ParseShort(time.Until(c.cron.Entry(c.jobID).Next)).String(),
 			c.cron.Entry(c.jobID).Next)
 	}
 
