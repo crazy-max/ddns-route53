@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.4.0 (2021/03/07)
+
+* Bump github.com/aws/aws-sdk-go from 1.36.20 to 1.37.25 (#374)
+* Fix WanIP provider
+* Missing non-root user for Docker image
+* Switch to `goreleaser-xx` (#373)
+* Remove s390x Docker image support (#361)
+* Bump github.com/alecthomas/kong from 0.2.12 to 0.2.15 (#353)
+* Bump github.com/stretchr/testify from 1.6.1 to 1.7.0 (#339)
+
 ## 2.3.0 (2021/01/05)
 
 * Bump github.com/aws/aws-sdk-go from 1.35.28 to 1.36.20 (#332)
