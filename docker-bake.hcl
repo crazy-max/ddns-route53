@@ -1,6 +1,6 @@
 // Go version
 variable "GO_VERSION" {
-  default = "1.15"
+  default = "1.16"
 }
 
 // GitHub reference as defined in GitHub Actions (eg. refs/head/master))
