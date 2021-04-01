@@ -14,10 +14,10 @@
 
 * Bump github.com/aws/aws-sdk-go from 1.35.28 to 1.36.20 (#332)
 * Refactor CI and dev workflow with buildx bake (#333)
-    * Upload artifacts
-    * Add `image-local` target
-    * Single job for artifacts and image
-    * Add `armv5`, `ppc64le` and `s390x` artifacts
+      * Upload artifacts
+      * Add `image-local` target
+      * Single job for artifacts and image
+      * Add `armv5`, `ppc64le` and `s390x` artifacts
 * Handle multi IP providers (#331)
 * Bump github.com/alecthomas/kong from 0.2.11 to 0.2.12 (#307)
 
@@ -125,9 +125,9 @@
 
 * Use GOPROXY
 * Update workflow
-  * Use softprops/action-gh-release to create GitHub release
-  * Use [ghaction-goreleaser](https://github.com/crazy-max/ghaction-goreleaser) GitHub Action
-  * Use [ghaction-docker-buildx](https://github.com/crazy-max/ghaction-docker-buildx) GitHub Action
+    * Use softprops/action-gh-release to create GitHub release
+    * Use [ghaction-goreleaser](https://github.com/crazy-max/ghaction-goreleaser) GitHub Action
+    * Use [ghaction-docker-buildx](https://github.com/crazy-max/ghaction-docker-buildx) GitHub Action
 * Stop publishing Docker image on Quay
 
 ## 1.3.3 (2019/09/08)
