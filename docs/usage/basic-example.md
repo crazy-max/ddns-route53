@@ -26,5 +26,5 @@ route53:
 That's it. Now you can launch ddns-route53 with the following command:
 
 ```shell
-$ ddns-route53 --config ./ddns-route53.yml --schedule "*/30 * * * *"
+ddns-route53 --config ./ddns-route53.yml --schedule "*/30 * * * *"
 ```

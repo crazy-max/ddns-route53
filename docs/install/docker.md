@@ -16,7 +16,7 @@ It is possible to always use the latest stable tag or to use another service tha
 
 Following platforms for this image are available:
 
-```shell
+```
 $ docker run --rm mplatform/mquery crazymax/ddns-route53:latest
 Image: crazymax/ddns-route53:latest
  * Manifest List: Yes
@@ -59,32 +59,32 @@ services:
 Edit this example with your preferences and run the following commands to bring up ddns-route53:
 
 ```shell
-$ docker-compose up -d
-$ docker-compose logs -f
+docker-compose up -d
+docker-compose logs -f
 ```
 
 Or use the following command:
 
 ```shell
-$ docker run -d --name ddns-route53 \
-    -e "TZ=Europe/Paris" \
-    -e "SCHEDULE=*/30 * * * *" \
-    -e "LOG_LEVEL=info" \
-    -e "LOG_JSON=false" \
-    -e "DDNSR53_CREDENTIALS_ACCESSKEYID=ABCDEFGHIJKLMNO123456" \
-    -e "DDNSR53_CREDENTIALS_SECRETACCESSKEY=abcdefgh123456IJKLMN+OPQRS7890+ABCDEFGH" \
-    -e "DDNSR53_ROUTE53_HOSTEDZONEID=ABCEEFG123456789" \
-    -e "DDNSR53_ROUTE53_RECORDSSET_0_NAME=ddns.example.com." \
-    -e "DDNSR53_ROUTE53_RECORDSSET_0_TYPE=A" \
-    -e "DDNSR53_ROUTE53_RECORDSSET_0_TTL=300" \
-    crazymax/ddns-route53:latest
+docker run -d --name ddns-route53 \
+  -e "TZ=Europe/Paris" \
+  -e "SCHEDULE=*/30 * * * *" \
+  -e "LOG_LEVEL=info" \
+  -e "LOG_JSON=false" \
+  -e "DDNSR53_CREDENTIALS_ACCESSKEYID=ABCDEFGHIJKLMNO123456" \
+  -e "DDNSR53_CREDENTIALS_SECRETACCESSKEY=abcdefgh123456IJKLMN+OPQRS7890+ABCDEFGH" \
+  -e "DDNSR53_ROUTE53_HOSTEDZONEID=ABCEEFG123456789" \
+  -e "DDNSR53_ROUTE53_RECORDSSET_0_NAME=ddns.example.com." \
+  -e "DDNSR53_ROUTE53_RECORDSSET_0_TYPE=A" \
+  -e "DDNSR53_ROUTE53_RECORDSSET_0_TTL=300" \
+  crazymax/ddns-route53:latest
 ```
 
 To upgrade your installation to the latest release:
 
 ```shell
-$ docker-compose pull
-$ docker-compose up -d
+docker-compose pull
+docker-compose up -d
 ```
 
 If you prefer to rely on the [`configuration file](../config/index.md#configuration-file) instead of

@@ -14,7 +14,7 @@ Follow the [guide](https://github.com/boostchicken/udm-utilities/tree/master/on-
 Create the config directory.
 
 ```shell
-$ mkdir /mnt/data/ddns-route53
+mkdir /mnt/data/ddns-route53
 ```
 
 Create your `ddns-route53.yml` [configuration file](../config/index.md#configuration-file) and save
@@ -23,7 +23,7 @@ it as `/mnt/data/ddns-route53/ddns-route53.yml`.
 Fix the permissions of the config file.
 
 ```shell
-$ chown 1000:1000 /mnt/data/ddns-route53/ddns-route53.yml
+chown 1000:1000 /mnt/data/ddns-route53/ddns-route53.yml
 ```
 
 ## Setup the service
@@ -48,7 +48,7 @@ podman run -d --restart always \
 Make the script executable.
 
 ```shell
-$ chmod +x /mnt/data/on_boot.d/20-ddns-route53.sh
+chmod +x /mnt/data/on_boot.d/20-ddns-route53.sh
 ```
 
 ## Start the service
@@ -56,7 +56,7 @@ $ chmod +x /mnt/data/on_boot.d/20-ddns-route53.sh
 Start the service.
 
 ```shell
-$ /mnt/data/on_boot.d/20-ddns-route53.
+/mnt/data/on_boot.d/20-ddns-route53.sh
 ```
 
 The next time the device restarts the service will automatically start.
@@ -66,5 +66,5 @@ The next time the device restarts the service will automatically start.
 Check the logs with podman.
 
 ```shell
-$ podman logs ddns-route53
+podman logs ddns-route53
 ```

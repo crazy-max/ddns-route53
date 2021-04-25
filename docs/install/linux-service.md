@@ -35,12 +35,12 @@ Change the user, group, and other required startup values following your needs.
 Enable and start ddns-route53 at boot:
 
 ```shell
-$ sudo systemctl enable ddns-route53
-$ sudo systemctl start ddns-route53
+sudo systemctl enable ddns-route53
+sudo systemctl start ddns-route53
 ```
 
 To view logs:
 
 ```shell
-$ journalctl -fu ddns-route53.service
+journalctl -fu ddns-route53.service
 ```

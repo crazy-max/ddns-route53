@@ -10,13 +10,13 @@ This guide is for devices running VyOS such as:
 Determine which architecture the USG is using:
 
 ```shell
-$ uname -a
+uname -a
 ```
 
 Determine if the USG is using `softfloat` or `hardfloat` optimizations:
 
 ```shell
-$ readelf -A /bin/sh | grep ABI_FP
+readelf -A /bin/sh | grep ABI_FP
 ```
 
 !!! tip

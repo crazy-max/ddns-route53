@@ -3,7 +3,7 @@
 ## Usage
 
 ```shell
-$ ddns-route53 [options]
+ddns-route53 [options]
 ```
 
 ## Options

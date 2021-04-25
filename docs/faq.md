@@ -8,5 +8,5 @@ Cron schedule may also override the timezone to be interpreted in by providing a
 at the beginning of the cron spec, of the form `CRON_TZ=<timezone>`:
 
 ```shell
-$ ddns-route53 --schedule "CRON_TZ=Asia/Tokyo */30 * * * *"
+ddns-route53 --schedule "CRON_TZ=Asia/Tokyo */30 * * * *"
 ```

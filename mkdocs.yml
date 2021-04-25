@@ -25,9 +25,20 @@ theme:
   custom_dir: docs/_overrides
   language: en
   palette:
-    scheme: default
-    primary: blue
-    accent: blue
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
   font:
     text: Roboto
     code: Roboto Mono
