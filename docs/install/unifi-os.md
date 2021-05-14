@@ -34,6 +34,25 @@ to change the `TZ=America/Vancouver` line to your own timezone.
 ```shell
 #!/bin/sh
 
+CNI_PATH=/mnt/data/podman/cni
+if [ ! -f "$CNI_PATH"/macvlan ]; then
+    mkdir -p $CNI_PATH
+    curl -L https://github.com/containernetworking/plugins/releases/download/v0.8.6/cni-plugins-linux-arm64-v0.8.6.tgz | tar -xz -C $CNI_PATH
+fi
+
+mkdir -p /opt/cni
+rm -f /opt/cni/bin
+ln -s $CNI_PATH /opt/cni/bin
+
+for file in "$CNI_PATH"/*.conflist
+do
+    if [ -f "$file" ]; then
+        link_path="/etc/cni/net.d/$(basename "$file")"
+        rm -f "$link_path"
+        ln -s "$file" "$link_path"
+    fi
+done
+
 podman run -d --restart always \
   --name ddns-route53 \
   --hostname ddns-route53 \
