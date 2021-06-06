@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.5.0 (2021/06/05)
+
+* Bump github.com/go-playground/validator/v10 from 10.4.1 to 10.6.1 (#435)
+* Allow to disable log color output (#456)
+* Update build workflow (#455)
+* Add cni installation to unifi-os install (#438)
+* MkDocs Materials 7.1.5 (#453)
+* Fix artifacts download links
+* Set `cacheonly` output for validators
+* Move to `docker/metadata-action`
+* Add `darwin/arm64` artifact
+* Deploy docs on workflow dispatch or tag
+* Bump github.com/rs/zerolog from 1.20.0 to 1.22.0 (#388 #437)
+* Go 1.16 (#390)
+* Bump github.com/aws/aws-sdk-go from 1.37.25 to 1.38.55 (#377 #391 #454)
+* Bump github.com/alecthomas/kong from 0.2.15 to 0.2.16 (#376)
+
 ## 2.4.0 (2021/03/07)
 
 * Bump github.com/aws/aws-sdk-go from 1.36.20 to 1.37.25 (#374)
