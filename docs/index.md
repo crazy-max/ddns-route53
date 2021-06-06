@@ -24,7 +24,7 @@
 on a time-based schedule.
 
 With Go, this can be done with an independent binary distribution across all platforms and architectures that Go supports.
-This support includes Linux, macOS, and Windows, on architectures like amd64, i386, ARM, PowerPC, and others.
+This support includes Linux, macOS, and Windows, on architectures like amd64, 386, ARM, PowerPC, and others.
 
 ## Features
 
