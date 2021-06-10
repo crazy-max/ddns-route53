@@ -153,15 +153,15 @@
 
 ## 1.3.2 (2019/08/31)
 
-* Reenable multi-platform Docker images (Issue #4)
+* Reenable multi-platform Docker images (#4)
 
 ## 1.3.1 (2019/08/31)
 
-* Remove multi-platform Docker image, need rework (Issue #4)
+* Remove multi-platform Docker image, need rework (#4)
 
 ## 1.3.0 (2019/08/31)
 
-* Multi-platform Docker image (Issue #4)
+* Multi-platform Docker image (#4)
 * Remove GitHub Package support
 
 ## 1.2.1 (2019/08/29)
@@ -180,12 +180,12 @@
 
 ## 1.0.0 (2019/06/03)
 
-* Run once on startup (Issue #2)
+* Run once on startup (#2)
 * Update libs
 
 ## 0.2.0 (2019/04/02)
 
-* Handle IPv4 or IPv6 only if included in a record set (Issue #1)
+* Handle IPv4 or IPv6 only if included in a record set (#1)
 * Update libs
 
 ## 0.1.1 (2019/04/02)
