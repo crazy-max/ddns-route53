@@ -1,5 +1,5 @@
 site_name: ddns-route53
-site_description: Dynamic DNS for Amazon Route 53‎ on a time-based schedule
+site_description: Dynamic DNS for Amazon Route 53 on a time-based schedule
 site_author: CrazyMax
 site_url: https://crazy-max.github.io/ddns-route53/
 edit_uri: edit/master/docs/
@@ -19,6 +19,9 @@ extra:
       link: https://github.com/crazy-max/ddns-route53
     - icon: fontawesome/brands/twitter
       link: https://twitter.com/crazyws
+  plausible:
+    server: plausible.re4per.com
+    domain: crazymax.dev/ddns-route53
 
 theme:
   name: material
@@ -78,10 +81,6 @@ plugins:
       prebuild_index: python
       lang:
         - en
-
-google_analytics:
-  - UA-12516800-11
-  - auto
 
 nav:
   - Home: index.md
