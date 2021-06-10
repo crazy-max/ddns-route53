@@ -1,7 +1,7 @@
 <p align="center"><a href="https://github.com/crazy-max/ddns-route53" target="_blank"><img height="128" src="https://raw.githubusercontent.com/crazy-max/ddns-route53/master/.github/ddns-route53.png"></a></p>
 
 <p align="center">
-  <a href="https://crazy-max.github.io/ddns-route53/"><img src="https://img.shields.io/badge/doc-mkdocs-02a6f2?style=flat-square&logo=read-the-docs" alt="Documentation"></a>
+  <a href="https://crazymax.dev/ddns-route53/"><img src="https://img.shields.io/badge/doc-mkdocs-02a6f2?style=flat-square&logo=read-the-docs" alt="Documentation"></a>
   <a href="https://github.com/crazy-max/ddns-route53/releases/latest"><img src="https://img.shields.io/github/release/crazy-max/ddns-route53.svg?style=flat-square" alt="GitHub release"></a>
   <a href="https://github.com/crazy-max/ddns-route53/releases/latest"><img src="https://img.shields.io/github/downloads/crazy-max/ddns-route53/total.svg?style=flat-square" alt="Total downloads"></a>
   <a href="https://github.com/crazy-max/ddns-route53/actions?workflow=build"><img src="https://img.shields.io/github/workflow/status/crazy-max/ddns-route53/build?label=build&logo=github&style=flat-square" alt="Build Status"></a>
@@ -26,7 +26,7 @@ on a time-based schedule.
 
 ## Documentation
 
-Documentation can be found on https://crazy-max.github.io/ddns-route53/
+Documentation can be found on https://crazymax.dev/ddns-route53/
 
 ## How can I help?
 

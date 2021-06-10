@@ -1,7 +1,7 @@
 site_name: ddns-route53
 site_description: Dynamic DNS for Amazon Route 53 on a time-based schedule
 site_author: CrazyMax
-site_url: https://crazy-max.github.io/ddns-route53/
+site_url: https://crazymax.dev/ddns-route53/
 edit_uri: edit/master/docs/
 docs_dir: docs
 
