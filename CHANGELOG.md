@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.6.0 (2021/06/29)
+
+* Bump github.com/aws/aws-sdk-go from 1.38.55 to 1.38.69 (#472)
+* Add `linux/riscv64` and `windows/arm64` artifacts (#475)
+* Alpine Linux 3.14 (#474)
+* Added quotations to linux service (#473)
+* Bump github.com/rs/zerolog from 1.22.0 to 1.23.0 (#463)
+* Bump github.com/alecthomas/kong from 0.2.16 to 0.2.17 (#457)
+
 ## 2.5.0 (2021/06/05)
 
 * Bump github.com/go-playground/validator/v10 from 10.4.1 to 10.6.1 (#435)
