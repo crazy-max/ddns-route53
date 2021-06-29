@@ -80,13 +80,14 @@ target "artifact-all" {
     "darwin/arm64",
     "freebsd/amd64",
     "freebsd/386",
-    "linux/amd64",
     "linux/386",
+    "linux/amd64",
     "linux/arm/v5",
     "linux/arm/v6",
     "linux/arm/v7",
     "linux/arm64",
     "linux/ppc64le",
+    "linux/riscv64",
     "linux/s390x",
     "linux/mips/hardfloat",
     "linux/mips/softfloat",
@@ -96,8 +97,9 @@ target "artifact-all" {
     "linux/mips64/softfloat",
     "linux/mips64le/hardfloat",
     "linux/mips64le/softfloat",
+    "windows/386",
     "windows/amd64",
-    "windows/386"
+    "windows/arm64"
   ]
 }
 
@@ -113,8 +115,8 @@ target "image-local" {
 target "image-all" {
   inherits = ["image"]
   platforms = [
-    "linux/amd64",
     "linux/386",
+    "linux/amd64",
     "linux/arm/v6",
     "linux/arm/v7",
     "linux/arm64",
