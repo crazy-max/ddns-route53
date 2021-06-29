@@ -24,7 +24,7 @@ Restart=always
 #Environment=TZ=Europe/Paris
 #Environment=AWS_ACCESS_KEY_ID=********
 #Environment=AWS_SECRET_ACCESS_KEY=********
-Environment=SCHEDULE=*/30 * * * *
+Environment=SCHEDULE="*/30 * * * *"
 
 [Install]
 WantedBy=multi-user.target
