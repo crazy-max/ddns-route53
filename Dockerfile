@@ -2,7 +2,7 @@
 ARG GO_VERSION=1.16
 
 FROM --platform=$BUILDPLATFORM crazymax/goreleaser-xx:latest AS goreleaser-xx
-FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine AS base
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine3.14 AS base
 COPY --from=goreleaser-xx / /
 RUN apk add --no-cache ca-certificates gcc file git linux-headers musl-dev tar
 WORKDIR /src
@@ -28,12 +28,12 @@ FROM scratch AS artifacts
 COPY --from=build /out/*.tar.gz /
 COPY --from=build /out/*.zip /
 
-FROM alpine
+FROM alpine:3.14
 LABEL maintainer="CrazyMax"
 
 RUN apk --update --no-cache add \
     ca-certificates \
-    libressl \
+    openssl \
     shadow \
   && addgroup -g 1000 ddns-route53 \
   && adduser -u 1000 -G ddns-route53 -s /sbin/nologin -D ddns-route53 \
