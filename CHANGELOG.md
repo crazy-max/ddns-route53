@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.6.1 (2021/06/29)
+
+* `windows/arm64` not yet available
+
 ## 2.6.0 (2021/06/29)
 
 * Bump github.com/aws/aws-sdk-go from 1.38.55 to 1.38.69 (#472)
