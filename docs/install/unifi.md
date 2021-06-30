@@ -46,13 +46,15 @@ the following contents:
 
 ```json
 {
-  "task-scheduler": {
-    "task": {
-      "dnsupdate": {
-        "executable": {
-          "path": "/config/scripts/ddns-route53 --config /config/scripts/ddns-config.yml"
-        },
-        "interval": "1m"
+  "system": {
+    "task-scheduler": {
+      "task": {
+        "dnsupdate": {
+          "executable": {
+            "path": "/config/scripts/ddns-route53 --config /config/scripts/ddns-config.yml"
+          },
+          "interval": "1m"
+        }
       }
     }
   }
