@@ -51,7 +51,7 @@ the following contents:
       "task": {
         "dnsupdate": {
           "executable": {
-            "path": "/config/scripts/ddns-route53 --config /config/scripts/ddns-config.yml"
+            "path": "/config/scripts/ddns-route53 --config /config/scripts/ddns-route53.yml"
           },
           "interval": "1m"
         }
