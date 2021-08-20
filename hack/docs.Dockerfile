@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.2
+# syntax=docker/dockerfile:1.3
 
 FROM squidfunk/mkdocs-material:7.1.5 AS base
 RUN apk add --no-cache \
