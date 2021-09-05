@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.7.0 (2021/09/05)
+
+* Go 1.17 (#519)
+* Add `windows/arm64` artifact
+* Wrong remaining time displayed
+* Bump github.com/aws/aws-sdk-go from 1.38.69 to 1.40.37 (#518 #531)
+* Bump github.com/rs/zerolog from 1.23.0 to 1.24.0 (#525)
+* Bump github.com/crazy-max/gonfig from 0.4.0 to 0.5.0 (#520)
+* Bump codecov/codecov-action from 1 to 2
+* Bump github.com/go-playground/validator/v10 from 10.6.1 to 10.9.0 (#483 #508)
+* Corrected Unifi documentation (#477)
+
 ## 2.6.1 (2021/06/29)
 
 * `windows/arm64` not yet available
@@ -16,7 +28,7 @@
 ## 2.5.0 (2021/06/05)
 
 * Bump github.com/go-playground/validator/v10 from 10.4.1 to 10.6.1 (#435)
-* Allow to disable log color output (#456)
+* Allow disabling log color output (#456)
 * Update build workflow (#455)
 * Add cni installation to unifi-os install (#438)
 * MkDocs Materials 7.1.5 (#453)
@@ -103,7 +115,7 @@
 
 ## 1.9.0 (2020/05/14)
 
-* Allow to use `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_HOSTED_ZONE_ID` environment variables (#130)
+* Allow using `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_HOSTED_ZONE_ID` environment variables (#130)
 * Check AWS Route53 hosted zone ID entry
 * [aws-sdk-go](https://github.com/aws/aws-sdk-go) 1.30.27
 
