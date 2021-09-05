@@ -11,7 +11,7 @@ require (
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.9.0
-	github.com/hako/durafmt v0.0.0-20190612201238-650ed9f29a84
+	github.com/hako/durafmt v0.0.0-20210608085754-5c1018a4e16b
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/jpillora/backoff v1.0.0
 	github.com/leodido/go-urn v1.2.1 // indirect
