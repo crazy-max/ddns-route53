@@ -98,7 +98,8 @@ target "artifact-all" {
     "linux/mips64le/hardfloat",
     "linux/mips64le/softfloat",
     "windows/386",
-    "windows/amd64"
+    "windows/amd64",
+    "windows/arm64"
   ]
 }
 
