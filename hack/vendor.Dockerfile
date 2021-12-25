@@ -3,7 +3,7 @@
 ARG GO_VERSION
 
 FROM golang:${GO_VERSION}-alpine AS base
-RUN apk add --no-cache git
+RUN apk add --no-cache git linux-headers musl-dev
 WORKDIR /src
 
 FROM base AS vendored
@@ -26,7 +26,7 @@ git add -A
 cp -rf /out/* .
 diff=$(git status --porcelain -- go.mod go.sum)
 if [ -n "$diff" ]; then
-  echo >&2 'ERROR: Vendor result differs. Please vendor your package with "docker buildx bake vendor-update"'
+  echo >&2 'ERROR: Vendor result differs. Please vendor your package with "docker buildx bake vendor"'
   echo "$diff"
   exit 1
 fi

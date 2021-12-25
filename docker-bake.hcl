@@ -18,47 +18,15 @@ group "default" {
   targets = ["image-local"]
 }
 
-group "validate" {
-  targets = ["lint", "vendor-validate"]
-}
-
-target "lint" {
+target "binary" {
   inherits = ["_common"]
-  dockerfile = "./hack/lint.Dockerfile"
-  target = "lint"
-  output = ["type=cacheonly"]
-}
-
-target "vendor-validate" {
-  inherits = ["_common"]
-  dockerfile = "./hack/vendor.Dockerfile"
-  target = "validate"
-  output = ["type=cacheonly"]
-}
-
-target "vendor-update" {
-  inherits = ["_common"]
-  dockerfile = "./hack/vendor.Dockerfile"
-  target = "update"
-  output = ["."]
-}
-
-target "test" {
-  inherits = ["_common"]
-  dockerfile = "./hack/test.Dockerfile"
-  target = "test-coverage"
-  output = ["."]
-}
-
-target "docs" {
-  dockerfile = "./hack/docs.Dockerfile"
-  target = "release"
-  output = ["./site"]
+  target = "binary"
+  output = ["./bin"]
 }
 
 target "artifact" {
   inherits = ["_common"]
-  target = "artifacts"
+  target = "artifact"
   output = ["./dist"]
 }
 
@@ -111,4 +79,41 @@ target "image-all" {
     "linux/arm64",
     "linux/ppc64le"
   ]
+}
+
+target "test" {
+  inherits = ["_common"]
+  target = "test-coverage"
+  output = ["."]
+}
+
+target "vendor" {
+  inherits = ["_common"]
+  dockerfile = "./hack/vendor.Dockerfile"
+  target = "update"
+  output = ["."]
+}
+
+target "docs" {
+  dockerfile = "./hack/docs.Dockerfile"
+  target = "release"
+  output = ["./site"]
+}
+
+group "validate" {
+  targets = ["lint", "vendor-validate"]
+}
+
+target "lint" {
+  inherits = ["_common"]
+  dockerfile = "./hack/lint.Dockerfile"
+  target = "lint"
+  output = ["type=cacheonly"]
+}
+
+target "vendor-validate" {
+  inherits = ["_common"]
+  dockerfile = "./hack/vendor.Dockerfile"
+  target = "validate"
+  output = ["type=cacheonly"]
 }

@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1.3
+# syntax=docker/dockerfile:1.3-labs
 
 ARG GO_VERSION
 ARG GORELEASER_XX_VERSION="1.2.2"
@@ -15,6 +15,19 @@ RUN --mount=type=bind,source=.,target=/src,rw \
   --mount=type=cache,target=/go/pkg/mod \
   go mod tidy && go mod download
 
+FROM vendored AS test
+ENV CGO_ENABLED=1
+RUN apk add --no-cache gcc linux-headers musl-dev
+RUN --mount=type=bind,target=. \
+  --mount=type=cache,target=/go/pkg/mod \
+  --mount=type=cache,target=/root/.cache/go-build <<EOT
+go test -v -coverprofile=/tmp/coverage.txt -covermode=atomic -race ./...
+go tool cover -func=/tmp/coverage.txt
+EOT
+
+FROM scratch AS test-coverage
+COPY --from=test /tmp/coverage.txt /coverage.txt
+
 FROM vendored AS build
 ARG TARGETPLATFORM
 RUN --mount=type=bind,target=. \
@@ -30,11 +43,15 @@ RUN --mount=type=bind,target=. \
     --files="LICENSE" \
     --files="README.md"
 
-FROM scratch AS artifacts
+FROM scratch AS artifact
 COPY --from=build /out/*.tar.gz /
 COPY --from=build /out/*.zip /
 
+FROM scratch AS binary
+COPY --from=build /usr/local/bin/ddns-route53* /
+
 FROM alpine:3.14
+
 RUN apk --update --no-cache add \
     ca-certificates \
     openssl \
@@ -42,7 +59,9 @@ RUN apk --update --no-cache add \
   && addgroup -g 1000 ddns-route53 \
   && adduser -u 1000 -G ddns-route53 -s /sbin/nologin -D ddns-route53 \
   && rm -rf /tmp/*
+
 COPY --from=build /usr/local/bin/ddns-route53 /usr/local/bin/ddns-route53
+
 USER ddns-route53
 ENTRYPOINT [ "ddns-route53" ]
 CMD [ "--config", "/ddns-route53.yml" ]
