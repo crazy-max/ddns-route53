@@ -1,4 +1,5 @@
-# syntax=docker/dockerfile:1.3
+# syntax=docker/dockerfile:1.3-labs
+
 ARG GO_VERSION
 
 FROM golang:${GO_VERSION}-alpine AS base
@@ -7,18 +8,26 @@ WORKDIR /src
 
 FROM base AS vendored
 RUN --mount=type=bind,target=.,rw \
-  --mount=type=cache,target=/go/pkg/mod \
-  go mod tidy && go mod download && \
-  mkdir /out && cp go.mod go.sum /out
+  --mount=type=cache,target=/go/pkg/mod <<EOT
+set -e
+go mod tidy
+go mod download
+mkdir /out
+cp go.mod go.sum /out
+EOT
 
 FROM scratch AS update
 COPY --from=vendored /out /
 
 FROM vendored AS validate
-RUN --mount=type=bind,target=.,rw \
-  git add -A && cp -rf /out/* .; \
-  if [ -n "$(git status --porcelain -- go.mod go.sum)" ]; then \
-    echo >&2 'ERROR: Vendor result differs. Please vendor your package with "docker buildx bake vendor-update"'; \
-    git status --porcelain -- go.mod go.sum; \
-    exit 1; \
-  fi
+RUN --mount=type=bind,target=.,rw <<EOT
+set -e
+git add -A
+cp -rf /out/* .
+diff=$(git status --porcelain -- go.mod go.sum)
+if [ -n "$diff" ]; then
+  echo >&2 'ERROR: Vendor result differs. Please vendor your package with "docker buildx bake vendor-update"'
+  echo "$diff"
+  exit 1
+fi
+EOT

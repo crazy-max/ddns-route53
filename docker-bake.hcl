@@ -1,22 +1,11 @@
-// Go version
 variable "GO_VERSION" {
   default = "1.17"
 }
 
-target "go-version" {
+target "_common" {
   args = {
     GO_VERSION = GO_VERSION
-  }
-}
-
-// GitHub reference as defined in GitHub Actions (eg. refs/head/master))
-variable "GITHUB_REF" {
-  default = ""
-}
-
-target "git-ref" {
-  args = {
-    GIT_REF = GITHUB_REF
+    BUILDKIT_CONTEXT_KEEP_GIT_DIR = 1
   }
 }
 
@@ -34,28 +23,28 @@ group "validate" {
 }
 
 target "lint" {
-  inherits = ["go-version"]
+  inherits = ["_common"]
   dockerfile = "./hack/lint.Dockerfile"
   target = "lint"
   output = ["type=cacheonly"]
 }
 
 target "vendor-validate" {
-  inherits = ["go-version"]
+  inherits = ["_common"]
   dockerfile = "./hack/vendor.Dockerfile"
   target = "validate"
   output = ["type=cacheonly"]
 }
 
 target "vendor-update" {
-  inherits = ["go-version"]
+  inherits = ["_common"]
   dockerfile = "./hack/vendor.Dockerfile"
   target = "update"
   output = ["."]
 }
 
 target "test" {
-  inherits = ["go-version"]
+  inherits = ["_common"]
   dockerfile = "./hack/test.Dockerfile"
   target = "test-coverage"
   output = ["."]
@@ -68,7 +57,7 @@ target "docs" {
 }
 
 target "artifact" {
-  inherits = ["go-version", "git-ref"]
+  inherits = ["_common"]
   target = "artifacts"
   output = ["./dist"]
 }
@@ -104,7 +93,7 @@ target "artifact-all" {
 }
 
 target "image" {
-  inherits = ["go-version", "git-ref", "docker-metadata-action"]
+  inherits = ["_common", "docker-metadata-action"]
 }
 
 target "image-local" {
