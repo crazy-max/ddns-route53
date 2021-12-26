@@ -2,7 +2,7 @@ package wanip
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http"
 	"strings"
@@ -115,7 +115,7 @@ func (c *Client) getIP(providerURL string) (net.IP, error) {
 		}
 		defer res.Body.Close()
 
-		ip, err := ioutil.ReadAll(res.Body)
+		ip, err := io.ReadAll(res.Body)
 		if err != nil {
 			return nil, errors.Wrap(err, "request failed")
 		}
