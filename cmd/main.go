@@ -6,7 +6,6 @@ import (
 	"os/signal"
 	"runtime"
 	"strings"
-	"syscall"
 	_ "time/tzdata"
 
 	"github.com/alecthomas/kong"
@@ -14,6 +13,7 @@ import (
 	"github.com/crazy-max/ddns-route53/v2/internal/config"
 	"github.com/crazy-max/ddns-route53/v2/internal/logging"
 	"github.com/crazy-max/ddns-route53/v2/internal/model"
+	"github.com/crazy-max/ddns-route53/v2/pkg/utl"
 	"github.com/rs/zerolog/log"
 )
 
@@ -57,7 +57,7 @@ func main() {
 
 	// Handle os signals
 	channel := make(chan os.Signal)
-	signal.Notify(channel, os.Interrupt, syscall.SIGTERM)
+	signal.Notify(channel, os.Interrupt, utl.SIGTERM)
 	go func() {
 		sig := <-channel
 		ddnsRoute53.Close()
