@@ -1,10 +1,10 @@
 # syntax=docker/dockerfile:1.3-labs
 
-ARG GO_VERSION
+ARG GO_VERSION="1.17"
 ARG GORELEASER_XX_VERSION="1.2.2"
 
 FROM --platform=$BUILDPLATFORM crazymax/goreleaser-xx:${GORELEASER_XX_VERSION} AS goreleaser-xx
-FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine3.14 AS base
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine AS base
 ENV CGO_ENABLED=0
 COPY --from=goreleaser-xx / /
 RUN apk add --no-cache file git
@@ -50,18 +50,11 @@ COPY --from=build /out/*.zip /
 FROM scratch AS binary
 COPY --from=build /usr/local/bin/ddns-route53* /
 
-FROM alpine:3.14
-
-RUN apk --update --no-cache add \
-    ca-certificates \
-    openssl \
-    shadow \
+FROM alpine:3.15
+RUN apk --update --no-cache add ca-certificates openssl shadow \
   && addgroup -g 1000 ddns-route53 \
-  && adduser -u 1000 -G ddns-route53 -s /sbin/nologin -D ddns-route53 \
-  && rm -rf /tmp/*
-
+  && adduser -u 1000 -G ddns-route53 -s /sbin/nologin -D ddns-route53
 COPY --from=build /usr/local/bin/ddns-route53 /usr/local/bin/ddns-route53
-
 USER ddns-route53
 ENTRYPOINT [ "ddns-route53" ]
 CMD [ "--config", "/ddns-route53.yml" ]
