@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.8.0 (2022/01/26)
+
+* Alpine Linux 3.15 (#622)
+* MkDocs Material 8.1.8 (#637)
+* goreleaser-xx 1.2.5 (#627)
+* Move `syscall` to `golang.org/x/sys` (#612)
+* Move from `io/ioutil` to `io` and `os` packages (#613)
+* Enhance dockerfiles (#610 #611)
+* Bump github.com/go-playground/validator/v10 from 10.9.0 to 10.10.0 (#614)
+* Bump github.com/alecthomas/kong from 0.2.17 to 0.3.0 (#576 #599 #605 #620)
+* Bump github.com/aws/aws-sdk-go from 1.40.37 to 1.42.41 (#551 #577 #615 #623 #636)
+* Bump github.com/rs/zerolog from 1.24.0 to 1.26.1 (#534 #574 #607)
+
 ## 2.7.0 (2021/09/05)
 
 * Go 1.17 (#519)
