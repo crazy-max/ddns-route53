@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/alecthomas/kong v0.5.0
-	github.com/aws/aws-sdk-go v1.42.41
+	github.com/aws/aws-sdk-go v1.43.41
 	github.com/crazy-max/gonfig v0.5.0
 	github.com/go-playground/validator/v10 v10.10.1
 	github.com/hako/durafmt v0.0.0-20210608085754-5c1018a4e16b
