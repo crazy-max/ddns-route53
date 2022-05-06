@@ -24,7 +24,7 @@ jobs:
         uses: docker/setup-buildx-action@v1
       -
         name: Validate
-        uses: docker/bake-action@v1
+        uses: docker/bake-action@v2
         with:
           targets: validate
 
@@ -41,7 +41,7 @@ jobs:
         uses: docker/setup-buildx-action@v1
       -
         name: Test
-        uses: docker/bake-action@v1
+        uses: docker/bake-action@v2
         with:
           targets: test
       -
@@ -100,7 +100,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       -
         name: Build artifacts
-        uses: docker/bake-action@v1
+        uses: docker/bake-action@v2
         with:
           targets: artifact-all
       -
@@ -116,7 +116,7 @@ jobs:
           if-no-files-found: error
       -
         name: Build
-        uses: docker/bake-action@v1
+        uses: docker/bake-action@v2
         with:
           files: |
             ./docker-bake.hcl
