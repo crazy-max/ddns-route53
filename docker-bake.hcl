@@ -1,5 +1,5 @@
 variable "GO_VERSION" {
-  default = "1.17"
+  default = "1.18"
 }
 
 target "_common" {
@@ -98,6 +98,14 @@ target "docs" {
   dockerfile = "./hack/docs.Dockerfile"
   target = "release"
   output = ["./site"]
+}
+
+target "gomod-outdated" {
+  inherits = ["_common"]
+  dockerfile = "./hack/vendor.Dockerfile"
+  target = "outdated"
+  no-cache-filter = ["outdated"]
+  output = ["type=cacheonly"]
 }
 
 group "validate" {
