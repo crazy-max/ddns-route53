@@ -16,14 +16,11 @@
 
 ## What is ddns-route53?
 
-**ddns-route53** :motorway: is a CLI application written in [Go](https://golang.org/) and delivered as a
-[single executable]({{ config.repo_url }}releases/latest) (and a
-[Docker image](https://hub.docker.com/r/crazymax/ddns-route53/)) that lets you run your own
-[dynamic DNS](https://en.wikipedia.org/wiki/Dynamic_DNS) service with [Amazon Route 53](https://aws.amazon.com/route53/)
-on a time-based schedule.
-
-With Go, this can be done with an independent binary distribution across all platforms and architectures that Go supports.
-This support includes Linux, macOS, and Windows, on architectures like amd64, 386, ARM, PowerPC, and others.
+**ddns-route53** :motorway: is a CLI application written in [Go](https://golang.org/)
+and delivered as a [binary]({{ config.repo_url }}releases/latest) and a [Docker image](https://hub.docker.com/r/crazymax/ddns-route53/)
+that lets you run your own [dynamic DNS](https://en.wikipedia.org/wiki/Dynamic_DNS)
+service with [Amazon Route 53](https://aws.amazon.com/route53/) on a time-based
+schedule.
 
 ## Features
 
