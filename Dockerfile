@@ -2,6 +2,7 @@
 
 ARG GO_VERSION="1.18"
 ARG GORELEASER_XX_VERSION="1.2.5"
+ARG ALPINE_VERSION="3.16"
 
 FROM --platform=$BUILDPLATFORM crazymax/goreleaser-xx:${GORELEASER_XX_VERSION} AS goreleaser-xx
 FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine AS base
@@ -50,7 +51,7 @@ COPY --from=build /out/*.zip /
 FROM scratch AS binary
 COPY --from=build /usr/local/bin/ddns-route53* /
 
-FROM alpine:3.15
+FROM alpine:${ALPINE_VERSION}
 RUN apk --update --no-cache add ca-certificates openssl shadow \
   && addgroup -g 1000 ddns-route53 \
   && adduser -u 1000 -G ddns-route53 -s /sbin/nologin -D ddns-route53
