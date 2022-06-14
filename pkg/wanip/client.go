@@ -41,7 +41,7 @@ func (c *Client) IPv4() (net.IP, Errors) {
 	for _, providerURL := range []string{
 		"https://ipv4.nsupdate.info/myip",
 		"https://v4.ident.me",
-		"http://ipv4.yunohost.org",
+		"https://ipv4.yunohost.org",
 		"https://ipv4.wtfismyip.com/text",
 	} {
 		ip, err := c.getIP(providerURL)
@@ -69,7 +69,7 @@ func (c *Client) IPv6() (net.IP, Errors) {
 	for _, providerURL := range []string{
 		"https://ipv6.nsupdate.info/myip",
 		"https://v6.ident.me",
-		"http://ipv6.yunohost.org",
+		"https://ipv6.yunohost.org",
 		"https://ipv6.wtfismyip.com/text",
 	} {
 		ip, err := c.getIP(providerURL)
