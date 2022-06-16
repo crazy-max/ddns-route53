@@ -1,7 +1,7 @@
 github.com/BurntSushi/toml v0.4.1 h1:GaI7EiDXDRfa8VshkTj7Fym7ha+y8/XxIgD2okUIjLw=
 github.com/BurntSushi/toml v0.4.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
-github.com/alecthomas/kong v0.6.0 h1:TaubBR3Km26EgkapkJyOtJonemuQjStxQ065AzMYnX8=
-github.com/alecthomas/kong v0.6.0/go.mod h1:JfHWDzLmbh/puW6I3V7uWenoh56YNVONW+w8eKeUr9I=
+github.com/alecthomas/kong v0.6.1 h1:1kNhcFepkR+HmasQpbiKDLylIL8yh5B5y1zPp5bJimA=
+github.com/alecthomas/kong v0.6.1/go.mod h1:JfHWDzLmbh/puW6I3V7uWenoh56YNVONW+w8eKeUr9I=
 github.com/alecthomas/repr v0.0.0-20210801044451-80ca428c5142 h1:8Uy0oSf5co/NZXje7U1z8Mpep++QJOldL2hs/sBQf48=
 github.com/alecthomas/repr v0.0.0-20210801044451-80ca428c5142/go.mod h1:2kn6fqh/zIyPLmm3ugklbEi5hg5wS435eygvNfaDQL8=
 github.com/aws/aws-sdk-go v1.44.34 h1:+ZtWIbtSGLNB99P8eBrxXfJZgiIouzUbpkf/MNxq2yQ=
