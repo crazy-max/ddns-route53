@@ -5,11 +5,10 @@ variable "GO_VERSION" {
 target "_common" {
   args = {
     GO_VERSION = GO_VERSION
-    BUILDKIT_CONTEXT_KEEP_GIT_DIR = 1
   }
 }
 
-// Special target: https://github.com/docker/metadata-action#bake-definition
+# Special target: https://github.com/docker/metadata-action#bake-definition
 target "docker-metadata-action" {
   tags = ["crazymax/ddns-route53:local"]
 }
