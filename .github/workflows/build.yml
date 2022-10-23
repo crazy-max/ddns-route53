@@ -108,15 +108,16 @@ jobs:
         with:
           targets: artifact-all
       -
-        name: Move artifacts
-        run: |
-          mv ./dist/**/* ./dist/
+        name: Release
+        uses: docker/bake-action@v2
+        with:
+          targets: release
       -
         name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           name: ddns-route53
-          path: ./dist/*
+          path: ./release/*
           if-no-files-found: error
       -
         name: Build
@@ -134,8 +135,7 @@ jobs:
         with:
           draft: true
           files: |
-            dist/*.tar.gz
-            dist/*.zip
+            release/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       -
