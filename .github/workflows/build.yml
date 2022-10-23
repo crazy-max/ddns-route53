@@ -15,6 +15,7 @@ on:
 env:
   DOCKERHUB_SLUG: crazymax/ddns-route53
   GHCR_SLUG: ghcr.io/crazy-max/ddns-route53
+  DESTDIR: ./bin
 
 jobs:
   validate:
@@ -52,7 +53,7 @@ jobs:
         name: Upload coverage
         uses: codecov/codecov-action@v3
         with:
-          file: ./coverage.txt
+          directory: ${{ env.DESTDIR }}/coverage
 
   build:
     runs-on: ubuntu-latest
@@ -117,7 +118,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ddns-route53
-          path: ./release/*
+          path: ${{ env.DESTDIR }}/release/*
           if-no-files-found: error
       -
         name: Build
@@ -135,7 +136,7 @@ jobs:
         with:
           draft: true
           files: |
-            release/*
+            ${{ env.DESTDIR }}/release/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       -
