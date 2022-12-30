@@ -3,7 +3,7 @@ package config
 import (
 	"encoding/json"
 
-	"github.com/aws/aws-sdk-go/service/route53"
+	r53types "github.com/aws/aws-sdk-go-v2/service/route53/types"
 	"github.com/crazy-max/ddns-route53/v2/pkg/utl"
 	"github.com/crazy-max/gonfig"
 	"github.com/go-playground/validator/v10"
@@ -67,9 +67,9 @@ func (cfg *Config) validate() error {
 	}
 
 	for _, rs := range cfg.Route53.RecordsSet {
-		if rs.Type == route53.RRTypeA {
+		if rs.Type == r53types.RRTypeA {
 			cfg.Route53.HandleIPv4 = utl.NewTrue()
-		} else if rs.Type == route53.RRTypeAaaa {
+		} else if rs.Type == r53types.RRTypeAaaa {
 			cfg.Route53.HandleIPv6 = utl.NewTrue()
 		}
 	}
