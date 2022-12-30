@@ -1,17 +1,17 @@
 package app
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"sync/atomic"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/route53"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	awsr53types "github.com/aws/aws-sdk-go-v2/service/route53/types"
 	"github.com/crazy-max/ddns-route53/v2/internal/config"
 	"github.com/crazy-max/ddns-route53/v2/internal/model"
+	"github.com/crazy-max/ddns-route53/v2/pkg/route53"
 	"github.com/crazy-max/ddns-route53/v2/pkg/utl"
 	"github.com/crazy-max/ddns-route53/v2/pkg/wanip"
 	"github.com/hako/durafmt"
@@ -21,15 +21,19 @@ import (
 
 // DDNSRoute53 represents an active ddns-route53 object
 type DDNSRoute53 struct {
-	meta     model.Meta
-	cfg      *config.Config
-	cron     *cron.Cron
-	r53      *route53.Route53
-	im       *wanip.Client
-	jobID    cron.EntryID
-	lastIPv4 net.IP
-	lastIPv6 net.IP
-	locker   uint32
+	meta      model.Meta
+	cfg       *config.Config
+	cron      *cron.Cron
+	r53       *route53.Client
+	im        *wanip.Client
+	jobID     cron.EntryID
+	currentIP ip
+	locker    uint32
+}
+
+type ip struct {
+	V4 net.IP
+	V6 net.IP
 }
 
 // New creates new ddns-route53 instance
@@ -49,20 +53,7 @@ func New(meta model.Meta, cfg *config.Config) (*DDNSRoute53, error) {
 		}
 	}
 
-	creds := credentials.NewChainCredentials(
-		[]credentials.Provider{
-			&credentials.EnvProvider{},
-			&credentials.StaticProvider{
-				Value: credentials.Value{
-					AccessKeyID:     accessKeyID,
-					SecretAccessKey: secretAccessKey,
-					SessionToken:    "",
-				}},
-		},
-	)
-
-	// AWS SDK session
-	sess, err := session.NewSession()
+	r53, err := route53.New(context.TODO(), accessKeyID, secretAccessKey, cfg.Route53.HostedZoneID)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +64,7 @@ func New(meta model.Meta, cfg *config.Config) (*DDNSRoute53, error) {
 		cron: cron.New(cron.WithParser(cron.NewParser(
 			cron.SecondOptional | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow | cron.Descriptor),
 		)),
-		r53: route53.New(sess, &aws.Config{Credentials: creds}),
+		r53: r53,
 		im: wanip.NewClient(
 			meta.UserAgent,
 			cfg.Cli.MaxRetries,
@@ -112,7 +103,7 @@ func (c *DDNSRoute53) Start() error {
 // Run runs ddns-route53 process
 func (c *DDNSRoute53) Run() {
 	var err error
-	var wanIPErrs wanip.Errors
+	var wanIP ip
 
 	if !atomic.CompareAndSwapUint32(&c.locker, 0, 1) {
 		log.Warn().Msg("Already running")
@@ -125,104 +116,89 @@ func (c *DDNSRoute53) Run() {
 			c.cron.Entry(c.jobID).Next)
 	}
 
-	var wanIPv4 net.IP
 	if *c.cfg.Route53.HandleIPv4 {
-		wanIPv4, wanIPErrs = c.im.IPv4()
-		if wanIPv4 != nil {
-			log.Info().Msgf("Current WAN IPv4: %s", wanIPv4)
-			if wanIPErrs != nil && len(wanIPErrs) > 0 {
-				for _, wanIPErr := range wanIPErrs {
-					log.Debug().Err(wanIPErr.Err).Str("provider-url", wanIPErr.ProviderURL).Msg("Cannot retrieve WAN IPv4 address")
-				}
-			}
-		} else if wanIPErrs != nil && len(wanIPErrs) > 0 {
-			for _, wanIPErr := range wanIPErrs {
-				log.Error().Err(wanIPErr.Err).Str("provider-url", wanIPErr.ProviderURL).Msg("Cannot retrieve WAN IPv4 address")
+		var wanErrs wanip.Errors
+		wanIP.V4, wanErrs = c.im.IPv4()
+		wanLogger := log.Error()
+		if wanIP.V4 != nil {
+			wanLogger = log.Debug()
+			log.Info().Msgf("Current WAN IPv4: %s", wanIP.V4)
+		}
+		if wanErrs != nil {
+			for _, wanIPErr := range wanErrs {
+				wanLogger.Err(wanIPErr.Err).Str("provider-url", wanIPErr.ProviderURL).Msg("Cannot retrieve WAN IPv4 address")
 			}
 		}
 	}
 
-	var wanIPv6 net.IP
 	if *c.cfg.Route53.HandleIPv6 {
-		wanIPv6, wanIPErrs = c.im.IPv6()
-		if wanIPv6 != nil {
-			log.Info().Msgf("Current WAN IPv6: %s", wanIPv6)
-			if wanIPErrs != nil && len(wanIPErrs) > 0 {
-				for _, wanIPErr := range wanIPErrs {
-					log.Debug().Err(wanIPErr.Err).Str("provider-url", wanIPErr.ProviderURL).Msg("Cannot retrieve WAN IPv6 address")
-				}
-			}
-		} else if wanIPErrs != nil && len(wanIPErrs) > 0 {
-			for _, wanIPErr := range wanIPErrs {
-				log.Error().Err(wanIPErr.Err).Str("provider-url", wanIPErr.ProviderURL).Msg("Cannot retrieve WAN IPv6 address")
+		var wanErrs wanip.Errors
+		wanIP.V6, wanErrs = c.im.IPv6()
+		wanLogger := log.Error()
+		if wanIP.V4 != nil {
+			wanLogger = log.Debug()
+			log.Info().Msgf("Current WAN IPv6: %s", wanIP.V6)
+		}
+		if wanErrs != nil {
+			for _, wanIPErr := range wanErrs {
+				wanLogger.Err(wanIPErr.Err).Str("provider-url", wanIPErr.ProviderURL).Msg("Cannot retrieve WAN IPv6 address")
 			}
 		}
 	}
 
-	if wanIPv4 == nil && wanIPv6 == nil {
+	if wanIP.V4 == nil && wanIP.V6 == nil {
 		return
 	}
 
-	// Skip if last IP is identical or empty
-	if wanIPv4.Equal(c.lastIPv4) && wanIPv6.Equal(c.lastIPv6) {
+	// Skip if current IP is identical or empty
+	if wanIP.V4.Equal(c.currentIP.V4) && wanIP.V6.Equal(c.currentIP.V6) {
 		log.Info().Msg("WAN IPv4/IPv6 addresses have not changed since last update. Skipping...")
 		return
 	}
 
 	// Create Route53 changes
-	var r53Changes []*route53.Change
+	var r53Changes []awsr53types.Change
 	for _, rs := range c.cfg.Route53.RecordsSet {
-		if wanIPv4 == nil && rs.Type == route53.RRTypeA {
+		if wanIP.V4 == nil && rs.Type == awsr53types.RRTypeA {
 			log.Error().Msgf("No WAN IPv4 address available to update %s record", rs.Name)
 			continue
-		} else if wanIPv6 == nil && rs.Type == route53.RRTypeAaaa {
+		} else if wanIP.V6 == nil && rs.Type == awsr53types.RRTypeAaaa {
 			log.Error().Msgf("No WAN IPv6 address available to update %s record", rs.Name)
 			continue
 		}
-		recordValue := aws.String(wanIPv4.String())
-		if rs.Type == route53.RRTypeAaaa {
-			recordValue = aws.String(wanIPv6.String())
+		recordValue := aws.String(wanIP.V4.String())
+		if rs.Type == awsr53types.RRTypeAaaa {
+			recordValue = aws.String(wanIP.V6.String())
 		}
-		r53Changes = append(r53Changes, &route53.Change{
-			Action: aws.String("UPSERT"),
-			ResourceRecordSet: &route53.ResourceRecordSet{
+		r53Changes = append(r53Changes, awsr53types.Change{
+			Action: awsr53types.ChangeActionUpsert,
+			ResourceRecordSet: &awsr53types.ResourceRecordSet{
 				Name:            aws.String(rs.Name),
-				Type:            aws.String(rs.Type),
+				Type:            rs.Type,
 				TTL:             aws.Int64(rs.TTL),
-				ResourceRecords: []*route53.ResourceRecord{{Value: recordValue}},
+				ResourceRecords: []awsr53types.ResourceRecord{{Value: recordValue}},
 			},
 		})
 	}
 
-	// Check changes
 	if len(r53Changes) == 0 {
 		log.Warn().Msgf("No Route53 record set to update. Skipping...")
 		return
 	}
 
-	// Create resource records
-	resRS := &route53.ChangeResourceRecordSetsInput{
-		ChangeBatch: &route53.ChangeBatch{
-			Comment: aws.String(fmt.Sprintf("Updated by %s %s at %s",
-				c.meta.Name,
-				c.meta.Version,
-				time.Now().Format("2006-01-02 15:04:05"),
-			)),
-			Changes: r53Changes,
-		},
-		HostedZoneId: aws.String(c.cfg.Route53.HostedZoneID),
-	}
-
-	// Update records
-	resp, err := c.r53.ChangeResourceRecordSets(resRS)
+	// Update Route53 records set
+	resp, err := c.r53.Update(context.Background(), r53Changes, fmt.Sprintf("Updated by %s %s at %s",
+		c.meta.Name,
+		c.meta.Version,
+		time.Now().Format("2006-01-02 15:04:05"),
+	))
 	if err != nil {
 		log.Error().Err(err).Msg("Cannot update records set")
+		return
 	}
-	log.Info().Interface("changes", resp).Msgf("%d records set updated", len(r53Changes))
 
-	// Update last IPv4/IPv6
-	c.lastIPv4 = wanIPv4
-	c.lastIPv6 = wanIPv6
+	log.Info().Interface("changes", resp).Msgf("%d records set updated", len(r53Changes))
+	c.currentIP = wanIP
 }
 
 // Close closes ddns-route53
