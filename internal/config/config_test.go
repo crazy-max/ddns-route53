@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"testing"
 
@@ -85,8 +84,6 @@ func TestLoadFile(t *testing.T) {
 }
 
 func TestLoadEnv(t *testing.T) {
-	defer UnsetEnv("DDNSR53_")
-
 	testCases := []struct {
 		desc     string
 		cli      Cli
@@ -133,13 +130,12 @@ func TestLoadEnv(t *testing.T) {
 	}
 
 	for _, tt := range testCases {
+		tt := tt
 		t.Run(tt.desc, func(t *testing.T) {
-			UnsetEnv("DDNSR53_")
-
 			if tt.environ != nil {
 				for _, environ := range tt.environ {
 					n := strings.SplitN(environ, "=", 2)
-					os.Setenv(n[0], n[1])
+					t.Setenv(n[0], n[1])
 				}
 			}
 
@@ -178,54 +174,5 @@ func TestValidation(t *testing.T) {
 				fmt.Printf(`%s=%s\n`, value.Name, value.Default)
 			}
 		})
-	}
-}
-
-func UnsetEnv(prefix string) (restore func()) {
-	before := map[string]string{}
-
-	for _, e := range os.Environ() {
-		if !strings.HasPrefix(e, prefix) {
-			continue
-		}
-
-		parts := strings.SplitN(e, "=", 2)
-		before[parts[0]] = parts[1]
-
-		os.Unsetenv(parts[0])
-	}
-
-	return func() {
-		after := map[string]string{}
-
-		for _, e := range os.Environ() {
-			if !strings.HasPrefix(e, prefix) {
-				continue
-			}
-
-			parts := strings.SplitN(e, "=", 2)
-			after[parts[0]] = parts[1]
-
-			// Check if the envar previously existed
-			v, ok := before[parts[0]]
-			if !ok {
-				// This is a newly added envar with prefix, zap it
-				os.Unsetenv(parts[0])
-				continue
-			}
-
-			if parts[1] != v {
-				// If the envar value has changed, set it back
-				os.Setenv(parts[0], v)
-			}
-		}
-
-		// Still need to check if there have been any deleted envars
-		for k, v := range before {
-			if _, ok := after[k]; !ok {
-				// k is not present in after, so we set it.
-				os.Setenv(k, v)
-			}
-		}
 	}
 }
