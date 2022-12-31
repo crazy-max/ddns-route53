@@ -5,7 +5,7 @@
 * Switch to retryable http client implementation (#900)
 * Allow specifying custom interface (#901)
 * Check record value with WAN IP and update accordingly (#902)
-  * :warning: requires `route53:ListResourceRecordSets` authorization in IAM policy
+    * :warning: requires `route53:ListResourceRecordSets` authorization in IAM policy
 * Update to AWS SDK v2 (#899)
 * Go 1.19 (#846 #750)
 * Alpine Linux 3.17 (#898)
