@@ -20,6 +20,9 @@ Flags:
       --version
       --config=STRING       ddns-route53 configuration file ($CONFIG).
       --schedule=STRING     CRON expression format ($SCHEDULE).
+      --ifname=STRING       Network interface name to be used for WAN IP
+                            retrieval. Leave empty to use the default one
+                            ($IFNAME).
       --max-retries=3       Number of retries in case of WAN IP retrieval
                             failure ($MAX_RETRIES).
       --log-level="info"    Set log level ($LOG_LEVEL).
@@ -33,11 +36,13 @@ Flags:
 
 Following environment variables can be used in place:
 
-| Name               | Default       | Description   |
-|--------------------|---------------|---------------|
-| `CONFIG`           |               | ddns-route53 configuration file |
-| `SCHEDULE`         |               | [CRON expression](https://godoc.org/github.com/robfig/cron#hdr-CRON_Expression_Format) to schedule ddns-route53 |
-| `LOG_LEVEL`        | `info`        | Log level output |
-| `LOG_JSON`         | `false`       | Enable JSON logging output |
-| `LOG_CALLER`       | `false`       | Enable to add `file:line` of the caller |
-| `LOG_NOCOLOR`      | `false`       | Disables the colorized output |
+| Name          | Default | Description                                                                                                     |
+|---------------|---------|-----------------------------------------------------------------------------------------------------------------|
+| `CONFIG`      |         | ddns-route53 configuration file                                                                                 |
+| `SCHEDULE`    |         | [CRON expression](https://godoc.org/github.com/robfig/cron#hdr-CRON_Expression_Format) to schedule ddns-route53 |
+| `IFNAME`      |         | Network interface name to be used for WAN IP retrieval. Leave empty to use the default one                      |
+| `MAX_RETRIES` | `3`     | Number of retries in case of WAN IP retrieval failure                                                           |
+| `LOG_LEVEL`   | `info`  | Log level output                                                                                                |
+| `LOG_JSON`    | `false` | Enable JSON logging output                                                                                      |
+| `LOG_CALLER`  | `false` | Enable to add `file:line` of the caller                                                                         |
+| `LOG_NOCOLOR` | `false` | Disables the colorized output                                                                                   |
