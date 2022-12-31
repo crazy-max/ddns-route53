@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.9.0 (2022/12/31)
+
+* Switch to retryable http client implementation (#900)
+* Allow specifying custom interface (#901)
+* Check record value with WAN IP and update accordingly (#902)
+  * :warning: requires `route53:ListResourceRecordSets` authorization in IAM policy
+* Update to AWS SDK v2 (#899)
+* Go 1.19 (#846 #750)
+* Alpine Linux 3.17 (#898)
+* Enhance workflow (#847)
+* Bump github.com/go-playground/validator/v10 from 10.10.0 to 10.11.1 (#667 #710 #825)
+* Bump github.com/alecthomas/kong from 0.3.0 to 0.7.1 (#673 #749 #754 #864)
+* Bump github.com/stretchr/testify from 1.7.0 to 1.8.1 (#675 #743 #767 #848)
+* Bump github.com/rs/zerolog from 1.26.1 to 1.27.0 (#744)
+* Bump golang.org/x/sys to v0.3.0 (#751 #903)
+* Bump github.com/crazy-max/gonfig from 0.5.0 to 0.6.0 (#780)
+* Bump github.com/rs/zerolog from 1.27.0 to 1.28.0 (#810)
+
 ## 2.8.0 (2022/01/26)
 
 * Alpine Linux 3.15 (#622)
