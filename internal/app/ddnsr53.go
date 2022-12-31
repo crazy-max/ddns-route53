@@ -15,7 +15,6 @@ import (
 	"github.com/crazy-max/ddns-route53/v2/pkg/utl"
 	"github.com/crazy-max/ddns-route53/v2/pkg/wanip"
 	"github.com/hako/durafmt"
-	"github.com/pkg/errors"
 	"github.com/robfig/cron/v3"
 	"github.com/rs/zerolog/log"
 )
@@ -40,11 +39,11 @@ func New(meta model.Meta, cfg *config.Config) (*DDNSRoute53, error) {
 	if cfg.Credentials != nil {
 		accessKeyID, err = utl.GetSecret(cfg.Credentials.AccessKeyID, cfg.Credentials.AccessKeyIDFile)
 		if err != nil {
-			return nil, errors.New("Unable to get access key ID")
+			log.Warn().Err(err).Msg("Cannot retrieve access key ID")
 		}
 		secretAccessKey, err = utl.GetSecret(cfg.Credentials.SecretAccessKey, cfg.Credentials.SecretAccessKeyFile)
 		if err != nil {
-			return nil, errors.New("Unable to get secret access key")
+			log.Warn().Err(err).Msg("Cannot retrieve secret access key")
 		}
 	}
 
