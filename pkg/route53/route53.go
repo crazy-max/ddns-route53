@@ -2,12 +2,14 @@ package route53
 
 import (
 	"context"
+	"net"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	awsr53 "github.com/aws/aws-sdk-go-v2/service/route53"
 	awsr53types "github.com/aws/aws-sdk-go-v2/service/route53/types"
+	"github.com/pkg/errors"
 )
 
 type Client struct {
@@ -35,12 +37,50 @@ func New(ctx context.Context, accessKey, secretKey, hostedZoneID string) (*Clien
 	}, nil
 }
 
-func (r *Client) Update(ctx context.Context, changes []awsr53types.Change, comment string) (*awsr53.ChangeResourceRecordSetsOutput, error) {
-	return r.client.ChangeResourceRecordSets(ctx, &awsr53.ChangeResourceRecordSetsInput{
+func (r *Client) Update(changes []awsr53types.Change, comment string) (*awsr53.ChangeResourceRecordSetsOutput, error) {
+	return r.client.ChangeResourceRecordSets(r.ctx, &awsr53.ChangeResourceRecordSetsInput{
 		ChangeBatch: &awsr53types.ChangeBatch{
 			Comment: aws.String(comment),
 			Changes: changes,
 		},
 		HostedZoneId: aws.String(r.hostedZoneID),
 	})
+}
+
+func (r *Client) RecordIP(records []awsr53types.ResourceRecordSet, name *string, recordType awsr53types.RRType) (net.IP, error) {
+	var record awsr53types.ResourceRecordSet
+	for _, rec := range records {
+		if rec.Type != recordType || *rec.Name != *name {
+			continue
+		}
+		record = rec
+		break
+	}
+	if len(record.ResourceRecords) == 0 {
+		return nil, nil
+	}
+	return net.ParseIP(*record.ResourceRecords[0].Value), nil
+}
+
+func (r *Client) ListRecords() ([]awsr53types.ResourceRecordSet, error) {
+	var records []awsr53types.ResourceRecordSet
+	req := &awsr53.ListResourceRecordSetsInput{
+		HostedZoneId: aws.String(r.hostedZoneID),
+	}
+	for {
+		resp, err := r.client.ListResourceRecordSets(r.ctx, req)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to fetch records")
+		}
+		for _, set := range resp.ResourceRecordSets {
+			records = append(records, set)
+		}
+		if !resp.IsTruncated {
+			break
+		}
+		req.StartRecordIdentifier = resp.NextRecordIdentifier
+		req.StartRecordName = resp.NextRecordName
+		req.StartRecordType = resp.NextRecordType
+	}
+	return records, nil
 }
