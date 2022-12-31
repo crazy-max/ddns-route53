@@ -15,6 +15,7 @@ import (
 	"github.com/crazy-max/ddns-route53/v2/pkg/utl"
 	"github.com/crazy-max/ddns-route53/v2/pkg/wanip"
 	"github.com/hako/durafmt"
+	"github.com/pkg/errors"
 	"github.com/robfig/cron/v3"
 	"github.com/rs/zerolog/log"
 )
@@ -25,7 +26,7 @@ type DDNSRoute53 struct {
 	cfg       *config.Config
 	cron      *cron.Cron
 	r53       *route53.Client
-	im        *wanip.Client
+	wip       *wanip.Client
 	jobID     cron.EntryID
 	currentIP ip
 	locker    uint32
@@ -45,11 +46,11 @@ func New(meta model.Meta, cfg *config.Config) (*DDNSRoute53, error) {
 	if cfg.Credentials != nil {
 		accessKeyID, err = utl.GetSecret(cfg.Credentials.AccessKeyID, cfg.Credentials.AccessKeyIDFile)
 		if err != nil {
-			log.Warn().Err(err).Msg("Cannot retrieve access key ID")
+			return nil, errors.New("Unable to get access key ID")
 		}
 		secretAccessKey, err = utl.GetSecret(cfg.Credentials.SecretAccessKey, cfg.Credentials.SecretAccessKeyFile)
 		if err != nil {
-			log.Warn().Err(err).Msg("Cannot retrieve secret access key")
+			return nil, errors.New("Unable to get secret access key")
 		}
 	}
 
@@ -65,7 +66,11 @@ func New(meta model.Meta, cfg *config.Config) (*DDNSRoute53, error) {
 			cron.SecondOptional | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow | cron.Descriptor),
 		)),
 		r53: r53,
-		im:  wanip.NewClient(meta.UserAgent, cfg.Cli.MaxRetries),
+		wip: wanip.New(
+			wanip.WithInterfaceName(cfg.Cli.Ifname),
+			wanip.WithUserAgent(meta.UserAgent),
+			wanip.WithMaxRetries(cfg.Cli.MaxRetries),
+		),
 	}, nil
 }
 
@@ -115,7 +120,7 @@ func (c *DDNSRoute53) Run() {
 
 	if *c.cfg.Route53.HandleIPv4 {
 		var wanErrs wanip.Errors
-		wanIP.V4, wanErrs = c.im.IPv4()
+		wanIP.V4, wanErrs = c.wip.IPv4()
 		wanLogger := log.Error()
 		if wanIP.V4 != nil {
 			wanLogger = log.Debug()
@@ -130,7 +135,7 @@ func (c *DDNSRoute53) Run() {
 
 	if *c.cfg.Route53.HandleIPv6 {
 		var wanErrs wanip.Errors
-		wanIP.V6, wanErrs = c.im.IPv6()
+		wanIP.V6, wanErrs = c.wip.IPv6()
 		wanLogger := log.Error()
 		if wanIP.V4 != nil {
 			wanLogger = log.Debug()
