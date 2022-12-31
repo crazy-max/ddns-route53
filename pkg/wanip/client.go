@@ -6,9 +6,8 @@ import (
 	"net"
 	"net/http"
 	"strings"
-	"time"
 
-	"github.com/jpillora/backoff"
+	"github.com/hashicorp/go-retryablehttp"
 	"github.com/pkg/errors"
 )
 
@@ -23,15 +22,19 @@ type Error struct {
 
 // Client represents an active wanip object
 type Client struct {
-	UserAgent  string
-	MaxRetries int
+	hc        *http.Client
+	userAgent string
 }
 
 // NewClient initializes a new wanip client
 func NewClient(userAgent string, maxRetries int) (c *Client) {
+	rc := retryablehttp.NewClient()
+	rc.RetryMax = maxRetries
+	rc.Logger = nil
+
 	return &Client{
-		UserAgent:  userAgent,
-		MaxRetries: maxRetries,
+		hc:        rc.StandardClient(),
+		userAgent: userAgent,
 	}
 }
 
@@ -92,40 +95,26 @@ func (c *Client) IPv6() (net.IP, Errors) {
 }
 
 func (c *Client) getIP(providerURL string) (net.IP, error) {
-	var err error
-	var req *http.Request
-	var res *http.Response
-
-	client := &http.Client{}
-	b := &backoff.Backoff{
-		Jitter: true,
+	req, err := http.NewRequest("GET", providerURL, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "request failed")
 	}
+	req.Header.Add("User-Agent", c.userAgent)
 
-	req, err = http.NewRequest("GET", providerURL, nil)
+	res, err := c.hc.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	ip, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, errors.Wrap(err, "request failed")
 	}
 
-	req.Header.Add("User-Agent", c.UserAgent)
-	for tries := 0; tries < c.MaxRetries; tries++ {
-		res, err = client.Do(req)
-		if err != nil {
-			time.Sleep(b.Duration())
-			continue
-		}
-		defer res.Body.Close()
-
-		ip, err := io.ReadAll(res.Body)
-		if err != nil {
-			return nil, errors.Wrap(err, "request failed")
-		}
-
-		if res.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("received invalid status code %d from %s: %s", res.StatusCode, providerURL, res.Body)
-		}
-
-		return net.ParseIP(string(ip)), nil
+	if res.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("received invalid status code %d from %s: %s", res.StatusCode, providerURL, res.Body)
 	}
 
-	return nil, errors.Wrap(err, "request failed")
+	return net.ParseIP(string(ip)), nil
 }
