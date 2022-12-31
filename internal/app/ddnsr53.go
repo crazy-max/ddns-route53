@@ -22,19 +22,13 @@ import (
 
 // DDNSRoute53 represents an active ddns-route53 object
 type DDNSRoute53 struct {
-	meta      model.Meta
-	cfg       *config.Config
-	cron      *cron.Cron
-	r53       *route53.Client
-	wip       *wanip.Client
-	jobID     cron.EntryID
-	currentIP ip
-	locker    uint32
-}
-
-type ip struct {
-	V4 net.IP
-	V6 net.IP
+	meta   model.Meta
+	cfg    *config.Config
+	cron   *cron.Cron
+	r53    *route53.Client
+	wip    *wanip.Client
+	jobID  cron.EntryID
+	locker uint32
 }
 
 // New creates new ddns-route53 instance
@@ -104,8 +98,7 @@ func (c *DDNSRoute53) Start() error {
 
 // Run runs ddns-route53 process
 func (c *DDNSRoute53) Run() {
-	var err error
-	var wanIP ip
+	var wanIPv4, wanIPv6 net.IP
 
 	if !atomic.CompareAndSwapUint32(&c.locker, 0, 1) {
 		log.Warn().Msg("Already running")
@@ -120,11 +113,11 @@ func (c *DDNSRoute53) Run() {
 
 	if *c.cfg.Route53.HandleIPv4 {
 		var wanErrs wanip.Errors
-		wanIP.V4, wanErrs = c.wip.IPv4()
+		wanIPv4, wanErrs = c.wip.IPv4()
 		wanLogger := log.Error()
-		if wanIP.V4 != nil {
+		if wanIPv4 != nil {
 			wanLogger = log.Debug()
-			log.Info().Msgf("Current WAN IPv4: %s", wanIP.V4)
+			log.Info().Msgf("Current WAN IPv4: %s", wanIPv4)
 		}
 		if wanErrs != nil {
 			for _, wanIPErr := range wanErrs {
@@ -135,11 +128,11 @@ func (c *DDNSRoute53) Run() {
 
 	if *c.cfg.Route53.HandleIPv6 {
 		var wanErrs wanip.Errors
-		wanIP.V6, wanErrs = c.wip.IPv6()
+		wanIPv6, wanErrs = c.wip.IPv6()
 		wanLogger := log.Error()
-		if wanIP.V4 != nil {
+		if wanIPv6 != nil {
 			wanLogger = log.Debug()
-			log.Info().Msgf("Current WAN IPv6: %s", wanIP.V6)
+			log.Info().Msgf("Current WAN IPv6: %s", wanIPv6)
 		}
 		if wanErrs != nil {
 			for _, wanIPErr := range wanErrs {
@@ -148,29 +141,38 @@ func (c *DDNSRoute53) Run() {
 		}
 	}
 
-	if wanIP.V4 == nil && wanIP.V6 == nil {
+	if wanIPv4 == nil && wanIPv6 == nil {
 		return
 	}
 
-	// Skip if current IP is identical or empty
-	if wanIP.V4.Equal(c.currentIP.V4) && wanIP.V6.Equal(c.currentIP.V6) {
-		log.Info().Msg("WAN IPv4/IPv6 addresses have not changed since last update. Skipping...")
-		return
+	records, err := c.r53.ListRecords()
+	if err != nil {
+		log.Warn().Err(err).Msg("Cannot list records")
 	}
 
-	// Create Route53 changes
 	var r53Changes []awsr53types.Change
 	for _, rs := range c.cfg.Route53.RecordsSet {
-		if wanIP.V4 == nil && rs.Type == awsr53types.RRTypeA {
-			log.Error().Msgf("No WAN IPv4 address available to update %s record", rs.Name)
-			continue
-		} else if wanIP.V6 == nil && rs.Type == awsr53types.RRTypeAaaa {
-			log.Error().Msgf("No WAN IPv6 address available to update %s record", rs.Name)
-			continue
-		}
-		recordValue := aws.String(wanIP.V4.String())
-		if rs.Type == awsr53types.RRTypeAaaa {
-			recordValue = aws.String(wanIP.V6.String())
+		recordValue := new(string)
+		if rs.Type == awsr53types.RRTypeA {
+			if wanIPv4 == nil {
+				log.Error().Msgf("No WAN IPv4 address available to update %s record set", rs.Name)
+				continue
+			}
+			if recordCurrentIP, err := c.r53.RecordIP(records, aws.String(rs.Name), rs.Type); err == nil && wanIPv4.Equal(recordCurrentIP) {
+				log.Info().Msgf("WAN IPv4 has not changed for %s record set", rs.Name)
+				continue
+			}
+			recordValue = aws.String(wanIPv4.String())
+		} else if rs.Type == awsr53types.RRTypeAaaa {
+			if wanIPv6 == nil {
+				log.Error().Msgf("No WAN IPv6 address available to update %s record set", rs.Name)
+				continue
+			}
+			if recordCurrentIP, err := c.r53.RecordIP(records, aws.String(rs.Name), rs.Type); err == nil && wanIPv6.Equal(recordCurrentIP) {
+				log.Info().Msgf("WAN IPv6 has not changed for %s record set", rs.Name)
+				continue
+			}
+			recordValue = aws.String(wanIPv6.String())
 		}
 		r53Changes = append(r53Changes, awsr53types.Change{
 			Action: awsr53types.ChangeActionUpsert,
@@ -189,7 +191,7 @@ func (c *DDNSRoute53) Run() {
 	}
 
 	// Update Route53 records set
-	resp, err := c.r53.Update(context.Background(), r53Changes, fmt.Sprintf("Updated by %s %s at %s",
+	resp, err := c.r53.Update(r53Changes, fmt.Sprintf("Updated by %s %s at %s",
 		c.meta.Name,
 		c.meta.Version,
 		time.Now().Format("2006-01-02 15:04:05"),
@@ -199,8 +201,7 @@ func (c *DDNSRoute53) Run() {
 		return
 	}
 
-	log.Info().Interface("changes", resp).Msgf("%d records set updated", len(r53Changes))
-	c.currentIP = wanIP
+	log.Info().Interface("changes", resp).Msgf("%d record(s) set updated", len(r53Changes))
 }
 
 // Close closes ddns-route53
