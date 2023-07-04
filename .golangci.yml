@@ -3,7 +3,6 @@ run:
 
 linters:
   enable:
-    - deadcode
     - depguard
     - gofmt
     - goimports
@@ -13,10 +12,10 @@ linters:
     - ineffassign
     - misspell
     - typecheck
-    - varcheck
     - errname
     - makezero
     - whitespace
+    - unused
   disable-all: true
 
 linters-settings:
