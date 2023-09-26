@@ -3,6 +3,7 @@ package route53
 import (
 	"context"
 	"net"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/retry"
@@ -28,7 +29,9 @@ func New(ctx context.Context, accessKey, secretKey, hostedZoneID string, maxRetr
 		config.WithRegion("us-east-1"),
 		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(accessKey, secretKey, "")),
 		config.WithRetryer(func() aws.Retryer {
-			return retry.AddWithMaxAttempts(retry.NewStandard(), maxRetries)
+			r := retry.AddWithMaxAttempts(retry.NewStandard(), maxRetries)
+			r = retry.AddWithMaxBackoffDelay(r, 5*time.Second)
+			return r
 		}),
 	)
 	if err != nil {
