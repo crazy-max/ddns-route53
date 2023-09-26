@@ -47,7 +47,7 @@ func New(meta model.Meta, cfg *config.Config) (*DDNSRoute53, error) {
 		}
 	}
 
-	r53, err := route53.New(context.TODO(), accessKeyID, secretAccessKey, cfg.Route53.HostedZoneID, cfg.Cli.MaxRetries)
+	r53, err := route53.New(context.TODO(), accessKeyID, secretAccessKey, cfg.Route53.HostedZoneID, cfg.Cli.MaxRetries, cfg.Cli.MaxBackoffDelay)
 	if err != nil {
 		return nil, err
 	}
