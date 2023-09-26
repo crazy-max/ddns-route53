@@ -21,7 +21,7 @@ type Client struct {
 }
 
 // New initializes a new route53 client
-func New(ctx context.Context, accessKey, secretKey, hostedZoneID string, maxRetries int) (*Client, error) {
+func New(ctx context.Context, accessKey, secretKey, hostedZoneID string, maxRetries int, maxBackoffDelay time.Duration) (*Client, error) {
 	cfg, err := config.LoadDefaultConfig(ctx,
 		// Route53 uses a global endpoint and route53domains
 		// currently only has a single regional endpoint in us-east-1
@@ -30,7 +30,7 @@ func New(ctx context.Context, accessKey, secretKey, hostedZoneID string, maxRetr
 		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(accessKey, secretKey, "")),
 		config.WithRetryer(func() aws.Retryer {
 			r := retry.AddWithMaxAttempts(retry.NewStandard(), maxRetries)
-			r = retry.AddWithMaxBackoffDelay(r, 5*time.Second)
+			r = retry.AddWithMaxBackoffDelay(r, maxBackoffDelay)
 			return r
 		}),
 	)
