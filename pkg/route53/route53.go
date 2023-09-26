@@ -5,6 +5,7 @@ import (
 	"net"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/aws/retry"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	awsr53 "github.com/aws/aws-sdk-go-v2/service/route53"
@@ -19,13 +20,16 @@ type Client struct {
 }
 
 // New initializes a new route53 client
-func New(ctx context.Context, accessKey, secretKey, hostedZoneID string) (*Client, error) {
+func New(ctx context.Context, accessKey, secretKey, hostedZoneID string, maxRetries int) (*Client, error) {
 	cfg, err := config.LoadDefaultConfig(ctx,
 		// Route53 uses a global endpoint and route53domains
 		// currently only has a single regional endpoint in us-east-1
 		// http://docs.aws.amazon.com/general/latest/gr/rande.html#r53_region
 		config.WithRegion("us-east-1"),
 		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(accessKey, secretKey, "")),
+		config.WithRetryer(func() aws.Retryer {
+			return retry.AddWithMaxAttempts(retry.NewStandard(), maxRetries)
+		}),
 	)
 	if err != nil {
 		return nil, err
