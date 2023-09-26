@@ -1,5 +1,25 @@
 # Changelog
 
+## 2.10.0 (2023/09/27)
+
+* Align AWS request retries with `max-retries` flag and decrease backoff delay to 5s (#1064)
+* Add max backoff delay option (#1065)
+* Go 1.20 (#995)
+* Alpine Linux 3.18 (#996)
+* Bump github.com/alecthomas/kong to 0.8.0 (#994)
+* Bump github.com/aws/aws-sdk-go-v2 to 1.21.0 (#989 #1035)
+* Bump github.com/aws/aws-sdk-go-v2/config to 1.18.42 (#908 #991 #1047 #1062)
+* Bump github.com/aws/aws-sdk-go-v2/credentials to 1.13.37 (#992 #1046)
+* Bump github.com/aws/aws-sdk-go-v2/service/route53 to 1.29.5 (#907 #993 #1037)
+* Bump github.com/crazy-max/gonfig to 0.7.1 (#975)
+* Bump github.com/go-playground/validator/v10 to 10.15.4 (#984 #1020 #1056)
+* Bump github.com/hashicorp/go-retryablehttp to 0.7.4 (#905 #985)
+* Bump github.com/rs/zerolog to 1.31.0 (#918 #961 #1011 #1063)
+* Bump github.com/stretchr/testify to 1.8.4 (#937 #982)
+* Bump golang.org/x/crypto to 0.1.0 (#939) 
+* Bump golang.org/x/sys to 0.12.0 (#906 #938 #953 #969 #986 #997 #1019 #1044)
+* Bump golang.org/x/text to 0.3.8 (#936)
+
 ## 2.9.0 (2022/12/31)
 
 * Switch to retryable http client implementation (#900)
