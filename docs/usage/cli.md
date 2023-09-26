@@ -24,7 +24,7 @@ Flags:
                             retrieval. Leave empty to use the default one
                             ($IFNAME).
       --max-retries=3       Number of retries in case of WAN IP retrieval
-                            failure ($MAX_RETRIES).
+                            and AWS request failure ($MAX_RETRIES).
       --log-level="info"    Set log level ($LOG_LEVEL).
       --log-json            Enable JSON logging output ($LOG_JSON).
       --log-caller          Add file:line of the caller to log output
@@ -41,7 +41,7 @@ Following environment variables can be used in place:
 | `CONFIG`      |         | ddns-route53 configuration file                                                                                 |
 | `SCHEDULE`    |         | [CRON expression](https://godoc.org/github.com/robfig/cron#hdr-CRON_Expression_Format) to schedule ddns-route53 |
 | `IFNAME`      |         | Network interface name to be used for WAN IP retrieval. Leave empty to use the default one                      |
-| `MAX_RETRIES` | `3`     | Number of retries in case of WAN IP retrieval failure                                                           |
+| `MAX_RETRIES` | `3`     | Number of retries in case of WAN IP retrieval and AWS request failure                                           |
 | `LOG_LEVEL`   | `info`  | Log level output                                                                                                |
 | `LOG_JSON`    | `false` | Enable JSON logging output                                                                                      |
 | `LOG_CALLER`  | `false` | Enable to add `file:line` of the caller                                                                         |
