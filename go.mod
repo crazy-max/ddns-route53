@@ -1,6 +1,6 @@
 module github.com/crazy-max/ddns-route53/v2
 
-go 1.18
+go 1.21
 
 require (
 	github.com/alecthomas/kong v0.8.1
