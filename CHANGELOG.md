@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.11.0 (2023/12/16)
+
+* Go 1.21 (#1152)
+* Bump github.com/alecthomas/kong from 0.8.0 to 0.8.1 (#1077)
+* Bump github.com/aws/aws-sdk-go-v2 from 1.21.0 to 1.24.0 (#1144)
+* Bump github.com/aws/aws-sdk-go-v2/config from 1.18.42 to 1.26.1 (#1147)
+* Bump github.com/aws/aws-sdk-go-v2/credentials from 1.13.40 to 1.16.12 (#1145)
+* Bump github.com/aws/aws-sdk-go-v2/service/route53 from 1.29.5 to 1.35.5 (#1146)
+* Bump github.com/go-playground/validator/v10 from 10.15.4 to 10.16.0 (#1096)
+* Bump github.com/hashicorp/go-retryablehttp from 0.7.4 to 0.7.5 (#1101)
+* Bump golang.org/x/net from 0.8.0 to 0.17.0 (#1076)
+* Bump golang.org/x/sys from 0.12.0 to 0.15.0 (#1124)
+
 ## 2.10.0 (2023/09/27)
 
 * Align AWS request retries with `max-retries` flag and decrease backoff delay to 5s (#1064)
