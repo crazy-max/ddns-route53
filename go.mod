@@ -7,7 +7,7 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.24.0
 	github.com/aws/aws-sdk-go-v2/config v1.26.1
 	github.com/aws/aws-sdk-go-v2/credentials v1.16.12
-	github.com/aws/aws-sdk-go-v2/service/route53 v1.35.5
+	github.com/aws/aws-sdk-go-v2/service/route53 v1.36.0
 	github.com/crazy-max/gonfig v0.7.1
 	github.com/go-playground/validator/v10 v10.16.0
 	github.com/hako/durafmt v0.0.0-20210608085754-5c1018a4e16b
