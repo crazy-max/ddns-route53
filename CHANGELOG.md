@@ -5,10 +5,10 @@
 * Generate sbom and provenance (#1193)
 * Bump github.com/alecthomas/kong to 0.9.0 (#1187)
 * Bump github.com/aws/aws-sdk-go-v2 dependencies (#1154 #1158 #1191)
-  * github.com/aws/aws-sdk-go-v2 to 1.26.0
-  * github.com/aws/aws-sdk-go-v2/config to 1.27.9
-  * github.com/aws/aws-sdk-go-v2/credentials to 1.17.9
-  * github.com/aws/aws-sdk-go-v2/service/route53 to 1.40.3
+    * github.com/aws/aws-sdk-go-v2 to 1.26.0
+    * github.com/aws/aws-sdk-go-v2/config to 1.27.9
+    * github.com/aws/aws-sdk-go-v2/credentials to 1.17.9
+    * github.com/aws/aws-sdk-go-v2/service/route53 to 1.40.3
 * Bump github.com/go-playground/validator/v10 to 10.19.0 (#1183)
 * Bump github.com/rs/zerolog to 1.32.0 (#1172)
 * Bump golang.org/x/crypto to 0.17.0 (#1153)
