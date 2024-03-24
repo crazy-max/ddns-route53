@@ -21,8 +21,7 @@
 [dynamic DNS](https://en.wikipedia.org/wiki/Dynamic_DNS) service with [Amazon Route 53](https://aws.amazon.com/route53/)
 on a time-based schedule.
 
-> **Note**
-> 
+> [!NOTE]
 > Want to be notified of new releases? Check out 🔔 [Diun (Docker Image Update Notifier)](https://github.com/crazy-max/diun)
 > project!
 
