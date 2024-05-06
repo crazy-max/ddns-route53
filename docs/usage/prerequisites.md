@@ -4,6 +4,13 @@ I assume you have already created a [Route 53 Hosted Zones](https://console.aws.
 as a **Public Hosted Zone** type and setted Amazon name servers in your domain
 name registrar.
 
+!!! note
+    If you are using [EC2 IAM instance roles](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html)
+    or [AWS IAM roles for service accounts (IRSA)](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html),
+    creating a user is not required. Configuration of IAM roles is beyond the scope of this
+    document, and is discussed in the official AWS documentation linked above.
+    For all other use cases, follow the steps below to create a policy and user.
+
 Go to the [IAM Policies page](https://console.aws.amazon.com/iam/home#/policies)
 and click on **Create Policy**.
 

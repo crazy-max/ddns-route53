@@ -27,7 +27,6 @@ func New(ctx context.Context, accessKey, secretKey, hostedZoneID string, maxRetr
 		// currently only has a single regional endpoint in us-east-1
 		// http://docs.aws.amazon.com/general/latest/gr/rande.html#r53_region
 		config.WithRegion("us-east-1"),
-		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(accessKey, secretKey, "")),
 		config.WithRetryer(func() aws.Retryer {
 			r := retry.AddWithMaxAttempts(retry.NewStandard(), maxRetries)
 			r = retry.AddWithMaxBackoffDelay(r, maxBackoffDelay)
@@ -36,6 +35,9 @@ func New(ctx context.Context, accessKey, secretKey, hostedZoneID string, maxRetr
 	)
 	if err != nil {
 		return nil, err
+	}
+	if len(accessKey) > 0 && len(secretKey) > 0 {
+		cfg.Credentials = credentials.NewStaticCredentialsProvider(accessKey, secretKey, "")
 	}
 	return &Client{
 		ctx:          ctx,
