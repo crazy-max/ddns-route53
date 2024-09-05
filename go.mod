@@ -16,7 +16,7 @@ require (
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/rs/zerolog v1.33.0
 	github.com/stretchr/testify v1.9.0
-	golang.org/x/sys v0.21.0
+	golang.org/x/sys v0.25.0
 )
 
 require (
