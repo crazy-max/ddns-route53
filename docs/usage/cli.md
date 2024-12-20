@@ -50,3 +50,6 @@ The following environment variables can be used in place:
 | `LOG_JSON`          | `false` | Enable JSON logging output                                                                                      |
 | `LOG_CALLER`        | `false` | Enable to add `file:line` of the caller                                                                         |
 | `LOG_NOCOLOR`       | `false` | Disables the colorized output                                                                                   |
+
+!!! warning
+    If schedule is not set, the app will run once and then exit.
