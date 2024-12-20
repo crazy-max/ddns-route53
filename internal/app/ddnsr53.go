@@ -14,7 +14,7 @@ import (
 	"github.com/crazy-max/ddns-route53/v2/pkg/route53"
 	"github.com/crazy-max/ddns-route53/v2/pkg/utl"
 	"github.com/crazy-max/ddns-route53/v2/pkg/wanip"
-	"github.com/golang-module/carbon/v2"
+	"github.com/dromara/carbon/v2"
 	"github.com/robfig/cron/v3"
 	"github.com/rs/zerolog/log"
 )
