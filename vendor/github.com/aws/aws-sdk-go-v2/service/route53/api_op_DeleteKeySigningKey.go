@@ -13,10 +13,14 @@ import (
 
 // Deletes a key-signing key (KSK). Before you can delete a KSK, you must
 // deactivate it. The KSK must be deactivated before you can delete it regardless
-// of whether the hosted zone is enabled for DNSSEC signing. You can use
-// DeactivateKeySigningKey (https://docs.aws.amazon.com/Route53/latest/APIReference/API_DeactivateKeySigningKey.html)
-// to deactivate the key before you delete it. Use GetDNSSEC (https://docs.aws.amazon.com/Route53/latest/APIReference/API_GetDNSSEC.html)
-// to verify that the KSK is in an INACTIVE status.
+// of whether the hosted zone is enabled for DNSSEC signing.
+//
+// You can use [DeactivateKeySigningKey] to deactivate the key before you delete it.
+//
+// Use [GetDNSSEC] to verify that the KSK is in an INACTIVE status.
+//
+// [DeactivateKeySigningKey]: https://docs.aws.amazon.com/Route53/latest/APIReference/API_DeactivateKeySigningKey.html
+// [GetDNSSEC]: https://docs.aws.amazon.com/Route53/latest/APIReference/API_GetDNSSEC.html
 func (c *Client) DeleteKeySigningKey(ctx context.Context, params *DeleteKeySigningKeyInput, optFns ...func(*Options)) (*DeleteKeySigningKeyOutput, error) {
 	if params == nil {
 		params = &DeleteKeySigningKeyInput{}
@@ -104,6 +108,9 @@ func (c *Client) addOperationDeleteKeySigningKeyMiddlewares(stack *middleware.St
 	if err = addRecordResponseTiming(stack); err != nil {
 		return err
 	}
+	if err = addSpanRetryLoop(stack, options); err != nil {
+		return err
+	}
 	if err = addClientUserAgent(stack, options); err != nil {
 		return err
 	}
@@ -114,6 +121,12 @@ func (c *Client) addOperationDeleteKeySigningKeyMiddlewares(stack *middleware.St
 		return err
 	}
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
+		return err
+	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
 		return err
 	}
 	if err = addOpDeleteKeySigningKeyValidationMiddleware(stack); err != nil {
@@ -138,6 +151,18 @@ func (c *Client) addOperationDeleteKeySigningKeyMiddlewares(stack *middleware.St
 		return err
 	}
 	if err = addDisableHTTPSMiddleware(stack, options); err != nil {
+		return err
+	}
+	if err = addSpanInitializeStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanInitializeEnd(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestEnd(stack); err != nil {
 		return err
 	}
 	return nil

@@ -11,9 +11,12 @@ import (
 	smithyhttp "github.com/aws/smithy-go/transport/http"
 )
 
-// Lists tags for up to 10 health checks or hosted zones. For information about
-// using tags for cost allocation, see Using Cost Allocation Tags (https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html)
-// in the Billing and Cost Management User Guide.
+// Lists tags for up to 10 health checks or hosted zones.
+//
+// For information about using tags for cost allocation, see [Using Cost Allocation Tags] in the Billing and
+// Cost Management User Guide.
+//
+// [Using Cost Allocation Tags]: https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html
 func (c *Client) ListTagsForResources(ctx context.Context, params *ListTagsForResourcesInput, optFns ...func(*Options)) (*ListTagsForResourcesOutput, error) {
 	if params == nil {
 		params = &ListTagsForResourcesInput{}
@@ -40,7 +43,9 @@ type ListTagsForResourcesInput struct {
 	ResourceIds []string
 
 	// The type of the resources.
+	//
 	//   - The resource type for health checks is healthcheck .
+	//
 	//   - The resource type for hosted zones is hostedzone .
 	//
 	// This member is required.
@@ -107,6 +112,9 @@ func (c *Client) addOperationListTagsForResourcesMiddlewares(stack *middleware.S
 	if err = addRecordResponseTiming(stack); err != nil {
 		return err
 	}
+	if err = addSpanRetryLoop(stack, options); err != nil {
+		return err
+	}
 	if err = addClientUserAgent(stack, options); err != nil {
 		return err
 	}
@@ -117,6 +125,12 @@ func (c *Client) addOperationListTagsForResourcesMiddlewares(stack *middleware.S
 		return err
 	}
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
+		return err
+	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
 		return err
 	}
 	if err = addOpListTagsForResourcesValidationMiddleware(stack); err != nil {
@@ -138,6 +152,18 @@ func (c *Client) addOperationListTagsForResourcesMiddlewares(stack *middleware.S
 		return err
 	}
 	if err = addDisableHTTPSMiddleware(stack, options); err != nil {
+		return err
+	}
+	if err = addSpanInitializeStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanInitializeEnd(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestEnd(stack); err != nil {
 		return err
 	}
 	return nil

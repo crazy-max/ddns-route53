@@ -40,8 +40,9 @@ type CreateTrafficPolicyVersionInput struct {
 
 	// The definition of this version of the traffic policy, in JSON format. You
 	// specified the JSON in the CreateTrafficPolicyVersion request. For more
-	// information about the JSON format, see CreateTrafficPolicy (https://docs.aws.amazon.com/Route53/latest/APIReference/API_CreateTrafficPolicy.html)
-	// .
+	// information about the JSON format, see [CreateTrafficPolicy].
+	//
+	// [CreateTrafficPolicy]: https://docs.aws.amazon.com/Route53/latest/APIReference/API_CreateTrafficPolicy.html
 	//
 	// This member is required.
 	Document *string
@@ -121,6 +122,9 @@ func (c *Client) addOperationCreateTrafficPolicyVersionMiddlewares(stack *middle
 	if err = addRecordResponseTiming(stack); err != nil {
 		return err
 	}
+	if err = addSpanRetryLoop(stack, options); err != nil {
+		return err
+	}
 	if err = addClientUserAgent(stack, options); err != nil {
 		return err
 	}
@@ -131,6 +135,12 @@ func (c *Client) addOperationCreateTrafficPolicyVersionMiddlewares(stack *middle
 		return err
 	}
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
+		return err
+	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
 		return err
 	}
 	if err = addOpCreateTrafficPolicyVersionValidationMiddleware(stack); err != nil {
@@ -152,6 +162,18 @@ func (c *Client) addOperationCreateTrafficPolicyVersionMiddlewares(stack *middle
 		return err
 	}
 	if err = addDisableHTTPSMiddleware(stack, options); err != nil {
+		return err
+	}
+	if err = addSpanInitializeStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanInitializeEnd(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestEnd(stack); err != nil {
 		return err
 	}
 	return nil

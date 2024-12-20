@@ -11,8 +11,9 @@ import (
 )
 
 // Deletes a traffic policy instance and all of the resource record sets that
-// Amazon Route 53 created when you created the instance. In the Route 53 console,
-// traffic policy instances are known as policy records.
+// Amazon Route 53 created when you created the instance.
+//
+// In the Route 53 console, traffic policy instances are known as policy records.
 func (c *Client) DeleteTrafficPolicyInstance(ctx context.Context, params *DeleteTrafficPolicyInstanceInput, optFns ...func(*Options)) (*DeleteTrafficPolicyInstanceOutput, error) {
 	if params == nil {
 		params = &DeleteTrafficPolicyInstanceInput{}
@@ -31,9 +32,11 @@ func (c *Client) DeleteTrafficPolicyInstance(ctx context.Context, params *Delete
 // A request to delete a specified traffic policy instance.
 type DeleteTrafficPolicyInstanceInput struct {
 
-	// The ID of the traffic policy instance that you want to delete. When you delete
-	// a traffic policy instance, Amazon Route 53 also deletes all of the resource
-	// record sets that were created when you created the traffic policy instance.
+	// The ID of the traffic policy instance that you want to delete.
+	//
+	// When you delete a traffic policy instance, Amazon Route 53 also deletes all of
+	// the resource record sets that were created when you created the traffic policy
+	// instance.
 	//
 	// This member is required.
 	Id *string
@@ -92,6 +95,9 @@ func (c *Client) addOperationDeleteTrafficPolicyInstanceMiddlewares(stack *middl
 	if err = addRecordResponseTiming(stack); err != nil {
 		return err
 	}
+	if err = addSpanRetryLoop(stack, options); err != nil {
+		return err
+	}
 	if err = addClientUserAgent(stack, options); err != nil {
 		return err
 	}
@@ -102,6 +108,12 @@ func (c *Client) addOperationDeleteTrafficPolicyInstanceMiddlewares(stack *middl
 		return err
 	}
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
+		return err
+	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
 		return err
 	}
 	if err = addOpDeleteTrafficPolicyInstanceValidationMiddleware(stack); err != nil {
@@ -123,6 +135,18 @@ func (c *Client) addOperationDeleteTrafficPolicyInstanceMiddlewares(stack *middl
 		return err
 	}
 	if err = addDisableHTTPSMiddleware(stack, options); err != nil {
+		return err
+	}
+	if err = addSpanInitializeStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanInitializeEnd(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestEnd(stack); err != nil {
 		return err
 	}
 	return nil

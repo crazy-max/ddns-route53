@@ -10,15 +10,21 @@ import (
 	smithyhttp "github.com/aws/smithy-go/transport/http"
 )
 
-// Deletes a traffic policy. When you delete a traffic policy, Route 53 sets a
-// flag on the policy to indicate that it has been deleted. However, Route 53 never
-// fully deletes the traffic policy. Note the following:
-//   - Deleted traffic policies aren't listed if you run ListTrafficPolicies (https://docs.aws.amazon.com/Route53/latest/APIReference/API_ListTrafficPolicies.html)
-//     .
+// Deletes a traffic policy.
+//
+// When you delete a traffic policy, Route 53 sets a flag on the policy to
+// indicate that it has been deleted. However, Route 53 never fully deletes the
+// traffic policy. Note the following:
+//
+//   - Deleted traffic policies aren't listed if you run [ListTrafficPolicies].
+//
 //   - There's no way to get a list of deleted policies.
+//
 //   - If you retain the ID of the policy, you can get information about the
-//     policy, including the traffic policy document, by running GetTrafficPolicy (https://docs.aws.amazon.com/Route53/latest/APIReference/API_GetTrafficPolicy.html)
-//     .
+//     policy, including the traffic policy document, by running [GetTrafficPolicy].
+//
+// [ListTrafficPolicies]: https://docs.aws.amazon.com/Route53/latest/APIReference/API_ListTrafficPolicies.html
+// [GetTrafficPolicy]: https://docs.aws.amazon.com/Route53/latest/APIReference/API_GetTrafficPolicy.html
 func (c *Client) DeleteTrafficPolicy(ctx context.Context, params *DeleteTrafficPolicyInput, optFns ...func(*Options)) (*DeleteTrafficPolicyOutput, error) {
 	if params == nil {
 		params = &DeleteTrafficPolicyInput{}
@@ -101,6 +107,9 @@ func (c *Client) addOperationDeleteTrafficPolicyMiddlewares(stack *middleware.St
 	if err = addRecordResponseTiming(stack); err != nil {
 		return err
 	}
+	if err = addSpanRetryLoop(stack, options); err != nil {
+		return err
+	}
 	if err = addClientUserAgent(stack, options); err != nil {
 		return err
 	}
@@ -111,6 +120,12 @@ func (c *Client) addOperationDeleteTrafficPolicyMiddlewares(stack *middleware.St
 		return err
 	}
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
+		return err
+	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
 		return err
 	}
 	if err = addOpDeleteTrafficPolicyValidationMiddleware(stack); err != nil {
@@ -132,6 +147,18 @@ func (c *Client) addOperationDeleteTrafficPolicyMiddlewares(stack *middleware.St
 		return err
 	}
 	if err = addDisableHTTPSMiddleware(stack, options); err != nil {
+		return err
+	}
+	if err = addSpanInitializeStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanInitializeEnd(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestEnd(stack); err != nil {
 		return err
 	}
 	return nil

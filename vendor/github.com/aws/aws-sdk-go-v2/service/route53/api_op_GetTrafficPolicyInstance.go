@@ -11,10 +11,13 @@ import (
 	smithyhttp "github.com/aws/smithy-go/transport/http"
 )
 
-// Gets information about a specified traffic policy instance. Use
-// GetTrafficPolicyInstance with the id of new traffic policy instance to confirm
-// that the CreateTrafficPolicyInstance or an UpdateTrafficPolicyInstance request
-// completed successfully. For more information, see the State response element.
+// Gets information about a specified traffic policy instance.
+//
+// Use GetTrafficPolicyInstance with the id of new traffic policy instance to
+// confirm that the CreateTrafficPolicyInstance or an UpdateTrafficPolicyInstance
+// request completed successfully. For more information, see the State response
+// element.
+//
 // In the Route 53 console, traffic policy instances are known as policy records.
 func (c *Client) GetTrafficPolicyInstance(ctx context.Context, params *GetTrafficPolicyInstanceInput, optFns ...func(*Options)) (*GetTrafficPolicyInstanceOutput, error) {
 	if params == nil {
@@ -100,6 +103,9 @@ func (c *Client) addOperationGetTrafficPolicyInstanceMiddlewares(stack *middlewa
 	if err = addRecordResponseTiming(stack); err != nil {
 		return err
 	}
+	if err = addSpanRetryLoop(stack, options); err != nil {
+		return err
+	}
 	if err = addClientUserAgent(stack, options); err != nil {
 		return err
 	}
@@ -110,6 +116,12 @@ func (c *Client) addOperationGetTrafficPolicyInstanceMiddlewares(stack *middlewa
 		return err
 	}
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
+		return err
+	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
 		return err
 	}
 	if err = addOpGetTrafficPolicyInstanceValidationMiddleware(stack); err != nil {
@@ -131,6 +143,18 @@ func (c *Client) addOperationGetTrafficPolicyInstanceMiddlewares(stack *middlewa
 		return err
 	}
 	if err = addDisableHTTPSMiddleware(stack, options); err != nil {
+		return err
+	}
+	if err = addSpanInitializeStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanInitializeEnd(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestEnd(stack); err != nil {
 		return err
 	}
 	return nil
