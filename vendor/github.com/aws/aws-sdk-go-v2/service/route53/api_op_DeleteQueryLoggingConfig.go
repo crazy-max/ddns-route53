@@ -12,9 +12,11 @@ import (
 
 // Deletes a configuration for DNS query logging. If you delete a configuration,
 // Amazon Route 53 stops sending query logs to CloudWatch Logs. Route 53 doesn't
-// delete any logs that are already in CloudWatch Logs. For more information about
-// DNS query logs, see CreateQueryLoggingConfig (https://docs.aws.amazon.com/Route53/latest/APIReference/API_CreateQueryLoggingConfig.html)
-// .
+// delete any logs that are already in CloudWatch Logs.
+//
+// For more information about DNS query logs, see [CreateQueryLoggingConfig].
+//
+// [CreateQueryLoggingConfig]: https://docs.aws.amazon.com/Route53/latest/APIReference/API_CreateQueryLoggingConfig.html
 func (c *Client) DeleteQueryLoggingConfig(ctx context.Context, params *DeleteQueryLoggingConfigInput, optFns ...func(*Options)) (*DeleteQueryLoggingConfigOutput, error) {
 	if params == nil {
 		params = &DeleteQueryLoggingConfigInput{}
@@ -90,6 +92,9 @@ func (c *Client) addOperationDeleteQueryLoggingConfigMiddlewares(stack *middlewa
 	if err = addRecordResponseTiming(stack); err != nil {
 		return err
 	}
+	if err = addSpanRetryLoop(stack, options); err != nil {
+		return err
+	}
 	if err = addClientUserAgent(stack, options); err != nil {
 		return err
 	}
@@ -100,6 +105,12 @@ func (c *Client) addOperationDeleteQueryLoggingConfigMiddlewares(stack *middlewa
 		return err
 	}
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
+		return err
+	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
 		return err
 	}
 	if err = addOpDeleteQueryLoggingConfigValidationMiddleware(stack); err != nil {
@@ -121,6 +132,18 @@ func (c *Client) addOperationDeleteQueryLoggingConfigMiddlewares(stack *middlewa
 		return err
 	}
 	if err = addDisableHTTPSMiddleware(stack, options); err != nil {
+		return err
+	}
+	if err = addSpanInitializeStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanInitializeEnd(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestEnd(stack); err != nil {
 		return err
 	}
 	return nil

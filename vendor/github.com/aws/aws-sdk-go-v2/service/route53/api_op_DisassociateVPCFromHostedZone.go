@@ -25,21 +25,29 @@ import (
 //     EFS) automatically create hosted zones and associate VPCs with the hosted zones.
 //     A service can create a hosted zone using your account or using its own account.
 //     You can disassociate a VPC from a hosted zone only if the service created the
-//     hosted zone using your account. When you run DisassociateVPCFromHostedZone (https://docs.aws.amazon.com/Route53/latest/APIReference/API_ListHostedZonesByVPC.html)
-//     , if the hosted zone has a value for OwningAccount , you can use
-//     DisassociateVPCFromHostedZone . If the hosted zone has a value for
-//     OwningService , you can't use DisassociateVPCFromHostedZone .
+//     hosted zone using your account.
+//
+// When you run [DisassociateVPCFromHostedZone], if the hosted zone has a value for OwningAccount , you can use
+//
+//	DisassociateVPCFromHostedZone . If the hosted zone has a value for
+//	OwningService , you can't use DisassociateVPCFromHostedZone .
 //
 // When revoking access, the hosted zone and the Amazon VPC must belong to the
 // same partition. A partition is a group of Amazon Web Services Regions. Each
-// Amazon Web Services account is scoped to one partition. The following are the
-// supported partitions:
+// Amazon Web Services account is scoped to one partition.
+//
+// The following are the supported partitions:
+//
 //   - aws - Amazon Web Services Regions
+//
 //   - aws-cn - China Regions
+//
 //   - aws-us-gov - Amazon Web Services GovCloud (US) Region
 //
-// For more information, see Access Management (https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html)
-// in the Amazon Web Services General Reference.
+// For more information, see [Access Management] in the Amazon Web Services General Reference.
+//
+// [Access Management]: https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html
+// [DisassociateVPCFromHostedZone]: https://docs.aws.amazon.com/Route53/latest/APIReference/API_ListHostedZonesByVPC.html
 func (c *Client) DisassociateVPCFromHostedZone(ctx context.Context, params *DisassociateVPCFromHostedZoneInput, optFns ...func(*Options)) (*DisassociateVPCFromHostedZoneOutput, error) {
 	if params == nil {
 		params = &DisassociateVPCFromHostedZoneInput{}
@@ -70,7 +78,7 @@ type DisassociateVPCFromHostedZoneInput struct {
 	// This member is required.
 	VPC *types.VPC
 
-	// Optional: A comment about the disassociation request.
+	//  Optional: A comment about the disassociation request.
 	Comment *string
 
 	noSmithyDocumentSerde
@@ -135,6 +143,9 @@ func (c *Client) addOperationDisassociateVPCFromHostedZoneMiddlewares(stack *mid
 	if err = addRecordResponseTiming(stack); err != nil {
 		return err
 	}
+	if err = addSpanRetryLoop(stack, options); err != nil {
+		return err
+	}
 	if err = addClientUserAgent(stack, options); err != nil {
 		return err
 	}
@@ -145,6 +156,12 @@ func (c *Client) addOperationDisassociateVPCFromHostedZoneMiddlewares(stack *mid
 		return err
 	}
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
+		return err
+	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
 		return err
 	}
 	if err = addOpDisassociateVPCFromHostedZoneValidationMiddleware(stack); err != nil {
@@ -169,6 +186,18 @@ func (c *Client) addOperationDisassociateVPCFromHostedZoneMiddlewares(stack *mid
 		return err
 	}
 	if err = addDisableHTTPSMiddleware(stack, options); err != nil {
+		return err
+	}
+	if err = addSpanInitializeStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanInitializeEnd(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestEnd(stack); err != nil {
 		return err
 	}
 	return nil

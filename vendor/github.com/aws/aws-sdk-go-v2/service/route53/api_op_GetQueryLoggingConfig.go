@@ -11,10 +11,12 @@ import (
 	smithyhttp "github.com/aws/smithy-go/transport/http"
 )
 
-// Gets information about a specified configuration for DNS query logging. For
-// more information about DNS query logs, see CreateQueryLoggingConfig (https://docs.aws.amazon.com/Route53/latest/APIReference/API_CreateQueryLoggingConfig.html)
-// and Logging DNS Queries (https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/query-logs.html)
-// .
+// Gets information about a specified configuration for DNS query logging.
+//
+// For more information about DNS query logs, see [CreateQueryLoggingConfig] and [Logging DNS Queries].
+//
+// [CreateQueryLoggingConfig]: https://docs.aws.amazon.com/Route53/latest/APIReference/API_CreateQueryLoggingConfig.html
+// [Logging DNS Queries]: https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/query-logs.html
 func (c *Client) GetQueryLoggingConfig(ctx context.Context, params *GetQueryLoggingConfigInput, optFns ...func(*Options)) (*GetQueryLoggingConfigOutput, error) {
 	if params == nil {
 		params = &GetQueryLoggingConfigInput{}
@@ -44,8 +46,9 @@ type GetQueryLoggingConfigInput struct {
 type GetQueryLoggingConfigOutput struct {
 
 	// A complex type that contains information about the query logging configuration
-	// that you specified in a GetQueryLoggingConfig (https://docs.aws.amazon.com/Route53/latest/APIReference/API_GetQueryLoggingConfig.html)
-	// request.
+	// that you specified in a [GetQueryLoggingConfig]request.
+	//
+	// [GetQueryLoggingConfig]: https://docs.aws.amazon.com/Route53/latest/APIReference/API_GetQueryLoggingConfig.html
 	//
 	// This member is required.
 	QueryLoggingConfig *types.QueryLoggingConfig
@@ -99,6 +102,9 @@ func (c *Client) addOperationGetQueryLoggingConfigMiddlewares(stack *middleware.
 	if err = addRecordResponseTiming(stack); err != nil {
 		return err
 	}
+	if err = addSpanRetryLoop(stack, options); err != nil {
+		return err
+	}
 	if err = addClientUserAgent(stack, options); err != nil {
 		return err
 	}
@@ -109,6 +115,12 @@ func (c *Client) addOperationGetQueryLoggingConfigMiddlewares(stack *middleware.
 		return err
 	}
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
+		return err
+	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
 		return err
 	}
 	if err = addOpGetQueryLoggingConfigValidationMiddleware(stack); err != nil {
@@ -130,6 +142,18 @@ func (c *Client) addOperationGetQueryLoggingConfigMiddlewares(stack *middleware.
 		return err
 	}
 	if err = addDisableHTTPSMiddleware(stack, options); err != nil {
+		return err
+	}
+	if err = addSpanInitializeStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanInitializeEnd(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestEnd(stack); err != nil {
 		return err
 	}
 	return nil

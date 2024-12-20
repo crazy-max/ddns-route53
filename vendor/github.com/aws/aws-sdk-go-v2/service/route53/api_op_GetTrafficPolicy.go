@@ -11,10 +11,12 @@ import (
 	smithyhttp "github.com/aws/smithy-go/transport/http"
 )
 
-// Gets information about a specific traffic policy version. For information about
-// how of deleting a traffic policy affects the response from GetTrafficPolicy ,
-// see DeleteTrafficPolicy (https://docs.aws.amazon.com/Route53/latest/APIReference/API_DeleteTrafficPolicy.html)
-// .
+// Gets information about a specific traffic policy version.
+//
+// For information about how of deleting a traffic policy affects the response
+// from GetTrafficPolicy , see [DeleteTrafficPolicy].
+//
+// [DeleteTrafficPolicy]: https://docs.aws.amazon.com/Route53/latest/APIReference/API_DeleteTrafficPolicy.html
 func (c *Client) GetTrafficPolicy(ctx context.Context, params *GetTrafficPolicyInput, optFns ...func(*Options)) (*GetTrafficPolicyOutput, error) {
 	if params == nil {
 		params = &GetTrafficPolicyInput{}
@@ -103,6 +105,9 @@ func (c *Client) addOperationGetTrafficPolicyMiddlewares(stack *middleware.Stack
 	if err = addRecordResponseTiming(stack); err != nil {
 		return err
 	}
+	if err = addSpanRetryLoop(stack, options); err != nil {
+		return err
+	}
 	if err = addClientUserAgent(stack, options); err != nil {
 		return err
 	}
@@ -113,6 +118,12 @@ func (c *Client) addOperationGetTrafficPolicyMiddlewares(stack *middleware.Stack
 		return err
 	}
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
+		return err
+	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
 		return err
 	}
 	if err = addOpGetTrafficPolicyValidationMiddleware(stack); err != nil {
@@ -134,6 +145,18 @@ func (c *Client) addOperationGetTrafficPolicyMiddlewares(stack *middleware.Stack
 		return err
 	}
 	if err = addDisableHTTPSMiddleware(stack, options); err != nil {
+		return err
+	}
+	if err = addSpanInitializeStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanInitializeEnd(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestEnd(stack); err != nil {
 		return err
 	}
 	return nil

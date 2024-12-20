@@ -16,10 +16,11 @@ import (
 // specified hosted zone that was created by a different account. To submit a
 // CreateVPCAssociationAuthorization request, you must use the account that created
 // the hosted zone. After you authorize the association, use the account that
-// created the VPC to submit an AssociateVPCWithHostedZone request. If you want to
-// associate multiple VPCs that you created by using one account with a hosted zone
-// that you created by using a different account, you must submit one authorization
-// request for each VPC.
+// created the VPC to submit an AssociateVPCWithHostedZone request.
+//
+// If you want to associate multiple VPCs that you created by using one account
+// with a hosted zone that you created by using a different account, you must
+// submit one authorization request for each VPC.
 func (c *Client) CreateVPCAssociationAuthorization(ctx context.Context, params *CreateVPCAssociationAuthorizationInput, optFns ...func(*Options)) (*CreateVPCAssociationAuthorizationOutput, error) {
 	if params == nil {
 		params = &CreateVPCAssociationAuthorizationInput{}
@@ -118,6 +119,9 @@ func (c *Client) addOperationCreateVPCAssociationAuthorizationMiddlewares(stack 
 	if err = addRecordResponseTiming(stack); err != nil {
 		return err
 	}
+	if err = addSpanRetryLoop(stack, options); err != nil {
+		return err
+	}
 	if err = addClientUserAgent(stack, options); err != nil {
 		return err
 	}
@@ -128,6 +132,12 @@ func (c *Client) addOperationCreateVPCAssociationAuthorizationMiddlewares(stack 
 		return err
 	}
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
+		return err
+	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
 		return err
 	}
 	if err = addOpCreateVPCAssociationAuthorizationValidationMiddleware(stack); err != nil {
@@ -152,6 +162,18 @@ func (c *Client) addOperationCreateVPCAssociationAuthorizationMiddlewares(stack 
 		return err
 	}
 	if err = addDisableHTTPSMiddleware(stack, options); err != nil {
+		return err
+	}
+	if err = addSpanInitializeStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanInitializeEnd(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestEnd(stack); err != nil {
 		return err
 	}
 	return nil

@@ -12,6 +12,7 @@ import (
 )
 
 // Gets information about all of the versions for a specified traffic policy.
+//
 // Traffic policy versions are listed in numerical order by VersionNumber .
 func (c *Client) ListTrafficPolicyVersions(ctx context.Context, params *ListTrafficPolicyVersionsInput, optFns ...func(*Options)) (*ListTrafficPolicyVersionsOutput, error) {
 	if params == nil {
@@ -46,11 +47,13 @@ type ListTrafficPolicyVersionsInput struct {
 	MaxItems *int32
 
 	// For your first request to ListTrafficPolicyVersions , don't include the
-	// TrafficPolicyVersionMarker parameter. If you have more traffic policy versions
-	// than the value of MaxItems , ListTrafficPolicyVersions returns only the first
-	// group of MaxItems versions. To get more traffic policy versions, submit another
-	// ListTrafficPolicyVersions request. For the value of TrafficPolicyVersionMarker ,
-	// specify the value of TrafficPolicyVersionMarker in the previous response.
+	// TrafficPolicyVersionMarker parameter.
+	//
+	// If you have more traffic policy versions than the value of MaxItems ,
+	// ListTrafficPolicyVersions returns only the first group of MaxItems versions. To
+	// get more traffic policy versions, submit another ListTrafficPolicyVersions
+	// request. For the value of TrafficPolicyVersionMarker , specify the value of
+	// TrafficPolicyVersionMarker in the previous response.
 	TrafficPolicyVersionMarker *string
 
 	noSmithyDocumentSerde
@@ -83,6 +86,7 @@ type ListTrafficPolicyVersionsOutput struct {
 	// first traffic policy that Amazon Route 53 will return if you submit another
 	// request. Call ListTrafficPolicyVersions again and specify the value of
 	// TrafficPolicyVersionMarker in the TrafficPolicyVersionMarker request parameter.
+	//
 	// This element is present only if IsTruncated is true .
 	//
 	// This member is required.
@@ -137,6 +141,9 @@ func (c *Client) addOperationListTrafficPolicyVersionsMiddlewares(stack *middlew
 	if err = addRecordResponseTiming(stack); err != nil {
 		return err
 	}
+	if err = addSpanRetryLoop(stack, options); err != nil {
+		return err
+	}
 	if err = addClientUserAgent(stack, options); err != nil {
 		return err
 	}
@@ -147,6 +154,12 @@ func (c *Client) addOperationListTrafficPolicyVersionsMiddlewares(stack *middlew
 		return err
 	}
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
+		return err
+	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
 		return err
 	}
 	if err = addOpListTrafficPolicyVersionsValidationMiddleware(stack); err != nil {
@@ -168,6 +181,18 @@ func (c *Client) addOperationListTrafficPolicyVersionsMiddlewares(stack *middlew
 		return err
 	}
 	if err = addDisableHTTPSMiddleware(stack, options); err != nil {
+		return err
+	}
+	if err = addSpanInitializeStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanInitializeEnd(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestEnd(stack); err != nil {
 		return err
 	}
 	return nil

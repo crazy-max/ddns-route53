@@ -11,9 +11,11 @@ import (
 	smithyhttp "github.com/aws/smithy-go/transport/http"
 )
 
-// Gets status of a specified health check. This API is intended for use during
-// development to diagnose behavior. It doesn’t support production use-cases with
-// high query rates that require immediate and actionable responses.
+// Gets status of a specified health check.
+//
+// This API is intended for use during development to diagnose behavior. It
+// doesn’t support production use-cases with high query rates that require
+// immediate and actionable responses.
 func (c *Client) GetHealthCheckStatus(ctx context.Context, params *GetHealthCheckStatusInput, optFns ...func(*Options)) (*GetHealthCheckStatusOutput, error) {
 	if params == nil {
 		params = &GetHealthCheckStatusInput{}
@@ -34,10 +36,11 @@ type GetHealthCheckStatusInput struct {
 
 	// The ID for the health check that you want the current status for. When you
 	// created the health check, CreateHealthCheck returned the ID in the response, in
-	// the HealthCheckId element. If you want to check the status of a calculated
-	// health check, you must use the Amazon Route 53 console or the CloudWatch
-	// console. You can't use GetHealthCheckStatus to get the status of a calculated
-	// health check.
+	// the HealthCheckId element.
+	//
+	// If you want to check the status of a calculated health check, you must use the
+	// Amazon Route 53 console or the CloudWatch console. You can't use
+	// GetHealthCheckStatus to get the status of a calculated health check.
 	//
 	// This member is required.
 	HealthCheckId *string
@@ -103,6 +106,9 @@ func (c *Client) addOperationGetHealthCheckStatusMiddlewares(stack *middleware.S
 	if err = addRecordResponseTiming(stack); err != nil {
 		return err
 	}
+	if err = addSpanRetryLoop(stack, options); err != nil {
+		return err
+	}
 	if err = addClientUserAgent(stack, options); err != nil {
 		return err
 	}
@@ -113,6 +119,12 @@ func (c *Client) addOperationGetHealthCheckStatusMiddlewares(stack *middleware.S
 		return err
 	}
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
+		return err
+	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
 		return err
 	}
 	if err = addOpGetHealthCheckStatusValidationMiddleware(stack); err != nil {
@@ -134,6 +146,18 @@ func (c *Client) addOperationGetHealthCheckStatusMiddlewares(stack *middleware.S
 		return err
 	}
 	if err = addDisableHTTPSMiddleware(stack, options); err != nil {
+		return err
+	}
+	if err = addSpanInitializeStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanInitializeEnd(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestEnd(stack); err != nil {
 		return err
 	}
 	return nil

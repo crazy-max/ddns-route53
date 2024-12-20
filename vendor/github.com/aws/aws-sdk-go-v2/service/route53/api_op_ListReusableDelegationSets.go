@@ -34,9 +34,12 @@ type ListReusableDelegationSetsInput struct {
 
 	// If the value of IsTruncated in the previous response was true , you have more
 	// reusable delegation sets. To get another group, submit another
-	// ListReusableDelegationSets request. For the value of marker , specify the value
-	// of NextMarker from the previous response, which is the ID of the first reusable
-	// delegation set that Amazon Route 53 will return if you submit another request.
+	// ListReusableDelegationSets request.
+	//
+	// For the value of marker , specify the value of NextMarker from the previous
+	// response, which is the ID of the first reusable delegation set that Amazon Route
+	// 53 will return if you submit another request.
+	//
 	// If the value of IsTruncated in the previous response was false , there are no
 	// more reusable delegation sets to get.
 	Marker *string
@@ -133,6 +136,9 @@ func (c *Client) addOperationListReusableDelegationSetsMiddlewares(stack *middle
 	if err = addRecordResponseTiming(stack); err != nil {
 		return err
 	}
+	if err = addSpanRetryLoop(stack, options); err != nil {
+		return err
+	}
 	if err = addClientUserAgent(stack, options); err != nil {
 		return err
 	}
@@ -143,6 +149,12 @@ func (c *Client) addOperationListReusableDelegationSetsMiddlewares(stack *middle
 		return err
 	}
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
+		return err
+	}
+	if err = addTimeOffsetBuild(stack, c); err != nil {
+		return err
+	}
+	if err = addUserAgentRetryMode(stack, options); err != nil {
 		return err
 	}
 	if err = stack.Initialize.Add(newServiceMetadataMiddleware_opListReusableDelegationSets(options.Region), middleware.Before); err != nil {
@@ -161,6 +173,18 @@ func (c *Client) addOperationListReusableDelegationSetsMiddlewares(stack *middle
 		return err
 	}
 	if err = addDisableHTTPSMiddleware(stack, options); err != nil {
+		return err
+	}
+	if err = addSpanInitializeStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanInitializeEnd(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestStart(stack); err != nil {
+		return err
+	}
+	if err = addSpanBuildRequestEnd(stack); err != nil {
 		return err
 	}
 	return nil
