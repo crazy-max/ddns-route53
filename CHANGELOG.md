@@ -6,18 +6,18 @@
 * Go 1.23 (#1258)
 * Alpine Linux 3.21 (#1258)
 * Switch to github.com/dromara/carbon/v2 2.5.2 (#1259)
-* Bump github.com/alecthomas/kong from 0.9.0 to 1.6.0 (#1251
+* Bump github.com/alecthomas/kong to 1.6.0 (#1251)
 * Bump github.com/aws/aws-sdk-go-v2 dependencies (#1254)
-    * github.com/aws/aws-sdk-go-v2 to 1.27.0
-    * github.com/aws/aws-sdk-go-v2/config to 1.28.0
-    * github.com/aws/aws-sdk-go-v2/credentials to 1.17.0
-    * github.com/aws/aws-sdk-go-v2/service/route53 to 1.41.0
-* Bump github.com/go-playground/validator/v10 from 10.19.0 to 10.23.0 (#1219 #1253)
-* Bump github.com/hashicorp/go-retryablehttp from 0.7.5 to 0.7.7 (#1214)
-* Bump github.com/rs/zerolog from 1.32.0 to 1.33.0 (#1212)
-* Bump golang.org/x/crypto from 0.21.0 to 0.31.0 (#1257)
-* Bump golang.org/x/net from 0.21.0 to 0.23.0 (#1201)
-* Bump golang.org/x/sys from 0.18.0 to 0.28.0 (#1217 #1252)
+    * github.com/aws/aws-sdk-go-v2 to 1.32.7
+    * github.com/aws/aws-sdk-go-v2/config to 1.28.7
+    * github.com/aws/aws-sdk-go-v2/credentials to 1.17.48
+    * github.com/aws/aws-sdk-go-v2/service/route53 to 1.46.4
+* Bump github.com/go-playground/validator/v10 to 10.23.0 (#1219 #1253)
+* Bump github.com/hashicorp/go-retryablehttp to 0.7.7 (#1214)
+* Bump github.com/rs/zerolog to 1.33.0 (#1212)
+* Bump golang.org/x/crypto to 0.31.0 (#1257)
+* Bump golang.org/x/net to 0.23.0 (#1201)
+* Bump golang.org/x/sys to 0.28.0 (#1217 #1252)
 
 ## 2.12.0 (2024/03/24)
 
