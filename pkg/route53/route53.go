@@ -79,9 +79,7 @@ func (r *Client) ListRecords() ([]awsr53types.ResourceRecordSet, error) {
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to fetch records")
 		}
-		for _, set := range resp.ResourceRecordSets {
-			records = append(records, set)
-		}
+		records = append(records, resp.ResourceRecordSets...)
 		if !resp.IsTruncated {
 			break
 		}

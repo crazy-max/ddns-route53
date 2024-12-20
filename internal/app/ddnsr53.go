@@ -118,10 +118,8 @@ func (c *DDNSRoute53) Run() {
 			wanLogger = log.Debug()
 			log.Info().Msgf("Current WAN IPv4: %s", wanIPv4)
 		}
-		if wanErrs != nil {
-			for _, wanIPErr := range wanErrs {
-				wanLogger.Err(wanIPErr.Err).Str("provider-url", wanIPErr.ProviderURL).Msg("Cannot retrieve WAN IPv4 address")
-			}
+		for _, wanIPErr := range wanErrs {
+			wanLogger.Err(wanIPErr.Err).Str("provider-url", wanIPErr.ProviderURL).Msg("Cannot retrieve WAN IPv4 address")
 		}
 	}
 
@@ -133,10 +131,8 @@ func (c *DDNSRoute53) Run() {
 			wanLogger = log.Debug()
 			log.Info().Msgf("Current WAN IPv6: %s", wanIPv6)
 		}
-		if wanErrs != nil {
-			for _, wanIPErr := range wanErrs {
-				wanLogger.Err(wanIPErr.Err).Str("provider-url", wanIPErr.ProviderURL).Msg("Cannot retrieve WAN IPv6 address")
-			}
+		for _, wanIPErr := range wanErrs {
+			wanLogger.Err(wanIPErr.Err).Str("provider-url", wanIPErr.ProviderURL).Msg("Cannot retrieve WAN IPv6 address")
 		}
 	}
 

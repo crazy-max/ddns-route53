@@ -1,7 +1,7 @@
 package wanip
 
 import (
-	"fmt"
+	"context"
 	"io"
 	"net"
 	"net/http"
@@ -23,6 +23,7 @@ type Error struct {
 
 // Client represents an active wanip object
 type Client struct {
+	ctx        context.Context
 	hc         *http.Client
 	ifname     string
 	userAgent  string
@@ -55,7 +56,9 @@ func WithMaxRetries(maxRetries int) Option {
 
 // New initializes a new wanip client
 func New(opts ...Option) *Client {
-	c := &Client{}
+	c := &Client{
+		ctx: context.Background(),
+	}
 	for _, opt := range opts {
 		opt(c)
 	}
@@ -88,7 +91,7 @@ func (c *Client) IPv4() (net.IP, Errors) {
 			return ip, nil
 		}
 		errs = append(errs, Error{
-			Err:         fmt.Errorf("invalid IPv4 address: %s", ip.String()),
+			Err:         errors.Errorf("invalid IPv4 address: %s", ip.String()),
 			ProviderURL: providerURL,
 		})
 	}
@@ -116,7 +119,7 @@ func (c *Client) IPv6() (net.IP, Errors) {
 			return ip, nil
 		}
 		errs = append(errs, Error{
-			Err:         fmt.Errorf("invalid IPv6 address: %s", ip.String()),
+			Err:         errors.Errorf("invalid IPv6 address: %s", ip.String()),
 			ProviderURL: providerURL,
 		})
 	}
@@ -131,7 +134,7 @@ func (c *Client) getIP(providerURL string, v6 bool) (net.IP, error) {
 		httpc.Transport = t
 	}
 
-	req, err := http.NewRequest("GET", providerURL, nil)
+	req, err := http.NewRequestWithContext(c.ctx, "GET", providerURL, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "request failed")
 	}
@@ -151,7 +154,7 @@ func (c *Client) getIP(providerURL string, v6 bool) (net.IP, error) {
 	}
 
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("received invalid status code %d from %s: %s", res.StatusCode, providerURL, res.Body)
+		return nil, errors.Errorf("received invalid status code %d from %s: %s", res.StatusCode, providerURL, res.Body)
 	}
 
 	return net.ParseIP(string(ip)), nil
@@ -203,7 +206,7 @@ func interfaceAddress(interfaceName string, v6 bool) (net.IP, error) {
 			}
 		}
 	}
-	return nil, fmt.Errorf("no suitable address found for interface: %s", interfaceName)
+	return nil, errors.Errorf("no suitable address found for interface: %s", interfaceName)
 }
 
 // interfaceAddresses returns all interface addresses.

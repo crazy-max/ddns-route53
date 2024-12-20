@@ -63,7 +63,7 @@ func (cfg *Config) validate() error {
 		return errors.New("route53 configuration required")
 	}
 
-	if cfg.Route53.RecordsSet == nil || len(cfg.Route53.RecordsSet) == 0 {
+	if len(cfg.Route53.RecordsSet) == 0 {
 		return errors.New("empty record set")
 	}
 
