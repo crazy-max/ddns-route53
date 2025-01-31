@@ -190,6 +190,11 @@ jobs:
 
   image:
     runs-on: ubuntu-latest
+    permissions:
+      # same as global permissions
+      contents: read
+      # required to push to GHCR
+      packages: write
     needs:
       - artifact
       - test
