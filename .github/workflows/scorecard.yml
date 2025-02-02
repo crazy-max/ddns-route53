@@ -22,8 +22,6 @@ jobs:
     permissions:
       # same as global permissions
       contents: read
-      # needed to upload the results to code-scanning dashboard
-      security-events: write
       # needed to publish results and get a badge (see publish_results below)
       id-token: write
     steps:
@@ -44,8 +42,3 @@ jobs:
           path: results.sarif
           retention-days: 5
           if-no-files-found: error
-      -
-        name: Upload to code-scanning
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: results.sarif
