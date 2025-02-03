@@ -1,3 +1,38 @@
+# v1.48.5 (2025-01-31)
+
+* **Dependency Update**: Switch to code-generated waiter matchers, removing the dependency on go-jmespath.
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.48.4 (2025-01-30)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.48.3 (2025-01-24)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+* **Dependency Update**: Upgrade to smithy-go v1.22.2.
+
+# v1.48.2 (2025-01-17)
+
+* **Bug Fix**: Fix bug where credentials weren't refreshed during retry loop.
+
+# v1.48.1 (2025-01-15)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.48.0 (2025-01-14)
+
+* **Feature**: Amazon Route 53 now supports the Mexico (Central) Region (mx-central-1) for latency records, geoproximity records, and private DNS for Amazon VPCs in that region
+* **Bug Fix**: Fix issue where waiters were not failing on unmatched errors as they should. This may have breaking behavioral changes for users in fringe cases. See [this announcement](https://github.com/aws/aws-sdk-go-v2/discussions/2954) for more information.
+
+# v1.47.1 (2025-01-09)
+
+* **Dependency Update**: Updated to the latest SDK module versions
+
+# v1.47.0 (2025-01-08)
+
+* **Feature**: Amazon Route 53 now supports the Asia Pacific (Thailand) Region (ap-southeast-7) for latency records, geoproximity records, and private DNS for Amazon VPCs in that region
+
 # v1.46.4 (2024-12-19)
 
 * **Dependency Update**: Updated to the latest SDK module versions
