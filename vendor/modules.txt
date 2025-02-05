@@ -5,7 +5,7 @@ github.com/BurntSushi/toml/internal
 # github.com/alecthomas/kong v1.6.0
 ## explicit; go 1.20
 github.com/alecthomas/kong
-# github.com/aws/aws-sdk-go-v2 v1.32.7
+# github.com/aws/aws-sdk-go-v2 v1.36.0
 ## explicit; go 1.21
 github.com/aws/aws-sdk-go-v2/aws
 github.com/aws/aws-sdk-go-v2/aws/defaults
@@ -31,10 +31,10 @@ github.com/aws/aws-sdk-go-v2/internal/shareddefaults
 github.com/aws/aws-sdk-go-v2/internal/strings
 github.com/aws/aws-sdk-go-v2/internal/sync/singleflight
 github.com/aws/aws-sdk-go-v2/internal/timeconv
-# github.com/aws/aws-sdk-go-v2/config v1.28.7
+# github.com/aws/aws-sdk-go-v2/config v1.29.5
 ## explicit; go 1.21
 github.com/aws/aws-sdk-go-v2/config
-# github.com/aws/aws-sdk-go-v2/credentials v1.17.48
+# github.com/aws/aws-sdk-go-v2/credentials v1.17.58
 ## explicit; go 1.21
 github.com/aws/aws-sdk-go-v2/credentials
 github.com/aws/aws-sdk-go-v2/credentials/ec2rolecreds
@@ -43,47 +43,47 @@ github.com/aws/aws-sdk-go-v2/credentials/endpointcreds/internal/client
 github.com/aws/aws-sdk-go-v2/credentials/processcreds
 github.com/aws/aws-sdk-go-v2/credentials/ssocreds
 github.com/aws/aws-sdk-go-v2/credentials/stscreds
-# github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.22
+# github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.27
 ## explicit; go 1.21
 github.com/aws/aws-sdk-go-v2/feature/ec2/imds
 github.com/aws/aws-sdk-go-v2/feature/ec2/imds/internal/config
-# github.com/aws/aws-sdk-go-v2/internal/configsources v1.3.26
+# github.com/aws/aws-sdk-go-v2/internal/configsources v1.3.31
 ## explicit; go 1.21
 github.com/aws/aws-sdk-go-v2/internal/configsources
-# github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.6.26
+# github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.6.31
 ## explicit; go 1.21
 github.com/aws/aws-sdk-go-v2/internal/endpoints/v2
-# github.com/aws/aws-sdk-go-v2/internal/ini v1.8.1
+# github.com/aws/aws-sdk-go-v2/internal/ini v1.8.2
 ## explicit; go 1.21
 github.com/aws/aws-sdk-go-v2/internal/ini
-# github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.12.1
+# github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.12.2
 ## explicit; go 1.21
 github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding
-# github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.12.7
+# github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.12.12
 ## explicit; go 1.21
 github.com/aws/aws-sdk-go-v2/service/internal/presigned-url
-# github.com/aws/aws-sdk-go-v2/service/route53 v1.46.4
+# github.com/aws/aws-sdk-go-v2/service/route53 v1.48.6
 ## explicit; go 1.21
 github.com/aws/aws-sdk-go-v2/service/route53
 github.com/aws/aws-sdk-go-v2/service/route53/internal/customizations
 github.com/aws/aws-sdk-go-v2/service/route53/internal/endpoints
 github.com/aws/aws-sdk-go-v2/service/route53/types
-# github.com/aws/aws-sdk-go-v2/service/sso v1.24.8
+# github.com/aws/aws-sdk-go-v2/service/sso v1.24.14
 ## explicit; go 1.21
 github.com/aws/aws-sdk-go-v2/service/sso
 github.com/aws/aws-sdk-go-v2/service/sso/internal/endpoints
 github.com/aws/aws-sdk-go-v2/service/sso/types
-# github.com/aws/aws-sdk-go-v2/service/ssooidc v1.28.7
+# github.com/aws/aws-sdk-go-v2/service/ssooidc v1.28.13
 ## explicit; go 1.21
 github.com/aws/aws-sdk-go-v2/service/ssooidc
 github.com/aws/aws-sdk-go-v2/service/ssooidc/internal/endpoints
 github.com/aws/aws-sdk-go-v2/service/ssooidc/types
-# github.com/aws/aws-sdk-go-v2/service/sts v1.33.3
+# github.com/aws/aws-sdk-go-v2/service/sts v1.33.13
 ## explicit; go 1.21
 github.com/aws/aws-sdk-go-v2/service/sts
 github.com/aws/aws-sdk-go-v2/service/sts/internal/endpoints
 github.com/aws/aws-sdk-go-v2/service/sts/types
-# github.com/aws/smithy-go v1.22.1
+# github.com/aws/smithy-go v1.22.2
 ## explicit; go 1.21
 github.com/aws/smithy-go
 github.com/aws/smithy-go/auth
@@ -148,9 +148,6 @@ github.com/hashicorp/go-cleanhttp
 # github.com/hashicorp/go-retryablehttp v0.7.7
 ## explicit; go 1.19
 github.com/hashicorp/go-retryablehttp
-# github.com/jmespath/go-jmespath v0.4.0
-## explicit; go 1.14
-github.com/jmespath/go-jmespath
 # github.com/leodido/go-urn v1.4.0
 ## explicit; go 1.18
 github.com/leodido/go-urn
@@ -199,8 +196,6 @@ golang.org/x/text/internal/language
 golang.org/x/text/internal/language/compact
 golang.org/x/text/internal/tag
 golang.org/x/text/language
-# gopkg.in/yaml.v2 v2.4.0
-## explicit; go 1.15
 # gopkg.in/yaml.v3 v3.0.1
 ## explicit
 gopkg.in/yaml.v3
