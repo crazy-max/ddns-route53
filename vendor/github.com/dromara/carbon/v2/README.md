@@ -11,7 +11,7 @@ English | [简体中文](README.cn.md) | [日本語](README.jp.md)
 
 #### Introduction
 
-A simple, semantic and developer-friendly golang package for time, has been included
+A simple, semantic and developer-friendly time package for `golang`, has been included
 by [awesome-go](https://github.com/avelino/awesome-go#date-and-time "awesome-go")
 
 #### Repository
@@ -40,7 +40,7 @@ go get -u gitcode.com/dromara/carbon/v2
 import "gitee.com/dromara/gitcode/v2"
 ```
 
-`Carbon` was donated to the [dromara](https://dromara.org/ "dromara") organization, the repository url has changed. If the previous repository used was `golang-module/carbon`, please replace the original repository with the new repository in `go.mod`, or execute the following command
+`Carbon` was donated to the [dromara](https://dromara.org/ "dromara") organization, the repository URL has changed. If the previous repository used was `golang-module/carbon`, please replace the original repository with the new repository in `go.mod`, or execute the following command:
 
 ```go
 go mod edit -replace github.com/golang-module/carbon/v2=github.com/dromara/carbon/v2
@@ -477,11 +477,11 @@ carbon.Parse("2020-08-05 13:14:15.222222222").SubMicrosecond().ToString() // 202
 // Add three nanoseconds
 carbon.Parse("2020-08-05 13:14:15.222222222").AddNanoseconds(3).ToString() // 2020-08-05 13:14:15.222222225 +0800 CST
 // Add one nanosecond
-carbon.Parse("2020-08-05 13:14:15.222222222").AddNanossecond().ToString() // 2020-08-05 13:14:15.222222223 +0800 CST
+carbon.Parse("2020-08-05 13:14:15.222222222").AddNanosecond().ToString() // 2020-08-05 13:14:15.222222223 +0800 CST
 // Subtract three nanoseconds
-carbon.Parse("2020-08-05 13:14:15.222222222").SubNanosseconds(3).ToString() // 2020-08-05 13:14:15.222222219 +0800 CST
+carbon.Parse("2020-08-05 13:14:15.222222222").SubNanoseconds(3).ToString() // 2020-08-05 13:14:15.222222219 +0800 CST
 // Subtract one nanosecond
-carbon.Parse("2020-08-05 13:14:15.222222222").SubNanossecond().ToString() // 2020-08-05 13:14:15.222222221 +0800 CST
+carbon.Parse("2020-08-05 13:14:15.222222222").SubNanosecond().ToString() // 2020-08-05 13:14:15.222222221 +0800 CST
 ```
 
 ##### Difference
@@ -1320,7 +1320,7 @@ The following calendars are supported
 * [Chinese Lunar](./calendar/lunar/README.md "Chinese Lunar")
 * [Persian/Jalaali](./calendar/persian/README.md "Persian/Jalaali")
 
-##### I18n
+##### i18n
 
 The following languages are supported
 
@@ -1487,46 +1487,46 @@ invalid timezone "xxx", please see the file "$GOROOT/lib/time/zoneinfo.zip" for 
 
 ##### <a id="format-sign-table">Format sign table</a>
 
-| sign |                                                  desc                                                  | length |      range       |             example             |
-|:----:|:------------------------------------------------------------------------------------------------------:|:------:|:----------------:|:-------------------------------:|
-|  d   |                                     Day of the month, padded to 2                                      |   2    |      01-31       |               02                |
-|  D   |                           Day of the week, as an abbreviate localized string                           |   3    |     Mon-Sun      |               Mon               |
-|  j   |                                      Day of the month, no padding                                      |   -    |       1-31       |                2                |
-|  S   | English ordinal suffix for the day of the month, 2 characters. Eg: st, nd, rd or th. Works well with j |   2    |   st/nd/rd/th    |               th                |
-|  l   |                         Day of the week, as an unabbreviated localized string                          |   -    |  Monday-Sunday   |             Monday              |
-|  F   |                               Month as an unabbreviated localized string                               |   -    | January-December |             January             |
-|  m   |                                           Month, padded to 2                                           |   2    |      01-12       |               01                |
-|  M   |                                Month as an abbreviated localized string                                |   3    |     Jan-Dec      |               Jan               |
-|  n   |                                           Month, no padding                                            |   -    |       1-12       |                1                |
-|  Y   |                                            Four-digit year                                             |   4    |    0000-9999     |              2006               |
-|  y   |                                             Two-digit year                                             |   2    |      00-99       |               06                |
-|  a   |                                  Lowercase morning or afternoon sign                                   |   2    |      am/pm       |               pm                |
-|  A   |                                  Uppercase morning or afternoon sign                                   |   2    |      AM/PM       |               PM                |
-|  g   |                                   Hour in 12-hour format, no padding                                   |   -    |       1-12       |                3                |
-|  G   |                                   Hour in 24-hour format, no padding                                   |   -    |       0-23       |               15                |
-|  h   |                                  Hour in 12-hour format, padded to 2                                   |   2    |      00-11       |               03                |
-|  H   |                                  Hour in 24-hour format, padded to 2                                   |   2    |      00-23       |               15                |
-|  i   |                                          Minute, padded to 2                                           |   2    |      01-59       |               04                |
-|  s   |                                          Second, padded to 2                                           |   2    |      01-59       |               05                |
-|  O   |               Difference to Greenwich time (GMT) without colon between hours and minutes               |   -    |        -         |              -0700              |
-|  P   |                Difference to Greenwich time (GMT) with colon between hours and minutes                 |   -    |        -         |             -07:00              |
-|  T   |                                          Abbreviated timezone                                          |   -    |        -         |               MST               |
-|  W   |                                     week of the year, padded to 2                                      |   2    |      01-52       |               01                |
-|  N   |                                      day of the week, padded to 2                                      |   2    |      01-07       |               02                |
-|  L   |                                        Whether it's a leap year                                        |   1    |       0-1        |                0                |
-| U | Unix timestamp with seconds | - | - |           1596604455            |
-| V | Unix timestamp with millisecond | - | - |          1596604455666          |
-| X | Unix timestamp with microsecond | - | - |        1596604455666666         |
-| Z | Unix timestamp with nanoseconds | - | - |       1596604455666666666       |
-|  v   |                                              Millisecond                                               | - | 1-999 |               999               |
-|  u   |                                              Microsecond                                               | - | 1-999999 |             999999              |
-|  x   |                                               Nanosecond                                               | - | 1-999999999 |            999999999            |
-|  w   |                                            Day of the week                                             |   1    |       0-6        |                1                |
-|  t   |                                        Total days of the month                                         |   2    |      28-31       |               31                |
-|  z   |                                            Day of the year                                             |   -    |      1-365       |                2                |
-|  e   |                                                Location                                                |   -    |        -         |        America/New_York         |
-|  Q   |                                                Quarter                                                 |   1    |       1-4        |                1                |
-|  C   |                                                Century                                                 |   -    |       0-99       |               21                |
+| sign |                                                  desc                                                  | length |      range       |       example       |
+|:----:|:------------------------------------------------------------------------------------------------------:|:------:|:----------------:|:-------------------:|
+|  d   |                                     Day of the month, padded to 2                                      |   2    |      01-31       |         02          |
+|  D   |                           Day of the week, as an abbreviate localized string                           |   3    |     Mon-Sun      |         Mon         |
+|  j   |                                      Day of the month, no padding                                      |   -    |       1-31       |          2          |
+|  S   | English ordinal suffix for the day of the month, 2 characters. Eg: st, nd, rd or th. Works well with j |   2    |   st/nd/rd/th    |         th          |
+|  l   |                         Day of the week, as an unabbreviated localized string                          |   -    |  Monday-Sunday   |       Monday        |
+|  F   |                               Month as an unabbreviated localized string                               |   -    | January-December |       January       |
+|  m   |                                           Month, padded to 2                                           |   2    |      01-12       |         01          |
+|  M   |                                Month as an abbreviated localized string                                |   3    |     Jan-Dec      |         Jan         |
+|  n   |                                           Month, no padding                                            |   -    |       1-12       |          1          |
+|  Y   |                                            Four-digit year                                             |   4    |    0000-9999     |        2006         |
+|  y   |                                             Two-digit year                                             |   2    |      00-99       |         06          |
+|  a   |                                  Lowercase morning or afternoon sign                                   |   2    |      am/pm       |         pm          |
+|  A   |                                  Uppercase morning or afternoon sign                                   |   2    |      AM/PM       |         PM          |
+|  g   |                                   Hour in 12-hour format, no padding                                   |   -    |       1-12       |          3          |
+|  G   |                                   Hour in 24-hour format, no padding                                   |   -    |       0-23       |         15          |
+|  h   |                                  Hour in 12-hour format, padded to 2                                   |   2    |      00-11       |         03          |
+|  H   |                                  Hour in 24-hour format, padded to 2                                   |   2    |      00-23       |         15          |
+|  i   |                                          Minute, padded to 2                                           |   2    |      01-59       |         04          |
+|  s   |                                          Second, padded to 2                                           |   2    |      01-59       |         05          |
+|  O   |               Difference to Greenwich time (GMT) without colon between hours and minutes               |   -    |        -         |        -0700        |
+|  P   |                Difference to Greenwich time (GMT) with colon between hours and minutes                 |   -    |        -         |       -07:00        |
+|  T   |                                          Abbreviated timezone                                          |   -    |        -         |         MST         |
+|  W   |                                     week of the year, padded to 2                                      |   2    |      01-52       |         01          |
+|  N   |                                      day of the week, padded to 2                                      |   2    |      01-07       |         02          |
+|  L   |                                        Whether it's a leap year                                        |   1    |       0-1        |          0          |
+|  U   |                                      Unix timestamp with seconds                                       |   -    |        -         |     1596604455      |
+|  V   |                                    Unix timestamp with millisecond                                     |   -    |        -         |    1596604455666    |
+|  X   |                                    Unix timestamp with microsecond                                     |   -    |        -         |  1596604455666666   |
+|  Z   |                                    Unix timestamp with nanoseconds                                     |   -    |        -         | 1596604455666666666 |
+|  v   |                                              Millisecond                                               |   -    |      1-999       |         999         |
+|  u   |                                              Microsecond                                               |   -    |     1-999999     |       999999        |
+|  x   |                                               Nanosecond                                               |   -    |   1-999999999    |      999999999      |
+|  w   |                                            Day of the week                                             |   1    |       0-6        |          1          |
+|  t   |                                        Total days of the month                                         |   2    |      28-31       |         31          |
+|  z   |                                            Day of the year                                             |   -    |      1-365       |          2          |
+|  e   |                                                Location                                                |   -    |        -         |  America/New_York   |
+|  Q   |                                                Quarter                                                 |   1    |       1-4        |          1          |
+|  C   |                                                Century                                                 |   -    |       0-99       |         21          |
 
 #### FAQ
 

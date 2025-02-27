@@ -56,7 +56,7 @@ var (
 	}
 
 	InvalidDateError = func() error {
-		return fmt.Errorf("invalid invalid date, please make sure the date is valid")
+		return fmt.Errorf("invalid date, please make sure the date is valid")
 	}
 )
 

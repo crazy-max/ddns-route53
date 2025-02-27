@@ -56,7 +56,7 @@ func (c Carbon) DiffInMonths(carbon ...Carbon) int64 {
 		start, end = end, start
 		sign = -1
 	}
-	months := getDiffInMonths(start, end, 0)
+	months := getDiffInMonths(start, end)
 	return months * int64(sign)
 }
 
@@ -280,13 +280,16 @@ func (c Carbon) diff(end Carbon) (unit string, value int64) {
 	return
 }
 
-func getDiffInMonths(start, end Carbon, months int64) int64 {
-	next := start.AddDays(start.DaysInMonth())
-	days := next.DiffInDays(end)
-	seconds := next.DiffInSeconds(end)
-	if days < 0 || (days == 0 && seconds < 0) {
-		return months
+func getDiffInMonths(start, end Carbon) int64 {
+	y, m, d, h, i, s, ns := start.DateTimeNano()
+	endYear, endMonth, _ := end.Date()
+
+	yearDiff := endYear - y
+	monthDiff := endMonth - m
+	totalMonths := yearDiff*12 + monthDiff
+
+	if time.Date(y, time.Month(m+totalMonths), d, h, i, s, ns, start.StdTime().Location()).After(end.StdTime()) {
+		return int64(totalMonths - 1)
 	}
-	months += 1
-	return getDiffInMonths(next, end, months)
+	return int64(totalMonths)
 }

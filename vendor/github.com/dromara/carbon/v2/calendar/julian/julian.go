@@ -110,7 +110,7 @@ func (j Julian) ToGregorian() (g Gregorian) {
 		month -= 13
 		year -= 4715
 	} else {
-		month -= 1
+		month--
 		year -= 4716
 	}
 	f *= 24
