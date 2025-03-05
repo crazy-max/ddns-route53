@@ -7,7 +7,7 @@ import (
 // CreateFromStdTime creates a Carbon instance from standard time.Time.
 // 从标准的 time.Time 创建 Carbon 实例
 func CreateFromStdTime(tt time.Time, timezone ...string) Carbon {
-	c := NewCarbon()
+	c := NewCarbon(tt)
 	c.loc = tt.Location()
 	if len(timezone) > 0 {
 		c.loc, c.Error = getLocationByTimezone(timezone[0])
