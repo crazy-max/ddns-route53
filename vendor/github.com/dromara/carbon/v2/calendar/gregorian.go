@@ -132,29 +132,30 @@ type Gregorian struct {
 
 // NewGregorian returns a new Gregorian instance.
 // 初始化 Gregorian 结构体
-func NewGregorian(t time.Time) (g Gregorian) {
+func NewGregorian(t time.Time) *Gregorian {
+	g := new(Gregorian)
 	if t.IsZero() {
-		return
+		return g
 	}
 	g.Time = t
-	return
+	return g
 }
 
 // MaxValue returns a Gregorian instance for the greatest supported date.
 // 返回 Gregorian 的最大值
-func MaxValue() Gregorian {
+func MaxValue() *Gregorian {
 	return NewGregorian(time.Date(9999, 12, 31, 23, 59, 59, 999999999, time.UTC))
 }
 
 // MinValue returns a Gregorian instance for the lowest supported date.
 // 返回 Gregorian 的最小值
-func MinValue() Gregorian {
+func MinValue() *Gregorian {
 	return NewGregorian(time.Date(-9998, 1, 1, 0, 0, 0, 0, time.UTC))
 }
 
 // Date gets gregorian year, month, and day like 2020, 8, 5.
 // 获取公历年、月、日
-func (g Gregorian) Date() (year, month, day int) {
+func (g *Gregorian) Date() (year, month, day int) {
 	if g.IsZero() {
 		return 0, 0, 0
 	}
@@ -166,7 +167,7 @@ func (g Gregorian) Date() (year, month, day int) {
 
 // Clock gets gregorian hour, minute, and second like 13, 14, 15.
 // 获取公历时、分、秒
-func (g Gregorian) Clock() (hour, minute, second int) {
+func (g *Gregorian) Clock() (hour, minute, second int) {
 	if g.IsZero() {
 		return 0, 0, 0
 	}
@@ -175,7 +176,7 @@ func (g Gregorian) Clock() (hour, minute, second int) {
 
 // Year gets gregorian year like 2020.
 // 获取公历年
-func (g Gregorian) Year() int {
+func (g *Gregorian) Year() int {
 	if g.IsZero() {
 		return 0
 	}
@@ -184,7 +185,7 @@ func (g Gregorian) Year() int {
 
 // Month gets gregorian month like 8.
 // 获取公历月，如 8
-func (g Gregorian) Month() int {
+func (g *Gregorian) Month() int {
 	if g.IsZero() {
 		return 0
 	}
@@ -193,7 +194,7 @@ func (g Gregorian) Month() int {
 
 // Week gets gregorian week day like 0.
 // 获取周
-func (g Gregorian) Week() int {
+func (g *Gregorian) Week() int {
 	if g.IsZero() {
 		return 0
 	}
@@ -202,7 +203,7 @@ func (g Gregorian) Week() int {
 
 // Day gets gregorian day like 5.
 // 获取公历日，如 0
-func (g Gregorian) Day() int {
+func (g *Gregorian) Day() int {
 	if g.IsZero() {
 		return 0
 	}
@@ -211,7 +212,7 @@ func (g Gregorian) Day() int {
 
 // Hour gets gregorian hour like 13.
 // 获取公历小时，如 13
-func (g Gregorian) Hour() int {
+func (g *Gregorian) Hour() int {
 	if g.IsZero() {
 		return 0
 	}
@@ -220,7 +221,7 @@ func (g Gregorian) Hour() int {
 
 // Minute gets gregorian minute like 14.
 // 获取公历分钟数，如 14
-func (g Gregorian) Minute() int {
+func (g *Gregorian) Minute() int {
 	if g.IsZero() {
 		return 0
 	}
@@ -229,7 +230,7 @@ func (g Gregorian) Minute() int {
 
 // Second gets gregorian second like 15.
 // 获取公历秒数，如 15
-func (g Gregorian) Second() int {
+func (g *Gregorian) Second() int {
 	if g.IsZero() {
 		return 0
 	}
@@ -238,13 +239,13 @@ func (g Gregorian) Second() int {
 
 // Location gets gregorian timezone information.
 // 获取时区信息
-func (g Gregorian) Location() *time.Location {
+func (g *Gregorian) Location() *time.Location {
 	return g.Time.Location()
 }
 
 // String implements Stringer interface and outputs a string in YYYY-MM-DD HH::ii::ss format like "2019-12-07 00:00:00".
 // 实现 Stringer 接口, 输出 YYYY-MM-DD HH::ii::ss 格式字符串，如 "2019-12-07 00:00:00"
-func (g Gregorian) String() string {
+func (g *Gregorian) String() string {
 	if g.IsZero() {
 		return ""
 	}
@@ -253,13 +254,13 @@ func (g Gregorian) String() string {
 
 // IsZero reports whether is zero time.
 // 是否是零值时间
-func (g Gregorian) IsZero() bool {
+func (g *Gregorian) IsZero() bool {
 	return g.Time.IsZero()
 }
 
 // IsValid reports whether is a valid gregorian date.
 // 是否是有效的年份
-func (g Gregorian) IsValid() bool {
+func (g *Gregorian) IsValid() bool {
 	if g.Year() >= MinValue().Year() && g.Year() <= MaxValue().Year() && g.Month() >= MinValue().Month() && g.Month() <= MaxValue().Month() && g.Day() >= MinValue().Day() && g.Day() <= MaxValue().Day() {
 		return true
 	}
@@ -268,7 +269,7 @@ func (g Gregorian) IsValid() bool {
 
 // IsLeapYear reports whether is a leap year.
 // 是否是闰年
-func (g Gregorian) IsLeapYear() bool {
+func (g *Gregorian) IsLeapYear() bool {
 	if g.IsZero() {
 		return false
 	}
