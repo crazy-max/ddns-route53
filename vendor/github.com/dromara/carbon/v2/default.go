@@ -1,21 +1,23 @@
 package carbon
 
+import "time"
+
 var (
-	// default layout
+	// DefaultLayout default layout
 	// 默认布局模板
-	defaultLayout = DateTimeLayout
+	DefaultLayout = DateTimeLayout
 
-	// default timezone
+	// DefaultTimezone default timezone
 	// 默认时区
-	defaultTimezone = Local
+	DefaultTimezone = UTC
 
-	// default week start date
+	// DefaultWeekStartsAt default default week start date
 	// 默认一周开始日期
-	defaultWeekStartsAt = Sunday
+	DefaultWeekStartsAt = Sunday
 
-	// default language locale
+	// DefaultLocale default language locale
 	// 默认语言区域
-	defaultLocale = "en"
+	DefaultLocale = "en"
 )
 
 // Default defines a Default struct.
@@ -31,15 +33,28 @@ type Default struct {
 // 设置全局默认值
 func SetDefault(d Default) {
 	if d.Layout != "" {
-		defaultLayout = d.Layout
+		DefaultLayout = d.Layout
 	}
 	if d.Timezone != "" {
-		defaultTimezone = d.Timezone
+		loc, err := getLocationByTimezone(d.Timezone)
+		if err == nil {
+			time.Local = loc
+			DefaultTimezone = d.Timezone
+		}
 	}
 	if d.WeekStartsAt != "" {
-		defaultWeekStartsAt = d.WeekStartsAt
+		DefaultWeekStartsAt = d.WeekStartsAt
 	}
 	if d.Locale != "" {
-		defaultLocale = d.Locale
+		DefaultLocale = d.Locale
 	}
+}
+
+// ResetDefault resets default.
+// 重置全局默认值
+func ResetDefault() {
+	DefaultLayout = DateTimeLayout
+	DefaultTimezone = UTC
+	DefaultWeekStartsAt = Sunday
+	DefaultLocale = "en"
 }

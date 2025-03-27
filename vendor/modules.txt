@@ -119,8 +119,8 @@ github.com/crazy-max/gonfig/types
 # github.com/davecgh/go-spew v1.1.1
 ## explicit
 github.com/davecgh/go-spew/spew
-# github.com/dromara/carbon/v2 v2.5.2
-## explicit; go 1.17
+# github.com/dromara/carbon/v2 v2.6.1
+## explicit; go 1.18
 github.com/dromara/carbon/v2
 github.com/dromara/carbon/v2/calendar
 github.com/dromara/carbon/v2/calendar/julian
