@@ -14,6 +14,7 @@ variable "GITHUB_REF" {
 
 target "_common" {
   args = {
+    BUILDKIT_CONTEXT_KEEP_GIT_DIR = 1
     GO_VERSION = GO_VERSION
     GIT_REF = GITHUB_REF
   }
