@@ -3,888 +3,392 @@ package carbon
 import (
 	"bytes"
 	"database/sql/driver"
-	"errors"
 	"fmt"
 	"strconv"
 	"time"
 )
 
-// returns a failed scan error.
+// timestamp precision constants
+// 时间戳精度常量
+const (
+	PrecisionSecond      = 9
+	PrecisionMillisecond = 999
+	PrecisionMicrosecond = 999999
+	PrecisionNanosecond  = 999999999
+)
+
+// returns a failed scan error
 // 失败的扫描错误
 var failedScanError = func(src interface{}) error {
-	return errors.New(fmt.Sprintf("failed to scan value: %v", src))
+	return fmt.Errorf("failed to scan value: %v", src)
 }
 
-// Scan an interface used by Scan in package database/sql for Scanning value from database to local golang variable.
-func (c *Carbon) Scan(src interface{}) error {
+// LayoutFactory defines a LayoutFactory interface
+// 定义 LayoutFactory 接口
+type LayoutFactory interface {
+	~string
+	SetLayout() string
+}
+
+// LayoutType defines a LayoutType generic struct
+// 定义 LayoutType 泛型结构体
+type LayoutType[T LayoutFactory] struct {
+	*Carbon
+}
+
+// FormatFactory defines a FormatFactory interface.
+// 定义 FormatFactory 接口
+type FormatFactory interface {
+	~string
+	SetFormat() string
+}
+
+// FormatType defines a FormatType generic struct.
+// 定义 FormatType 泛型结构体
+type FormatType[T FormatFactory] struct {
+	*Carbon
+}
+
+// TimestampFactory defines a TimestampFactory interface.
+// 定义 TimestampFactory 接口
+type TimestampFactory interface {
+	~int64
+	SetPrecision() int64
+}
+
+// TimestampType defines a TimestampType generic struct.
+// 定义 TimestampType 泛型结构体
+type TimestampType[T TimestampFactory] struct {
+	*Carbon
+}
+
+// NewLayoutType returns a new LayoutType generic instance.
+// 返回 LayoutType 泛型实例
+func NewLayoutType[T LayoutFactory](carbon *Carbon) LayoutType[T] {
+	return LayoutType[T]{
+		Carbon: carbon,
+	}
+}
+
+// NewFormatType returns a new FormatType generic instance.
+// 返回 FormatType 泛型实例
+func NewFormatType[T FormatFactory](carbon *Carbon) FormatType[T] {
+	return FormatType[T]{
+		Carbon: carbon,
+	}
+}
+
+// NewTimestampType returns a new TimestampType generic instance.
+// 返回 TimestampType 泛型实例
+func NewTimestampType[T TimestampFactory](carbon *Carbon) TimestampType[T] {
+	return TimestampType[T]{
+		Carbon: carbon,
+	}
+}
+
+// Scan implements driver.Scanner interface for LayoutType generic struct.
+// 实现 driver.Scanner 接口
+func (t *LayoutType[T]) Scan(src interface{}) error {
+	c := NewCarbon()
 	switch v := src.(type) {
 	case []byte:
-		*c = Parse(string(v))
+		c = Parse(string(v), DefaultTimezone)
 	case string:
-		*c = Parse(v)
+		c = Parse(v, DefaultTimezone)
 	case time.Time:
-		*c = CreateFromStdTime(v)
+		c = CreateFromStdTime(v, DefaultTimezone)
+	case int64:
+		c = CreateFromTimestamp(v, DefaultTimezone)
+	default:
+		return failedScanError(v)
 	}
-	if c.Error == nil {
-		return nil
-	}
-	return failedScanError(src)
+	*t = NewLayoutType[T](c)
+	return t.Error
 }
 
-// Value the interface providing the Value method for package database/sql/driver.
-func (c Carbon) Value() (driver.Value, error) {
-	if c.IsZero() {
+// Value implements driver.Valuer interface for LayoutType generic struct.
+// 实现 driver.Valuer 接口
+func (t LayoutType[T]) Value() (driver.Value, error) {
+	if t.IsNil() || t.IsZero() {
 		return nil, nil
 	}
-	return c.StdTime(), nil
+	if t.HasError() {
+		return nil, t.Error
+	}
+	return t.StdTime(), nil
 }
 
-// MarshalJSON implements the interface json.Marshal for Carbon struct.
+// MarshalJSON implements json.Marshal interface for LayoutType generic struct.
 // 实现 json.Marshaler 接口
-func (c Carbon) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf(`"%s"`, c.Layout(c.layout))), nil
+func (t LayoutType[T]) MarshalJSON() ([]byte, error) {
+	emptyBytes := []byte(`""`)
+	if t.IsNil() || t.IsZero() {
+		return emptyBytes, nil
+	}
+	if t.HasError() {
+		return emptyBytes, t.Error
+	}
+	return []byte(fmt.Sprintf(`"%s"`, t.Layout(t.getLayout(), t.Timezone()))), nil
 }
 
-// UnmarshalJSON implements the interface json.Unmarshal for Carbon struct.
+// UnmarshalJSON implements json.Unmarshal interface for LayoutType generic struct.
 // 实现 json.Unmarshaler 接口
-func (c *Carbon) UnmarshalJSON(b []byte) error {
-	value := fmt.Sprintf("%s", bytes.Trim(b, `"`))
-	if value == "" || value == "null" {
+func (t *LayoutType[T]) UnmarshalJSON(b []byte) error {
+	value := string(bytes.Trim(b, `"`))
+	if value == "" || value == "null" || value == "0" {
+		t.Carbon = nil
 		return nil
 	}
-	*c = ParseByLayout(value, c.layout)
-	return c.Error
+	*t = NewLayoutType[T](ParseByLayout(value, t.getLayout()))
+	return t.Error
 }
 
-// Scan an interface used by Scan in package database/sql for Scanning value from database to local golang variable.
-func (t *DateTime) Scan(src interface{}) error {
+// String implements Stringer interface for LayoutType generic struct.
+// 实现 Stringer 接口
+func (t LayoutType[T]) String() string {
+	if t.IsZero() || t.IsInvalid() {
+		return ""
+	}
+	return t.Layout(t.getLayout(), t.Timezone())
+}
+
+// GormDataType sets gorm data type for LayoutType generic struct.
+// 设置 gorm 数据类型
+func (t LayoutType[T]) GormDataType() string {
+	return "time"
+}
+
+// getLayout returns the set layout.
+// 返回设置的布局模板
+func (t LayoutType[T]) getLayout() string {
+	var factory T
+	return factory.SetLayout()
+}
+
+// Scan implements driver.Scanner interface for FormatType generic struct.
+// 实现 driver.Scanner 接口
+func (t *FormatType[T]) Scan(src interface{}) error {
+	c := NewCarbon()
 	switch v := src.(type) {
 	case []byte:
-		*t = NewDateTime(Parse(string(v)))
+		c = Parse(string(v), DefaultTimezone)
 	case string:
-		*t = NewDateTime(Parse(v))
+		c = Parse(v, DefaultTimezone)
 	case time.Time:
-		*t = NewDateTime(CreateFromStdTime(v))
+		c = CreateFromStdTime(v, DefaultTimezone)
+	case int64:
+		c = CreateFromTimestamp(v, DefaultTimezone)
+	default:
+		return failedScanError(v)
 	}
-	if t.Error == nil {
-		return nil
-	}
-	return failedScanError(src)
+	*t = NewFormatType[T](c)
+	return t.Error
 }
 
-// Value the interface providing the Value method for package database/sql/driver.
-func (t *DateTime) Value() (driver.Value, error) {
-	if t.IsZero() {
+// Value implements driver.Valuer interface for FormatType generic struct.
+// 实现 driver.Valuer 接口
+func (t FormatType[T]) Value() (driver.Value, error) {
+	if t.IsNil() || t.IsZero() {
 		return nil, nil
+	}
+	if t.HasError() {
+		return nil, t.Error
 	}
 	return t.StdTime(), nil
 }
 
-// MarshalJSON implements the interface json.Marshal for DateTime struct.
-// 实现 MarshalJSON 接口
-func (t DateTime) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf(`"%s"`, t.ToDateTimeString())), nil
+// MarshalJSON implements json.Marshal interface for FormatType generic struct.
+// 实现 json.Marshaler 接口
+func (t FormatType[T]) MarshalJSON() ([]byte, error) {
+	emptyBytes := []byte(`""`)
+	if t.IsNil() || t.IsZero() {
+		return emptyBytes, nil
+	}
+	if t.HasError() {
+		return emptyBytes, t.Error
+	}
+	return []byte(fmt.Sprintf(`"%s"`, t.Format(t.getFormat(), t.Timezone()))), nil
 }
 
-// UnmarshalJSON implements the interface json.Unmarshal for DateTime struct.
-// 实现 UnmarshalJSON 接口
-func (t *DateTime) UnmarshalJSON(b []byte) error {
-	value := fmt.Sprintf("%s", bytes.Trim(b, `"`))
-	if value == "" || value == "null" {
+// UnmarshalJSON implements json.Unmarshal interface for FormatType generic struct.
+// 实现 json.Unmarshaler 接口
+func (t *FormatType[T]) UnmarshalJSON(b []byte) error {
+	value := string(bytes.Trim(b, `"`))
+	if value == "" || value == "null" || value == "0" {
+		t.Carbon = nil
 		return nil
 	}
-	c := ParseByLayout(value, DateTimeLayout)
-	if c.Error == nil {
-		*t = NewDateTime(c)
-	}
-	return c.Error
+	*t = NewFormatType[T](ParseByFormat(value, t.getFormat()))
+	return t.Error
 }
 
-// Scan an interface used by Scan in package database/sql for Scanning value from database to local golang variable.
-func (t *DateTimeMilli) Scan(src interface{}) error {
+// String implements Stringer interface for FormatType generic struct.
+// 实现 Stringer 接口
+func (t FormatType[T]) String() string {
+	if t.IsZero() || t.IsInvalid() {
+		return ""
+	}
+	return t.Format(t.getFormat(), t.Timezone())
+}
+
+// GormDataType sets gorm data type for FormatType generic struct.
+// 设置 gorm 数据类型
+func (t FormatType[T]) GormDataType() string {
+	return "time"
+}
+
+// getFormat returns the set format.
+// 返回设置的格式模板
+func (t FormatType[T]) getFormat() string {
+	var factory T
+	return factory.SetFormat()
+}
+
+// Scan implements driver.Scanner interface for TimestampType generic struct.
+// 实现 driver.Scanner 接口
+func (t *TimestampType[T]) Scan(src interface{}) (err error) {
+	ts := int64(0)
+	c := NewCarbon()
 	switch v := src.(type) {
 	case []byte:
-		*t = NewDateTimeMilli(Parse(string(v)))
+		ts, err = strconv.ParseInt(string(v), 10, 64)
+		if err != nil {
+			return invalidTimestampError(string(v))
+		}
 	case string:
-		*t = NewDateTimeMilli(Parse(v))
+		ts, err = strconv.ParseInt(v, 10, 64)
+		if err != nil {
+			return invalidTimestampError(v)
+		}
+	case int64:
+		ts = v
 	case time.Time:
-		*t = NewDateTimeMilli(CreateFromStdTime(v))
+		c = CreateFromStdTime(v, DefaultTimezone)
+		*t = NewTimestampType[T](c)
+		return t.Error
+	default:
+		return failedScanError(src)
 	}
-	if t.Error == nil {
-		return nil
+	switch t.getPrecision() {
+	case PrecisionSecond:
+		c = CreateFromTimestamp(ts, DefaultTimezone)
+	case PrecisionMillisecond:
+		c = CreateFromTimestampMilli(ts, DefaultTimezone)
+	case PrecisionMicrosecond:
+		c = CreateFromTimestampMicro(ts, DefaultTimezone)
+	case PrecisionNanosecond:
+		c = CreateFromTimestampNano(ts, DefaultTimezone)
 	}
-	return failedScanError(src)
+	*t = NewTimestampType[T](c)
+	return t.Error
 }
 
-// Value the interface providing the Value method for package database/sql/driver.
-func (t *DateTimeMilli) Value() (driver.Value, error) {
-	if t.IsZero() {
+// Value implements driver.Valuer interface for TimestampType generic struct.
+// 实现 driver.Valuer 接口
+func (t TimestampType[T]) Value() (driver.Value, error) {
+	if t.IsNil() || t.IsZero() {
 		return nil, nil
 	}
-	return t.StdTime(), nil
+	if t.HasError() {
+		return nil, t.Error
+	}
+	v := int64(0)
+	switch t.getPrecision() {
+	case PrecisionSecond:
+		v = t.Timestamp()
+	case PrecisionMillisecond:
+		v = t.TimestampMilli()
+	case PrecisionMicrosecond:
+		v = t.TimestampMicro()
+	case PrecisionNanosecond:
+		v = t.TimestampNano()
+	}
+	return v, nil
 }
 
-// MarshalJSON implements the interface json.Marshal for DateTimeMilli struct.
-// 实现 MarshalJSON 接口
-func (t DateTimeMilli) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf(`"%s"`, t.ToDateTimeMilliString())), nil
+// MarshalJSON implements json.Marshal interface for TimestampType generic struct.
+// 实现 json.Marshaler 接口
+func (t TimestampType[T]) MarshalJSON() ([]byte, error) {
+	ts := int64(0)
+	if t.IsNil() || t.IsZero() {
+		return []byte(fmt.Sprintf(`%d`, ts)), nil
+	}
+	if t.HasError() {
+		return []byte(fmt.Sprintf(`%d`, ts)), t.Error
+	}
+	switch t.getPrecision() {
+	case PrecisionSecond:
+		ts = t.Timestamp()
+	case PrecisionMillisecond:
+		ts = t.TimestampMilli()
+	case PrecisionMicrosecond:
+		ts = t.TimestampMicro()
+	case PrecisionNanosecond:
+		ts = t.TimestampNano()
+	}
+	return []byte(fmt.Sprintf(`%d`, ts)), nil
 }
 
-// UnmarshalJSON implements the interface json.Unmarshal for DateTimeMilli struct.
-// 实现 UnmarshalJSON 接口
-func (t *DateTimeMilli) UnmarshalJSON(b []byte) error {
-	value := fmt.Sprintf("%s", bytes.Trim(b, `"`))
-	if value == "" || value == "null" {
+// UnmarshalJSON implements json.Unmarshal interface for TimestampType generic struct.
+// 实现 json.Unmarshaler 接口
+func (t *TimestampType[T]) UnmarshalJSON(b []byte) error {
+	value := string(bytes.Trim(b, `"`))
+	c := NewCarbon()
+	if value == "" || value == "null" || value == "0" {
+		t.Carbon = nil
 		return nil
 	}
-	c := ParseByLayout(value, DateTimeMilliLayout)
-	if c.Error == nil {
-		*t = NewDateTimeMilli(c)
+	ts, err := strconv.ParseInt(value, 10, 64)
+	if err != nil {
+		return invalidTimestampError(value)
 	}
-	return c.Error
+	switch t.getPrecision() {
+	case PrecisionSecond:
+		c = CreateFromTimestamp(ts, DefaultTimezone)
+	case PrecisionMillisecond:
+		c = CreateFromTimestampMilli(ts, DefaultTimezone)
+	case PrecisionMicrosecond:
+		c = CreateFromTimestampMicro(ts, DefaultTimezone)
+	case PrecisionNanosecond:
+		c = CreateFromTimestampNano(ts, DefaultTimezone)
+	}
+	*t = NewTimestampType[T](c)
+	return t.Error
 }
 
-// Scan an interface used by Scan in package database/sql for Scanning value from database to local golang variable.
-func (t *DateTimeMicro) Scan(src interface{}) error {
-	switch v := src.(type) {
-	case []byte:
-		*t = NewDateTimeMicro(Parse(string(v)))
-	case string:
-		*t = NewDateTimeMicro(Parse(v))
-	case time.Time:
-		*t = NewDateTimeMicro(CreateFromStdTime(v))
-	}
-	if t.Error == nil {
-		return nil
-	}
-	return failedScanError(src)
-}
-
-// Value the interface providing the Value method for package database/sql/driver.
-func (t *DateTimeMicro) Value() (driver.Value, error) {
-	if t.IsZero() {
-		return nil, nil
-	}
-	return t.StdTime(), nil
-}
-
-// MarshalJSON implements the interface json.Marshal for DateTimeMicro struct.
-// 实现 MarshalJSON 接口
-func (t DateTimeMicro) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf(`"%s"`, t.ToDateTimeMicroString())), nil
-}
-
-// UnmarshalJSON implements the interface json.Unmarshal for DateTimeMicro struct.
-// 实现 UnmarshalJSON 接口
-func (t *DateTimeMicro) UnmarshalJSON(b []byte) error {
-	value := fmt.Sprintf("%s", bytes.Trim(b, `"`))
-	if value == "" || value == "null" {
-		return nil
-	}
-	c := ParseByLayout(value, DateTimeMicroLayout)
-	if c.Error == nil {
-		*t = NewDateTimeMicro(c)
-	}
-	return c.Error
-}
-
-// Scan an interface used by Scan in package database/sql for Scanning value from database to local golang variable.
-func (t *DateTimeNano) Scan(src interface{}) error {
-	switch v := src.(type) {
-	case []byte:
-		*t = NewDateTimeNano(Parse(string(v)))
-	case string:
-		*t = NewDateTimeNano(Parse(v))
-	case time.Time:
-		*t = NewDateTimeNano(CreateFromStdTime(v))
-	}
-	if t.Error == nil {
-		return nil
-	}
-	return failedScanError(src)
-}
-
-// Value the interface providing the Value method for package database/sql/driver.
-func (t *DateTimeNano) Value() (driver.Value, error) {
-	if t.IsZero() {
-		return nil, nil
-	}
-	return t.StdTime(), nil
-}
-
-// MarshalJSON implements the interface json.Marshal for DateTimeNano struct.
-// 实现 MarshalJSON 接口
-func (t DateTimeNano) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf(`"%s"`, t.ToDateTimeNanoString())), nil
-}
-
-// UnmarshalJSON implements the interface json.Unmarshal for DateTimeNano struct.
-// 实现 UnmarshalJSON 接口
-func (t *DateTimeNano) UnmarshalJSON(b []byte) error {
-	value := fmt.Sprintf("%s", bytes.Trim(b, `"`))
-	if value == "" || value == "null" {
-		return nil
-	}
-	c := ParseByLayout(value, DateTimeNanoLayout)
-	if c.Error == nil {
-		*t = NewDateTimeNano(c)
-	}
-	return c.Error
-}
-
-// Scan an interface used by Scan in package database/sql for Scanning value from database to local golang variable.
-func (t *Date) Scan(src interface{}) error {
-	switch v := src.(type) {
-	case []byte:
-		*t = NewDate(Parse(string(v)))
-	case string:
-		*t = NewDate(Parse(v))
-	case time.Time:
-		*t = NewDate(CreateFromStdTime(v))
-	}
-	if t.Error == nil {
-		return nil
-	}
-	return failedScanError(src)
-}
-
-// Value the interface providing the Value method for package database/sql/driver.
-func (t *Date) Value() (driver.Value, error) {
-	if t.IsZero() {
-		return nil, nil
-	}
-	return t.StdTime(), nil
-}
-
-// MarshalJSON implements the interface json.Marshal for Date struct.
-// 实现 MarshalJSON 接口
-func (t Date) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf(`"%s"`, t.ToDateString())), nil
-}
-
-// UnmarshalJSON implements the interface json.Unmarshal for Date struct.
-// 实现 UnmarshalJSON 接口
-func (t *Date) UnmarshalJSON(b []byte) error {
-	value := fmt.Sprintf("%s", bytes.Trim(b, `"`))
-	if value == "" || value == "null" {
-		return nil
-	}
-	c := ParseByLayout(value, DateLayout)
-	if c.Error == nil {
-		*t = NewDate(c)
-	}
-	return c.Error
-}
-
-// Scan an interface used by Scan in package database/sql for Scanning value from database to local golang variable.
-func (t *DateMilli) Scan(src interface{}) error {
-	switch v := src.(type) {
-	case []byte:
-		*t = NewDateMilli(Parse(string(v)))
-	case string:
-		*t = NewDateMilli(Parse(v))
-	case time.Time:
-		*t = NewDateMilli(CreateFromStdTime(v))
-	}
-	if t.Error == nil {
-		return nil
-	}
-	return failedScanError(src)
-}
-
-// Value the interface providing the Value method for package database/sql/driver.
-func (t *DateMilli) Value() (driver.Value, error) {
-	if t.IsZero() {
-		return nil, nil
-	}
-	return t.StdTime(), nil
-}
-
-// MarshalJSON implements the interface json.Marshal for DateMilli struct.
-// 实现 MarshalJSON 接口
-func (t DateMilli) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf(`"%s"`, t.ToDateMilliString())), nil
-}
-
-// UnmarshalJSON implements the interface json.Unmarshal for DateMilli struct.
-// 实现 UnmarshalJSON 接口
-func (t *DateMilli) UnmarshalJSON(b []byte) error {
-	value := fmt.Sprintf("%s", bytes.Trim(b, `"`))
-	if value == "" || value == "null" {
-		return nil
-	}
-	c := ParseByLayout(value, DateMilliLayout)
-	if c.Error == nil {
-		*t = NewDateMilli(c)
-	}
-	return c.Error
-}
-
-// Scan an interface used by Scan in package database/sql for Scanning value from database to local golang variable.
-func (t *DateMicro) Scan(src interface{}) error {
-	switch v := src.(type) {
-	case []byte:
-		*t = NewDateMicro(Parse(string(v)))
-	case string:
-		*t = NewDateMicro(Parse(v))
-	case time.Time:
-		*t = NewDateMicro(CreateFromStdTime(v))
-	}
-	if t.Error == nil {
-		return nil
-	}
-	return failedScanError(src)
-}
-
-// Value the interface providing the Value method for package database/sql/driver.
-func (t *DateMicro) Value() (driver.Value, error) {
-	if t.IsZero() {
-		return nil, nil
-	}
-	return t.StdTime(), nil
-}
-
-// MarshalJSON implements the interface json.Marshal for DateMicro struct.
-// 实现 MarshalJSON 接口
-func (t DateMicro) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf(`"%s"`, t.ToDateMicroString())), nil
-}
-
-// UnmarshalJSON implements the interface json.Unmarshal for DateMicro struct.
-// 实现 UnmarshalJSON 接口
-func (t *DateMicro) UnmarshalJSON(b []byte) error {
-	value := fmt.Sprintf("%s", bytes.Trim(b, `"`))
-	if value == "" || value == "null" {
-		return nil
-	}
-	c := ParseByLayout(value, DateMicroLayout)
-	if c.Error == nil {
-		*t = NewDateMicro(c)
-	}
-	return c.Error
-}
-
-// Scan an interface used by Scan in package database/sql for Scanning value from database to local golang variable.
-func (t *DateNano) Scan(src interface{}) error {
-	switch v := src.(type) {
-	case []byte:
-		*t = NewDateNano(Parse(string(v)))
-	case string:
-		*t = NewDateNano(Parse(v))
-	case time.Time:
-		*t = NewDateNano(CreateFromStdTime(v))
-	}
-	if t.Error == nil {
-		return nil
-	}
-	return failedScanError(src)
-}
-
-// Value the interface providing the Value method for package database/sql/driver.
-func (t *DateNano) Value() (driver.Value, error) {
-	if t.IsZero() {
-		return nil, nil
-	}
-	return t.StdTime(), nil
-}
-
-// MarshalJSON implements the interface json.Marshal for DateNano struct.
-// 实现 MarshalJSON 接口
-func (t DateNano) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf(`"%s"`, t.ToDateNanoString())), nil
-}
-
-// UnmarshalJSON implements the interface json.Unmarshal for DateNano struct.
-// 实现 UnmarshalJSON 接口
-func (t *DateNano) UnmarshalJSON(b []byte) error {
-	value := fmt.Sprintf("%s", bytes.Trim(b, `"`))
-	if value == "" || value == "null" {
-		return nil
-	}
-	c := ParseByLayout(value, DateNanoLayout)
-	if c.Error == nil {
-		*t = NewDateNano(c)
-	}
-	return c.Error
-}
-
-// Scan an interface used by Scan in package database/sql for Scanning value from database to local golang variable.
-func (t *Time) Scan(src interface{}) error {
-	switch v := src.(type) {
-	case []byte:
-		*t = NewTime(Parse(string(v)))
-	case string:
-		*t = NewTime(Parse(v))
-	case time.Time:
-		*t = NewTime(CreateFromStdTime(v))
-	}
-	if t.Error == nil {
-		return nil
-	}
-	return failedScanError(src)
-}
-
-// Value the interface providing the Value method for package database/sql/driver.
-func (t *Time) Value() (driver.Value, error) {
-	if t.IsZero() {
-		return nil, nil
-	}
-	return t.StdTime(), nil
-}
-
-// MarshalJSON implements the interface json.Marshal for Time struct.
-// 实现 MarshalJSON 接口
-func (t Time) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf(`"%s"`, t.ToTimeString())), nil
-}
-
-// UnmarshalJSON implements the interface json.Unmarshal for Time struct.
-// 实现 UnmarshalJSON 接口
-func (t *Time) UnmarshalJSON(b []byte) error {
-	value := fmt.Sprintf("%s", bytes.Trim(b, `"`))
-	if value == "" || value == "null" {
-		return nil
-	}
-	year, month, day := Now().Date()
-	c := ParseByLayout(fmt.Sprintf("%d-%02d-%02d %s", year, month, day, value), DateTimeLayout)
-	fmt.Println("c", c)
-	if c.Error == nil {
-		*t = NewTime(c)
-	}
-	return c.Error
-}
-
-// Scan an interface used by Scan in package database/sql for Scanning value from database to local golang variable.
-func (t *TimeMilli) Scan(src interface{}) error {
-	switch v := src.(type) {
-	case []byte:
-		*t = NewTimeMilli(Parse(string(v)))
-	case string:
-		*t = NewTimeMilli(Parse(v))
-	case time.Time:
-		*t = NewTimeMilli(CreateFromStdTime(v))
-	}
-	if t.Error == nil {
-		return nil
-	}
-	return failedScanError(src)
-}
-
-// Value the interface providing the Value method for package database/sql/driver.
-func (t *TimeMilli) Value() (driver.Value, error) {
-	if t.IsZero() {
-		return nil, nil
-	}
-	return t.StdTime(), nil
-}
-
-// MarshalJSON implements the interface json.Marshal for TimeMilli struct.
-// 实现 MarshalJSON 接口
-func (t TimeMilli) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf(`"%s"`, t.ToTimeMilliString())), nil
-}
-
-// UnmarshalJSON implements the interface json.Unmarshal for TimeMilli struct.
-// 实现 UnmarshalJSON 接口
-func (t *TimeMilli) UnmarshalJSON(b []byte) error {
-	value := fmt.Sprintf("%s", bytes.Trim(b, `"`))
-	if value == "" || value == "null" {
-		return nil
-	}
-	year, month, day := Now().Date()
-	c := ParseByLayout(fmt.Sprintf("%d-%02d-%02d %s", year, month, day, value), DateTimeMilliLayout)
-	if c.Error == nil {
-		*t = NewTimeMilli(c)
-	}
-	return c.Error
-}
-
-// Scan an interface used by Scan in package database/sql for Scanning value from database to local golang variable.
-func (t *TimeMicro) Scan(src interface{}) error {
-	switch v := src.(type) {
-	case []byte:
-		*t = NewTimeMicro(Parse(string(v)))
-	case string:
-		*t = NewTimeMicro(Parse(v))
-	case time.Time:
-		*t = NewTimeMicro(CreateFromStdTime(v))
-	}
-	if t.Error == nil {
-		return nil
-	}
-	return failedScanError(src)
-}
-
-// Value the interface providing the Value method for package database/sql/driver.
-func (t *TimeMicro) Value() (driver.Value, error) {
-	if t.IsZero() {
-		return nil, nil
-	}
-	return t.StdTime(), nil
-}
-
-// MarshalJSON implements the interface json.Marshal for TimeMicro struct.
-// 实现 MarshalJSON 接口
-func (t TimeMicro) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf(`"%s"`, t.ToTimeMicroString())), nil
-}
-
-// UnmarshalJSON implements the interface json.Unmarshal for TimeMicro struct.
-// 实现 UnmarshalJSON 接口
-func (t *TimeMicro) UnmarshalJSON(b []byte) error {
-	value := fmt.Sprintf("%s", bytes.Trim(b, `"`))
-	if value == "" || value == "null" {
-		return nil
-	}
-	year, month, day := Now().Date()
-	c := ParseByLayout(fmt.Sprintf("%d-%02d-%02d %s", year, month, day, value), DateTimeMicroLayout)
-	if c.Error == nil {
-		*t = NewTimeMicro(c)
-	}
-	return c.Error
-}
-
-// Scan an interface used by Scan in package database/sql for Scanning value from database to local golang variable.
-func (t *TimeNano) Scan(src interface{}) error {
-	switch v := src.(type) {
-	case []byte:
-		*t = NewTimeNano(Parse(string(v)))
-	case string:
-		*t = NewTimeNano(Parse(v))
-	case time.Time:
-		*t = NewTimeNano(CreateFromStdTime(v))
-	}
-	if t.Error == nil {
-		return nil
-	}
-	return failedScanError(src)
-}
-
-// Value the interface providing the Value method for package database/sql/driver.
-func (t *TimeNano) Value() (driver.Value, error) {
-	if t.IsZero() {
-		return nil, nil
-	}
-	return t.StdTime(), nil
-}
-
-// MarshalJSON implements the interface json.Marshal for TimeNano struct.
-// 实现 MarshalJSON 接口
-func (t TimeNano) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf(`"%s"`, t.ToTimeNanoString())), nil
-}
-
-// UnmarshalJSON implements the interface json.Unmarshal for TimeNano struct.
-// 实现 UnmarshalJSON 接口
-func (t *TimeNano) UnmarshalJSON(b []byte) error {
-	value := fmt.Sprintf("%s", bytes.Trim(b, `"`))
-	if value == "" || value == "null" {
-		return nil
-	}
-	year, month, day := Now().Date()
-	c := ParseByLayout(fmt.Sprintf("%d-%02d-%02d %s", year, month, day, value), DateTimeNanoLayout)
-	if c.Error == nil {
-		*t = NewTimeNano(c)
-	}
-	return c.Error
-}
-
-// Scan an interface used by Scan in package database/sql for Scanning value from database to local golang variable.
-func (t *Timestamp) Scan(src interface{}) error {
-	switch v := src.(type) {
-	case []byte:
-		*t = NewTimestamp(Parse(string(v)))
-	case string:
-		*t = NewTimestamp(Parse(v))
-	case time.Time:
-		*t = NewTimestamp(CreateFromStdTime(v))
-	}
-	if t.Error == nil {
-		return nil
-	}
-	return failedScanError(src)
-}
-
-// Value the interface providing the Value method for package database/sql/driver.
-func (t *Timestamp) Value() (driver.Value, error) {
-	if t.IsZero() {
-		return nil, nil
-	}
-	return t.StdTime(), nil
-}
-
-// MarshalJSON implements the interface json.Marshal for Timestamp struct.
-// 实现 MarshalJSON 接口
-func (t Timestamp) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf(`%d`, t.Timestamp())), nil
-}
-
-// UnmarshalJSON implements the interface json.Unmarshal for Timestamp struct.
-// 实现 UnmarshalJSON 接口
-func (t *Timestamp) UnmarshalJSON(b []byte) error {
-	value := fmt.Sprintf("%s", bytes.Trim(b, `"`))
-	if value == "" || value == "null" {
-		return nil
-	}
-	ts, _ := strconv.ParseInt(value, 10, 64)
-	c := CreateFromTimestamp(ts)
-	if c.Error == nil {
-		*t = NewTimestamp(c)
-	}
-	return c.Error
-}
-
-// Scan an interface used by Scan in package database/sql for Scanning value from database to local golang variable.
-func (t *TimestampMilli) Scan(src interface{}) error {
-	switch v := src.(type) {
-	case []byte:
-		*t = NewTimestampMilli(Parse(string(v)))
-	case string:
-		*t = NewTimestampMilli(Parse(v))
-	case time.Time:
-		*t = NewTimestampMilli(CreateFromStdTime(v))
-	}
-	if t.Error == nil {
-		return nil
-	}
-	return failedScanError(src)
-}
-
-// Value the interface providing the Value method for package database/sql/driver.
-func (t *TimestampMilli) Value() (driver.Value, error) {
-	if t.IsZero() {
-		return nil, nil
-	}
-	return t.StdTime(), nil
-}
-
-// MarshalJSON implements the interface json.Marshal for TimestampMilli struct.
-// 实现 MarshalJSON 接口
-func (t TimestampMilli) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf(`%d`, t.TimestampMilli())), nil
-}
-
-// UnmarshalJSON implements the interface json.Unmarshal for TimestampMilli struct.
-// 实现 UnmarshalJSON 接口
-func (t *TimestampMilli) UnmarshalJSON(b []byte) error {
-	value := fmt.Sprintf("%s", bytes.Trim(b, `"`))
-	if value == "" || value == "null" {
-		return nil
-	}
-	ts, _ := strconv.ParseInt(value, 10, 64)
-	c := CreateFromTimestampMilli(ts)
-	if c.Error == nil {
-		*t = NewTimestampMilli(c)
-	}
-	return c.Error
-}
-
-// Scan an interface used by Scan in package database/sql for Scanning value from database to local golang variable.
-func (t *TimestampMicro) Scan(src interface{}) error {
-	switch v := src.(type) {
-	case []byte:
-		*t = NewTimestampMicro(Parse(string(v)))
-	case string:
-		*t = NewTimestampMicro(Parse(v))
-	case time.Time:
-		*t = NewTimestampMicro(CreateFromStdTime(v))
-	}
-	if t.Error == nil {
-		return nil
-	}
-	return failedScanError(src)
-}
-
-// Value the interface providing the Value method for package database/sql/driver.
-func (t *TimestampMicro) Value() (driver.Value, error) {
-	if t.IsZero() {
-		return nil, nil
-	}
-	return t.StdTime(), nil
-}
-
-// MarshalJSON implements the interface MarshalJSON for TimestampMicro struct.
-// 实现 MarshalJSON 接口
-func (t TimestampMicro) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf(`%d`, t.TimestampMicro())), nil
-}
-
-// UnmarshalJSON implements the interface json.Unmarshal for TimestampMicro struct.
-// 实现 UnmarshalJSON 接口
-func (t *TimestampMicro) UnmarshalJSON(b []byte) error {
-	value := fmt.Sprintf("%s", bytes.Trim(b, `"`))
-	if value == "" || value == "null" {
-		return nil
-	}
-	ts, _ := strconv.ParseInt(value, 10, 64)
-	c := CreateFromTimestampMicro(ts)
-	if c.Error == nil {
-		*t = NewTimestampMicro(c)
-	}
-	return c.Error
-}
-
-// Scan an interface used by Scan in package database/sql for Scanning value from database to local golang variable.
-func (t *TimestampNano) Scan(src interface{}) error {
-	switch v := src.(type) {
-	case []byte:
-		*t = NewTimestampNano(Parse(string(v)))
-	case string:
-		*t = NewTimestampNano(Parse(v))
-	case time.Time:
-		*t = NewTimestampNano(CreateFromStdTime(v))
-	}
-	if t.Error == nil {
-		return nil
-	}
-	return failedScanError(src)
-}
-
-// Value the interface providing the Value method for package database/sql/driver.
-func (t *TimestampNano) Value() (driver.Value, error) {
-	if t.IsZero() {
-		return nil, nil
-	}
-	return t.StdTime(), nil
-}
-
-// MarshalJSON implements the interface json.Marshal for TimestampNano struct.
-// 实现 MarshalJSON 接口
-func (t TimestampNano) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf(`%d`, t.TimestampNano())), nil
-}
-
-// UnmarshalJSON implements the interface json.Unmarshal for TimestampNano struct.
-// 实现 UnmarshalJSON 接口
-func (t *TimestampNano) UnmarshalJSON(b []byte) error {
-	value := fmt.Sprintf("%s", bytes.Trim(b, `"`))
-	if value == "" || value == "null" {
-		return nil
-	}
-	ts, _ := strconv.ParseInt(value, 10, 64)
-	c := CreateFromTimestampNano(ts)
-	if c.Error == nil {
-		*t = NewTimestampNano(c)
-	}
-	return c.Error
-}
-
-// Int64 outputs timestamp with second.
-// 输出秒级时间戳
-func (t Timestamp) Int64() int64 {
-	return t.Timestamp()
-}
-
-// Int64 outputs timestamp with millisecond.
-// 输出豪秒级时间戳
-func (t TimestampMilli) Int64() int64 {
-	return t.TimestampMilli()
-}
-
-// Int64 outputs timestamp with microsecond.
-// 输出微秒级时间戳
-func (t TimestampMicro) Int64() int64 {
-	return t.TimestampMicro()
-}
-
-// Int64 outputs timestamp with nanosecond.
-// 输出纳秒级时间戳
-func (t TimestampNano) Int64() int64 {
-	return t.TimestampNano()
-}
-
-// String implements the interface Stringer for DateTime struct.
+// String implements Stringer interface for TimestampType generic struct.
 // 实现 Stringer 接口
-func (t DateTime) String() string {
-	return t.ToDateTimeString()
+func (t TimestampType[T]) String() string {
+	return strconv.FormatInt(t.Int64(), 10)
 }
 
-// String implements the interface Stringer for DateTimeMilli struct.
-// 实现 Stringer 接口
-func (t DateTimeMilli) String() string {
-	return t.ToDateTimeMilliString()
+func (t TimestampType[T]) Int64() int64 {
+	ts := int64(0)
+	if t.IsZero() || t.IsInvalid() {
+		return ts
+	}
+	switch t.getPrecision() {
+	case PrecisionSecond:
+		ts = t.Timestamp()
+	case PrecisionMillisecond:
+		ts = t.TimestampMilli()
+	case PrecisionMicrosecond:
+		ts = t.TimestampMicro()
+	case PrecisionNanosecond:
+		ts = t.TimestampNano()
+	}
+	return ts
 }
 
-// String implements the interface Stringer for DateTimeMicro struct.
-// 实现 Stringer 接口
-func (t DateTimeMicro) String() string {
-	return t.ToDateTimeMicroString()
+// GormDataType sets gorm data type for TimestampType generic struct.
+// 设置 gorm 数据类型
+func (t TimestampType[T]) GormDataType() string {
+	return "time"
 }
 
-// String implements the interface Stringer for DateTimeNano struct.
-// 实现 Stringer 接口
-func (t DateTimeNano) String() string {
-	return t.ToDateTimeNanoString()
-}
-
-// String implements the interface Stringer for Date struct.
-// 实现 Stringer 接口
-func (t Date) String() string {
-	return t.ToDateString()
-}
-
-// String implements the interface Stringer for DateMilli struct.
-// 实现 Stringer 接口
-func (t DateMilli) String() string {
-	return t.ToDateMilliString()
-}
-
-// String implements the interface Stringer for DateMicro struct.
-// 实现 Stringer 接口
-func (t DateMicro) String() string {
-	return t.ToDateMicroString()
-}
-
-// String implements the interface Stringer for DateNano struct.
-// 实现 Stringer 接口
-func (t DateNano) String() string {
-	return t.ToDateNanoString()
-}
-
-// String implements the interface Stringer for Time struct.
-// 实现 Stringer 接口
-func (t Time) String() string {
-	return t.ToTimeString()
-}
-
-// String implements the interface Stringer for TimeMilli struct.
-// 实现 Stringer 接口
-func (t TimeMilli) String() string {
-	return t.ToTimeMilliString()
-}
-
-// String implements the interface Stringer for TimeMicro struct.
-// 实现 Stringer 接口
-func (t TimeMicro) String() string {
-	return t.ToTimeMicroString()
-}
-
-// String implements the interface Stringer for TimeNano struct.
-// 实现 Stringer 接口
-func (t TimeNano) String() string {
-	return t.ToTimeNanoString()
-}
-
-// String implements the interface Stringer for Timestamp struct.
-// 实现 Stringer 接口
-func (t Timestamp) String() string {
-	return strconv.FormatInt(t.Timestamp(), 10)
-}
-
-// String implements the interface Stringer for TimestampMilli struct.
-// 实现 Stringer 接口
-func (t TimestampMilli) String() string {
-	return strconv.FormatInt(t.TimestampMilli(), 10)
-}
-
-// String implements the interface Stringer for TimestampMicro struct.
-// 实现 Stringer 接口
-func (t TimestampMicro) String() string {
-	return strconv.FormatInt(t.TimestampMicro(), 10)
-}
-
-// String implements the interface Stringer for TimestampNano struct.
-// 实现 Stringer 接口
-func (t TimestampNano) String() string {
-	return strconv.FormatInt(t.TimestampNano(), 10)
+// getPrecision returns the set timestamp precision.
+// 返回设置的时间戳精度
+func (t TimestampType[T]) getPrecision() int64 {
+	var factory T
+	return factory.SetPrecision()
 }
