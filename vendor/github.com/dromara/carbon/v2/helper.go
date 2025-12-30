@@ -1,25 +1,13 @@
 package carbon
 
 import (
-	"bytes"
+	"fmt"
+	"sync"
 	"time"
 )
 
-// week days
-// 工作日
-var weekdays = map[string]time.Weekday{
-	Monday:    time.Monday,
-	Tuesday:   time.Tuesday,
-	Wednesday: time.Wednesday,
-	Thursday:  time.Thursday,
-	Friday:    time.Friday,
-	Saturday:  time.Saturday,
-	Sunday:    time.Sunday,
-}
-
-// common formatting symbols
-// 常规格式化符号
-var formats = map[byte]string{
+// format map
+var formatMap = map[byte]string{
 	'd': "02",      // Day:    Day of the month, 2 digits with leading zeros. Eg: 01 to 31.
 	'D': "Mon",     // Day:    A textual representation of a day, three letters. Eg: Mon through Sun.
 	'j': "2",       // Day:    Day of the month without leading zeros. Eg: 1 to 31.
@@ -39,89 +27,168 @@ var formats = map[byte]string{
 	's': "05",      // Time:   Seconds with leading zeros. Eg: 00 through 59.
 	'O': "-0700",   // Zone:   Difference to Greenwich time (GMT) in hours. Eg: +0200.
 	'P': "-07:00",  // Zone:   Difference to Greenwich time (GMT) with colon between hours and minutes. Eg: +02:00.
-	'T': "MST",     // Zone:   Timezone abbreviation. Eg: UTC, EST, MDT ...
+	'Q': "Z0700",   // Zone:   ISO8601 timezone. Eg: Z, +0200.
+	'R': "Z07:00",  // Zone:   ISO8601 colon timezone. Eg: Z, +02:00.
+	'Z': "MST",     // Zone:   Zone name. Eg: UTC, EST, MDT ...
 
-	'U': "timestamp",      // Timestamp with second. Eg: 1699677240.
-	'V': "timestampMilli", // TimestampMilli with second. Eg: 1596604455666.
-	'X': "timestampMicro", // TimestampMicro with second. Eg: 1596604455666666.
-	'Z': "timestampNano",  // TimestampNano with second. Eg: 1596604455666666666.
+	'u': "999",       // Second: Millisecond. Eg: 999.
+	'v': "999999",    // Second: Microsecond. Eg: 999999.
+	'x': "999999999", // Second: Nanosecond. Eg: 999999999.
+
+	'S': TimestampLayout,      // Timestamp: Timestamp with second precision. Eg: 1699677240.
+	'U': TimestampMilliLayout, // Timestamp: Timestamp with millisecond precision. Eg: 1596604455666.
+	'V': TimestampMicroLayout, // Timestamp: Timestamp with microsecond precision. Eg: 1596604455666666.
+	'X': TimestampNanoLayout,  // Timestamp: Timestamp with nanosecond precision. Eg: 1596604455666666666.
 }
 
-// common layout symbols
-// 常规布局模板符号
-var layouts = []string{
-	DayDateTimeLayout,
-	DateTimeLayout, DateTimeNanoLayout, ShortDateTimeLayout, ShortDateTimeNanoLayout,
-	DateLayout, DateNanoLayout, ShortDateLayout, ShortDateNanoLayout,
-	ISO8601Layout, ISO8601NanoLayout,
-	RFC822Layout, RFC822ZLayout, RFC850Layout, RFC1123Layout, RFC1123ZLayout, RFC3339Layout, RFC3339NanoLayout, RFC1036Layout, RFC7231Layout,
-	KitchenLayout,
-	CookieLayout,
-	ANSICLayout,
-	UnixDateLayout,
-	RubyDateLayout,
+// default layouts
+var defaultLayouts = []string{
+	DateTimeLayout, DateLayout, TimeLayout, DayDateTimeLayout,
+
+	"2006-01-02 15:04:05 -0700 MST", "2006-01-02T15:04:05Z07:00", "2006-01-02T15:04:05-07:00", "2006-01-02T15:04:05-0700", "2006-01-02T15:04:05",
+
+	ISO8601Layout, RFC1036Layout, RFC822Layout, RFC822ZLayout, RFC850Layout, RFC1123Layout, RFC1123ZLayout, RFC3339Layout, RFC7231Layout,
+	KitchenLayout, CookieLayout, ANSICLayout, UnixDateLayout, RubyDateLayout,
+
+	ShortDateTimeLayout, ShortDateLayout, ShortTimeLayout,
+
+	DateTimeMilliLayout, DateTimeMicroLayout, DateTimeNanoLayout,
+	DateMilliLayout, DateMicroLayout, DateNanoLayout,
+	TimeMilliLayout, TimeMicroLayout, TimeNanoLayout,
+
+	ShortDateTimeMilliLayout, ShortDateTimeMicroLayout, ShortDateTimeNanoLayout,
+	ShortDateMilliLayout, ShortDateMicroLayout, ShortDateNanoLayout,
+	ShortTimeMilliLayout, ShortTimeMicroLayout, ShortTimeNanoLayout,
+
+	ISO8601MilliLayout, ISO8601MicroLayout, ISO8601NanoLayout,
+	RFC3339MilliLayout, RFC3339MicroLayout, RFC3339NanoLayout,
+
+	"15:04:05-07",                          // postgres time with time zone type
+	"2006-01-02 15:04:05-07",               // postgres timestamp with time zone type
+	"2006-01-02 15:04:05-07:00",            // sqlite text type
+	"2006-01-02 15:04:05.999999999 -07:00", // sqlserver datetimeoffset type
 	"2006",
+	"2006-1-2 15:4:5 -0700 MST", "2006-1-2 3:4:5 -0700 MST",
 	"2006-1", "2006-1-2", "2006-1-2 15", "2006-1-2 15:4", "2006-1-2 15:4:5", "2006-1-2 15:4:5.999999999",
 	"2006.1", "2006.1.2", "2006.1.2 15", "2006.1.2 15:4", "2006.1.2 15:4:5", "2006.1.2 15:4:5.999999999",
 	"2006/1", "2006/1/2", "2006/1/2 15", "2006/1/2 15:4", "2006/1/2 15:4:5", "2006/1/2 15:4:5.999999999",
-	"2006-01-02 15:04:05 -0700 MST",
 	"2006-01-02 15:04:05PM MST", "2006-01-02 15:04:05.999999999PM MST", "2006-1-2 15:4:5PM MST", "2006-1-2 15:4:5.999999999PM MST",
 	"2006-01-02 15:04:05 PM MST", "2006-01-02 15:04:05.999999999 PM MST", "2006-1-2 15:4:5 PM MST", "2006-1-2 15:4:5.999999999 PM MST",
 	"1/2/2006", "1/2/2006 15", "1/2/2006 15:4", "1/2/2006 15:4:5", "1/2/2006 15:4:5.999999999",
-	"2006-1-2 15:4:5 -0700 MST", "2006-1-2 15:4:5.999999999 -0700 MST", "2006-1-2 15:04:05 -0700 MST", "2006-1-2 15:04:05.999999999 -0700 MST",
-	"2006-01-02T15:04:05", "2006-01-02T15:04:05.999999999", "2006-1-2T3:4:5", "2006-1-2T3:4:5.999999999",
-	"2006-01-02T15:04:05Z07", "2006-01-02T15:04:05.999999999Z07", "2006-1-2T15:4:5Z07", "2006-1-2T15:4:5.999999999Z07",
-	"2006-01-02T15:04:05Z07:00", "2006-01-02T15:04:05.999999999Z07:00", "2006-1-2T15:4:5Z07:00", "2006-1-2T15:4:5.999999999Z07:00",
-	"2006-01-02T15:04:05-07:00", "2006-01-02T15:04:05.999999999-07:00", "2006-1-2T15:4:5-07:00", "2006-1-2T15:4:5.999999999-07:00",
-	"2006-01-02T15:04:05-0700", "2006-01-02T15:04:05.999999999-0700", "2006-1-2T3:4:5-0700", "2006-1-2T3:4:5.999999999-0700",
+	"2006-1-2 15:4:5.999999999 -0700 MST", "2006-1-2 15:04:05 -0700 MST", "2006-1-2 15:04:05.999999999 -0700 MST",
+	"2006-01-02T15:04:05.999999999", "2006-1-2T3:4:5", "2006-1-2T3:4:5.999999999",
+	"2006-01-02T15:04:05.999999999Z07", "2006-1-2T15:4:5Z07", "2006-1-2T15:4:5.999999999Z07",
+	"2006-01-02T15:04:05.999999999Z07:00", "2006-1-2T15:4:5Z07:00", "2006-1-2T15:4:5.999999999Z07:00",
+	"2006-01-02T15:04:05.999999999-07:00", "2006-1-2T15:4:5-07:00", "2006-1-2T15:4:5.999999999-07:00",
+	"2006-01-02T15:04:05.999999999-0700", "2006-1-2T3:4:5-0700", "2006-1-2T3:4:5.999999999-0700",
 	"20060102150405-07:00", "20060102150405.999999999-07:00",
-	"20060102150405Z07", "20060102150405.999999999Z07",
 	"20060102150405Z07:00", "20060102150405.999999999Z07:00",
 }
 
+// layoutCache caches format to layout conversions to avoid repeated parsing
+var layoutCache sync.Map
+
 // converts format to layout.
-// format 转 layout
 func format2layout(format string) string {
-	buffer := bytes.NewBuffer(nil)
+	// Check cache first
+	if cached, exists := layoutCache.Load(format); exists {
+		return cached.(string)
+	}
+
+	// Pre-allocate buffer with estimated capacity to reduce allocations
+	estimatedSize := len(format) * 2
+	buffer := make([]byte, 0, estimatedSize)
+
 	for i := 0; i < len(format); i++ {
-		if layout, ok := formats[format[i]]; ok {
-			buffer.WriteString(layout)
+		if layout, ok := formatMap[format[i]]; ok {
+			buffer = append(buffer, layout...)
 		} else {
 			switch format[i] {
 			case '\\': // raw output, no parse
-				buffer.WriteByte(format[i+1])
-				i++
+				// Ensure we don't go out of bounds
+				if i+1 < len(format) {
+					buffer = append(buffer, format[i+1])
+					i++
+				}
 				continue
 			default:
-				buffer.WriteByte(format[i])
+				buffer = append(buffer, format[i])
 			}
 		}
 	}
-	return buffer.String()
+
+	result := string(buffer)
+
+	// Cache the result for common formats to improve performance
+	// Only cache reasonably short formats to avoid memory bloat
+	if len(format) <= 50 {
+		layoutCache.Store(format, result)
+	}
+
+	return result
 }
 
-// gets a Location instance by a timezone string.
-// 通过时区获取 Location 实例
-func getLocationByTimezone(timezone string) (*time.Location, error) {
-	loc, err := time.LoadLocation(timezone)
-	if err != nil {
-		err = invalidTimezoneError(timezone)
+// timezoneCache caches parsed timezone locations to avoid repeated parsing
+var timezoneCache sync.Map
+
+// parses timezone strings as a time.Location instance.
+func parseTimezone(timezone ...string) (loc *Location, err error) {
+	var tz string
+	if len(timezone) > 0 {
+		tz = timezone[0]
+	} else {
+		tz = DefaultTimezone
 	}
-	return loc, err
+	if tz == "" {
+		return nil, ErrEmptyTimezone()
+	}
+
+	// Check cache first
+	if cached, exists := timezoneCache.Load(tz); exists {
+		return cached.(*Location), nil
+	}
+
+	if loc, err = time.LoadLocation(tz); err != nil {
+		err = fmt.Errorf("%w: %w", ErrInvalidTimezone(tz), err)
+		return
+	}
+
+	// Cache the successful result
+	timezoneCache.Store(tz, loc)
+	return
 }
 
-// parses as a Duration instance by a duration string.
-// 通过时长解析
-func parseByDuration(duration string) (time.Duration, error) {
-	td, err := time.ParseDuration(duration)
-	if err != nil {
-		err = invalidDurationError(duration)
+// durationCache caches parsed durations to avoid repeated parsing
+var durationCache sync.Map
+
+// parses a duration string as a time.Duration instance.
+func parseDuration(duration string) (dur Duration, err error) {
+	if duration == "" {
+		return 0, ErrEmptyDuration()
 	}
-	return td, err
+
+	// Check cache first for common durations
+	if cached, exists := durationCache.Load(duration); exists {
+		return cached.(Duration), nil
+	}
+
+	if dur, err = time.ParseDuration(duration); err != nil {
+		err = fmt.Errorf("%w: %w", ErrInvalidDuration(duration), err)
+		return
+	}
+
+	// Cache the successful result for common durations
+	// Only cache reasonably short durations to avoid memory bloat
+	if len(duration) <= 20 {
+		durationCache.Store(duration, dur)
+	}
+	return
 }
 
 // gets absolute value.
-// 获取绝对值
 func getAbsValue(value int64) int64 {
-	return (value ^ value>>31) - value>>31
+	// Use bit manipulation for better performance
+	// For positive numbers: value ^ 0 - 0 = value
+	// For negative numbers: value ^ -1 - (-1) = ^value + 1 = -value
+	return (value ^ (value >> 63)) - (value >> 63)
 }
