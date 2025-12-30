@@ -1,5 +1,24 @@
 # Changelog
 
+## 2.14.0 (2025/12/30)
+
+* Go 1.25 (#1306)
+* Alpine Linux 3.23 (#1309)
+* MkDocs Material 9.6.20 (#1302 #1304)
+* Bump github.com/alecthomas/kong from 1.13.0 (#1318)
+* Bump github.com/aws/aws-sdk-go-v2 dependencies (#1292)
+    * github.com/aws/aws-sdk-go-v2 to 1.41.0
+    * github.com/aws/aws-sdk-go-v2/config to 1.32.6
+    * github.com/aws/aws-sdk-go-v2/credentials to 1.19.6
+    * github.com/aws/aws-sdk-go-v2/service/route53 to 1.62.0
+* Bump github.com/dromara/carbon/v2 to 2.6.15 (#1314)
+* Bump github.com/go-playground/validator/v10 to 10.30.1 (#1317)
+* Bump github.com/hashicorp/go-retryablehttp to 0.7.8 (#1315)
+* Bump github.com/rs/zerolog to 1.34.0 (#1296)
+* Bump github.com/stretchr/testify to 1.11.1 (#1311)
+* Bump golang.org/x/sys to 0.39.0 (#1293)
+* Bump golang.org/x/crypto to 0.45.0 (#1308)
+
 ## 2.13.0 (2024/12/20)
 
 * Allow non-static AWS Credentials (#1204)
