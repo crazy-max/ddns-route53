@@ -95,10 +95,10 @@ func TestCustomInterface(t *testing.T) {
 
 func isNetworkUnreachable(errs Errors) bool {
 	for _, err := range errs {
-		if !(strings.Contains(err.Err.Error(), "no such host") ||
-			strings.Contains(err.Err.Error(), "network is unreachable") ||
-			strings.Contains(err.Err.Error(), "cannot assign requested address") ||
-			strings.Contains(err.Err.Error(), "no suitable address found for interface")) {
+		if !strings.Contains(err.Err.Error(), "no such host") &&
+			!strings.Contains(err.Err.Error(), "network is unreachable") &&
+			!strings.Contains(err.Err.Error(), "cannot assign requested address") &&
+			!strings.Contains(err.Err.Error(), "no suitable address found for interface") {
 			return false
 		}
 	}

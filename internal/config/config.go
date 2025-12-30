@@ -68,9 +68,10 @@ func (cfg *Config) validate() error {
 	}
 
 	for _, rs := range cfg.Route53.RecordsSet {
-		if rs.Type == r53types.RRTypeA {
+		switch rs.Type {
+		case r53types.RRTypeA:
 			cfg.Route53.HandleIPv4 = utl.NewTrue()
-		} else if rs.Type == r53types.RRTypeAaaa {
+		case r53types.RRTypeAaaa:
 			cfg.Route53.HandleIPv6 = utl.NewTrue()
 		}
 	}
