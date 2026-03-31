@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.32.6
 	github.com/aws/aws-sdk-go-v2/credentials v1.19.6
 	github.com/aws/aws-sdk-go-v2/service/route53 v1.62.0
-	github.com/crazy-max/gonfig v0.7.1
+	github.com/crazy-max/gonfig v0.8.0
 	github.com/dromara/carbon/v2 v2.6.15
 	github.com/go-playground/validator/v10 v10.30.1
 	github.com/hashicorp/go-retryablehttp v0.7.8
@@ -20,7 +20,7 @@ require (
 )
 
 require (
-	github.com/BurntSushi/toml v1.2.1 // indirect
+	github.com/BurntSushi/toml v1.6.0 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.18.16 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.4.16 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.7.16 // indirect
