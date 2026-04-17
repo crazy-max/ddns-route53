@@ -40,8 +40,8 @@ github.com/crazy-max/gonfig v0.8.0 h1:CwCepuZzMRsYHCmbXCrxf9tKTtPI2sJpRxD0Tq4Qg+
 github.com/crazy-max/gonfig v0.8.0/go.mod h1:YRja0KjtLKl1b0/Qj+qcvZlu3oSYRqFl7vWCuEg2KGk=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/dromara/carbon/v2 v2.6.15 h1:3HuC3XcWczIHUTbg/f0CSVydtKEdM+P0GM1sdsbwXmI=
-github.com/dromara/carbon/v2 v2.6.15/go.mod h1:NGo3reeV5vhWCYWcSqbJRZm46MEwyfYI5EJRdVFoLJo=
+github.com/dromara/carbon/v2 v2.6.16 h1:AbxrnW1kJhR3KHdS8G96NFmxDwPFyre+t+xSiJIUD1I=
+github.com/dromara/carbon/v2 v2.6.16/go.mod h1:NGo3reeV5vhWCYWcSqbJRZm46MEwyfYI5EJRdVFoLJo=
 github.com/fatih/color v1.16.0 h1:zmkK9Ngbjj+K0yRhTVONQh1p/HknKYSlNT+vZCzyokM=
 github.com/fatih/color v1.16.0/go.mod h1:fL2Sau1YI5c0pdGEVCbKQbLXB6edEj1ZgiY4NijnWvE=
 github.com/gabriel-vasile/mimetype v1.4.12 h1:e9hWvmLYvtp846tLHam2o++qitpguFiYCKbn0w9jyqw=
