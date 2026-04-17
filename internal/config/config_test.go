@@ -100,17 +100,17 @@ func TestLoadEnv(t *testing.T) {
 		{
 			desc: "one record set",
 			environ: []string{
-				"DDNSR53_CREDENTIALS_ACCESSKEYIDFILE=./fixtures/run_secrets_akid",
-				"DDNSR53_CREDENTIALS_SECRETACCESSKEYFILE=./fixtures/run_secrets_sak",
+				"DDNSR53_CREDENTIALS_ACCESSKEYIDFILE=./fixtures/run_fixture_id",
+				"DDNSR53_CREDENTIALS_SECRETACCESSKEYFILE=./fixtures/run_fixture_key",
 				"DDNSR53_ROUTE53_HOSTEDZONEID=ABCEEFG123456789",
 				"DDNSR53_ROUTE53_RECORDSSET_0_NAME=ddns.example.com.",
 				"DDNSR53_ROUTE53_RECORDSSET_0_TYPE=A",
 				"DDNSR53_ROUTE53_RECORDSSET_0_TTL=300",
 			},
 			expected: &Config{
-				Credentials: &Credentials{
-					AccessKeyIDFile:     "./fixtures/run_secrets_akid",
-					SecretAccessKeyFile: "./fixtures/run_secrets_sak",
+				Credentials: &Credentials{ //nolint:gosec // test asserts credential file paths, not embedded secrets
+					AccessKeyIDFile:     "./fixtures/run_fixture_id",
+					SecretAccessKeyFile: "./fixtures/run_fixture_key",
 				},
 				Route53: &Route53{
 					HostedZoneID: "ABCEEFG123456789",
