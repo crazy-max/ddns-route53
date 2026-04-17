@@ -46,7 +46,7 @@ Steps below are the recommended server configuration.
 
 ### Prepare environment
 
-Create user to run ddns-route53 (ex. `ddns-route53`)
+Create a user to run ddns-route53 (for example, `ddns-route53`).
 
 ```shell
 groupadd ddns-route53
@@ -81,7 +81,7 @@ cp ddns-route53 /usr/local/bin/ddns-route53
 
 ## Running ddns-route53
 
-After the above steps, two options to run ddns-route53:
+After the above steps, there are two ways to run ddns-route53:
 
 ### 1. Creating a service file (recommended)
 

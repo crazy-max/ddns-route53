@@ -16,16 +16,24 @@
 
 ## What is ddns-route53?
 
-**ddns-route53** :motorway: is a CLI application written in [Go](https://golang.org/)
-and delivered as a [binary]({{ config.repo_url }}releases/latest) and a [Docker image](https://hub.docker.com/r/crazymax/ddns-route53/)
-that lets you run your own [dynamic DNS](https://en.wikipedia.org/wiki/Dynamic_DNS)
-service with [Amazon Route 53](https://aws.amazon.com/route53/) on a time-based
-schedule.
+**ddns-route53** keeps your [Amazon Route 53](https://aws.amazon.com/route53/) records aligned with
+your current public IP address.
+
+It is useful when you host services on a connection with a changing WAN IP and want to keep one or
+more DNS records up to date without relying on a third-party dynamic DNS provider. Run it on a
+schedule, let it detect your public IPv4 and/or IPv6 address, and it will update the configured
+Route 53 records when they change.
+
+It is available as a [binary]({{ config.repo_url }}releases/latest) and a
+[container image](https://hub.docker.com/r/crazymax/ddns-route53/).
 
 ## Features
 
-* Handle IPv4 and IPv6 addresses
-* Internal cron implementation through go routines
+* Keep Amazon Route 53 DNS records in sync with your public IP address
+* Support both IPv4 and IPv6 updates
+* Manage one or more `A` and `AAAA` records
+* Update records only when the detected IP address changes
+* Built-in scheduler, no external cron required
 
 ## License
 

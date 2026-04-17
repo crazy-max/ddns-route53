@@ -13,7 +13,7 @@ ddns-route53 --schedule "CRON_TZ=Asia/Tokyo */30 * * * *"
 
 ## Where is my public IP address sourced from?
 
-Public IP address is sourced from one of several providers. The first to provide a valid IP address is used.
+The public IP address is retrieved from one of several providers. The first one to return a valid IP address is used.
 
 ### IPv4
 * https://ipv4.nsupdate.info/myip

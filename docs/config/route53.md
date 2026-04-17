@@ -1,8 +1,8 @@
-# Route53 configuration
+# Route 53 configuration
 
 ## `hostedZoneID`
 
-AWS Route53 hosted zone ID.
+AWS Route 53 hosted zone ID.
 
 !!! example "Config file"
     ```yaml
@@ -15,7 +15,7 @@ AWS Route53 hosted zone ID.
 
 ## `recordsSet`
 
-Slice of records set.
+List of record sets.
 
 ```yaml
 route53:
@@ -33,7 +33,7 @@ route53:
 
 ### `name`
 
-AWS Route53 record set name.
+AWS Route 53 record set name.
 
 !!! warning
     Don't forget to suffix with a dot
@@ -50,7 +50,7 @@ AWS Route53 record set name.
 
 ### `type`
 
-AWS Route53 record set type. Can be `A` or `AAAA`.
+AWS Route 53 record set type. Can be `A` or `AAAA`.
 
 !!! example "Config file"
     ```yaml
@@ -65,7 +65,7 @@ AWS Route53 record set type. Can be `A` or `AAAA`.
 
 ### `ttl`
 
-AWS Route53 record TTL (time to live) in seconds.
+AWS Route 53 record TTL (time to live) in seconds.
 
 !!! example "Config file"
     ```yaml
