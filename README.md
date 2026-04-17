@@ -15,11 +15,13 @@
 
 ## About
 
-**ddns-route53** is a CLI application written in [Go](https://golang.org/) and delivered as a
-[single executable](https://github.com/crazy-max/ddns-route53/releases/latest) (and a
-[Docker image](https://hub.docker.com/r/crazymax/ddns-route53/)) that lets you run your own
-[dynamic DNS](https://en.wikipedia.org/wiki/Dynamic_DNS) service with [Amazon Route 53](https://aws.amazon.com/route53/)
-on a time-based schedule.
+**ddns-route53** keeps your [Amazon Route 53](https://aws.amazon.com/route53/) DNS records in sync
+with your current public IP address. It is meant for home labs, self-hosted services, and any setup
+running behind a connection where the WAN IPv4 and/or IPv6 address can change over time.
+
+Run it on a schedule, let it detect your public IP address, and it will update the configured
+Route 53 records only when needed. It is available as a [single executable](https://github.com/crazy-max/ddns-route53/releases/latest)
+and a [container image](https://hub.docker.com/r/crazymax/ddns-route53/).
 
 > [!NOTE]
 > Want to be notified of new releases? Check out 🔔 [Diun (Docker Image Update Notifier)](https://github.com/crazy-max/diun)
