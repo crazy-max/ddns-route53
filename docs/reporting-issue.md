@@ -22,7 +22,7 @@ If you cannot find an existing issue that describes your bug or feature, submit 
 File a single issue per problem and feature request.
 
 * Do not enumerate multiple bugs or feature requests in the same issue.
-* Do not add your issue as a comment to an existing issue unless it's for the identical input. Many issues look similar, but have different causes.
+* Do not add your issue as a comment to an existing issue unless it is the exact same problem. Many issues look similar, but have different causes.
 
 The more information you can provide, the more likely someone will be successful reproducing the issue and finding a fix.
 

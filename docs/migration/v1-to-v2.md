@@ -2,14 +2,14 @@
 
 ## Configuration transposed into environment variables
 
-All configuration is now transposed into environment variables. Take a look at the
+All configuration can now be mapped to environment variables. Take a look at the
 [documentation](../config/index.md#environment-variables) for more details.
 
-`AWS_HOSTED_ZONE_ID` env var has been renamed `DDNSR53_ROUTE53_HOSTEDZONEID` to follow environment variables transposition.
+`AWS_HOSTED_ZONE_ID` has been renamed to `DDNSR53_ROUTE53_HOSTEDZONEID` to follow the new environment variable naming scheme.
 
 ## All fields in configuration are now _camelCased_
 
-In order to enable transposition into environmental variables, all fields in configuration are now _camelCased_:
+To support environment variable mapping, all configuration fields are now _camelCased_:
 
 * `credentials.access_key_id` > `credentials.accessKeyID`
 * `credentials.secret_access_key` > `credentials.secretAccessKey`

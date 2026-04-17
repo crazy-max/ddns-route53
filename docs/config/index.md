@@ -20,7 +20,7 @@ At startup, ddns-route53 searches for a file named `ddns-route53.yml` (or `ddns-
 * `$HOME/.config/`
 * `.` _(the working directory)_
 
-You can override this using the [`--config` flag or `CONFIG` env var](../usage/cli.md).
+You can override this using the [`--config` flag or the `CONFIG` environment variable](../usage/cli.md).
 
 ??? example "ddns-route53.yml"
     ```yaml
@@ -44,7 +44,7 @@ You can override this using the [`--config` flag or `CONFIG` env var](../usage/c
 
 ## Environment variables
 
-All configuration from file can be transposed into environment variables. As an example, the following configuration:
+All file-based configuration can be mapped to environment variables. For example, the following configuration:
 
 ??? example "ddns-route53.yml"
     ```yaml
@@ -66,7 +66,7 @@ All configuration from file can be transposed into environment variables. As an 
           ttl: 600
     ```
 
-Can be transposed to:
+Can be expressed as:
 
 ??? example "environment variables"
     ```

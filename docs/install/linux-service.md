@@ -1,4 +1,4 @@
-# Run as service on Debian based distro
+# Run as a service on Debian-based distributions
 
 ## Using systemd
 

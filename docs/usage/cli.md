@@ -37,7 +37,7 @@ Flags:
 
 ## Environment variables
 
-The following environment variables can be used in place:
+The following environment variables can be used instead:
 
 | Name                | Default | Description                                                                                                     |
 |---------------------|---------|-----------------------------------------------------------------------------------------------------------------|

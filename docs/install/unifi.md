@@ -25,7 +25,7 @@ readelf -A /bin/sh | grep ABI_FP
 Install the ddns-route53 binary that matches the reported architecture and float type by following
 the [install from binary](binary.md) instructions.
 
-Now you have to create your `ddns-route53.yml` [configuration file](../config/index.md#configuration-file) in
+Now create your `ddns-route53.yml` [configuration file](../config/index.md#configuration-file) in
 `/config/scripts/ddns-route53.yml`
 
 ## On the Cloud Key/Controller
