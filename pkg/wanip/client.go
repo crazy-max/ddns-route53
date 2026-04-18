@@ -72,9 +72,14 @@ func (c *Client) IPv6() (net.IP, error) {
 }
 
 func (c *Client) lookup(providers []provider, v6 bool) (net.IP, error) {
-	var failures []ProviderFailure
+	httpc, err := c.httpClient(v6)
+	if err != nil {
+		return nil, err
+	}
+
+	failures := make([]ProviderFailure, 0, len(providers))
 	for _, p := range providers {
-		ip, err := c.getIP(p, v6)
+		ip, err := c.getIP(httpc, p)
 		if err != nil {
 			failures = append(failures, ProviderFailure{
 				URL: p.URL,
@@ -93,14 +98,7 @@ func (c *Client) lookup(providers []provider, v6 bool) (net.IP, error) {
 	return nil, &ProviderError{Failures: failures}
 }
 
-func (c *Client) getIP(p provider, v6 bool) (net.IP, error) {
-	httpc := *c.hc
-	if t, err := c.transport(v6); err != nil {
-		return nil, err
-	} else {
-		httpc.Transport = t
-	}
-
+func (c *Client) getIP(httpc *http.Client, p provider) (net.IP, error) {
 	req, err := http.NewRequestWithContext(c.ctx, "GET", p.URL, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "request failed")
@@ -131,7 +129,16 @@ func (c *Client) getIP(p provider, v6 bool) (net.IP, error) {
 	return ip, nil
 }
 
-// transport returns transport that uses the specified interface.
+func (c *Client) httpClient(v6 bool) (*http.Client, error) {
+	httpc := *c.hc
+	if t, err := c.transport(v6); err != nil {
+		return nil, err
+	} else {
+		httpc.Transport = t
+	}
+	return &httpc, nil
+}
+
 func (c *Client) transport(v6 bool) (*http.Transport, error) {
 	dialer := &net.Dialer{
 		Timeout:   30 * time.Second,
@@ -164,7 +171,6 @@ func (c *Client) transport(v6 bool) (*http.Transport, error) {
 	}, nil
 }
 
-// interfaceAddress returns the first IPv4/IPv6 address of the given interface.
 func interfaceAddress(interfaceName string, v6 bool) (net.IP, error) {
 	addrs, err := interfaceAddresses(interfaceName)
 	if err != nil {
@@ -186,7 +192,6 @@ func interfaceAddress(interfaceName string, v6 bool) (net.IP, error) {
 	return nil, errors.Wrapf(errNoSuitableAddress, "%s", interfaceName)
 }
 
-// interfaceAddresses returns all interface addresses.
 func interfaceAddresses(interfaceName string) ([]net.Addr, error) {
 	if interfaceName == "any" {
 		return net.InterfaceAddrs()
