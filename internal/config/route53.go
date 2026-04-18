@@ -1,7 +1,5 @@
 package config
 
-import "github.com/crazy-max/ddns-route53/v2/pkg/utl"
-
 // Route53 holds AWS Route53 data
 type Route53 struct {
 	HostedZoneID string     `yaml:"hostedZoneID,omitempty" json:"hostedZoneID,omitempty" validate:"required"`
@@ -19,6 +17,6 @@ func (s *Route53) GetDefaults() *Route53 {
 
 // SetDefaults sets the default values
 func (s *Route53) SetDefaults() {
-	s.HandleIPv4 = utl.NewFalse()
-	s.HandleIPv6 = utl.NewFalse()
+	s.HandleIPv4 = new(false)
+	s.HandleIPv6 = new(false)
 }

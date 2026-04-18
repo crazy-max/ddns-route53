@@ -11,8 +11,8 @@ import (
 	awsr53types "github.com/aws/aws-sdk-go-v2/service/route53/types"
 	"github.com/crazy-max/ddns-route53/v2/internal/config"
 	"github.com/crazy-max/ddns-route53/v2/internal/model"
+	"github.com/crazy-max/ddns-route53/v2/internal/secret"
 	"github.com/crazy-max/ddns-route53/v2/pkg/route53"
-	"github.com/crazy-max/ddns-route53/v2/pkg/utl"
 	"github.com/crazy-max/ddns-route53/v2/pkg/wanip"
 	"github.com/dromara/carbon/v2"
 	"github.com/pkg/errors"
@@ -38,17 +38,17 @@ func New(meta model.Meta, cfg *config.Config) (*DDNSRoute53, error) {
 	var secretAccessKey string
 
 	if cfg.Credentials != nil {
-		accessKeyID, err = utl.GetSecret(cfg.Credentials.AccessKeyID, cfg.Credentials.AccessKeyIDFile)
+		accessKeyID, err = secret.GetSecret(cfg.Credentials.AccessKeyID, cfg.Credentials.AccessKeyIDFile)
 		if err != nil {
 			log.Warn().Err(err).Msg("Cannot retrieve access key ID")
 		}
-		secretAccessKey, err = utl.GetSecret(cfg.Credentials.SecretAccessKey, cfg.Credentials.SecretAccessKeyFile)
+		secretAccessKey, err = secret.GetSecret(cfg.Credentials.SecretAccessKey, cfg.Credentials.SecretAccessKeyFile)
 		if err != nil {
 			log.Warn().Err(err).Msg("Cannot retrieve secret access key")
 		}
 	}
 
-	r53, err := route53.New(context.TODO(), accessKeyID, secretAccessKey, cfg.Route53.HostedZoneID, cfg.Cli.MaxRetries, cfg.Cli.MaxBackoffDelay)
+	r53, err := route53.New(context.Background(), accessKeyID, secretAccessKey, cfg.Route53.HostedZoneID, cfg.Cli.MaxRetries, cfg.Cli.MaxBackoffDelay)
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +158,7 @@ func (c *DDNSRoute53) Run() {
 
 	var r53Changes []awsr53types.Change
 	for _, rs := range c.cfg.Route53.RecordsSet {
-		recordValue := new(string)
+		var recordValue *string
 		if rs.Type == awsr53types.RRTypeA {
 			if wanIPv4 == nil {
 				log.Error().Msgf("No WAN IPv4 address available to update %s record set", rs.Name)

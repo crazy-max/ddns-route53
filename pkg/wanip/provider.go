@@ -55,7 +55,7 @@ func parsePlainTextIP(body []byte) net.IP {
 }
 
 func parseCloudflareTraceIP(body []byte) net.IP {
-	for _, line := range strings.Split(string(body), "\n") {
+	for line := range strings.SplitSeq(string(body), "\n") {
 		if rest, ok := strings.CutPrefix(strings.TrimSpace(line), "ip="); ok {
 			return net.ParseIP(strings.TrimSpace(rest))
 		}
