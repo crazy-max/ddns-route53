@@ -146,7 +146,6 @@ func testLiveLookup(t *testing.T, c *Client) {
 	}
 
 	for _, tt := range cases {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			ip, err := tt.lookup()
 			if err != nil && isNetworkUnreachable(err) {
@@ -195,11 +194,27 @@ func providerFailures(err error) []ProviderFailure {
 
 func isNetworkUnreachable(err error) bool {
 	for _, failure := range providerFailures(err) {
-		if !isUnavailableError(failure.Err) &&
-			!strings.Contains(failure.Err.Error(), "forbidden by its access permissions") &&
-			!strings.Contains(failure.Err.Error(), "socket operation was attempted to an unreachable network") {
+		if !isUnavailableError(failure.Err) && !hasSandboxNetworkUnreachableMessage(failure.Err) {
 			return false
 		}
 	}
 	return true
+}
+
+var sandboxNetworkUnreachablePatterns = []string{
+	"forbidden by its access permissions",
+	"socket operation was attempted to an unreachable network",
+}
+
+func hasSandboxNetworkUnreachableMessage(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := err.Error()
+	for _, pattern := range sandboxNetworkUnreachablePatterns {
+		if strings.Contains(msg, pattern) {
+			return true
+		}
+	}
+	return false
 }
