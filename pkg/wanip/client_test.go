@@ -20,49 +20,7 @@ var ua = fmt.Sprintf("ddns-route53/test go/%s %s", runtime.Version()[2:], runtim
 
 func TestWanIP(t *testing.T) {
 	c := New(WithMaxRetries(3), WithUserAgent(ua))
-
-	cases := []struct {
-		name string
-		v6   bool
-	}{
-		{
-			name: "v4",
-			v6:   false,
-		},
-		{
-			name: "v6",
-			v6:   true,
-		},
-	}
-	for _, tt := range cases {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			if tt.v6 {
-				ip, err := c.IPv6()
-				if ip == nil && err == nil {
-					t.Skip("Skipping unsupported IPv6 on host")
-				}
-				if err != nil && isNetworkUnreachable(err) {
-					t.Skip("Skipping unsupported IPv6 on host")
-				}
-				if ip == nil && err != nil {
-					t.Logf("IPv6 errors: %+v", providerFailures(err))
-				}
-				assert.NotEmpty(t, ip)
-				t.Logf("IPv6: %s", ip)
-			} else {
-				ip, err := c.IPv4()
-				if err != nil && isNetworkUnreachable(err) {
-					t.Skip("Skipping unsupported IPv4 on host")
-				}
-				if ip == nil && err != nil {
-					t.Logf("IPv4 errors: %+v", providerFailures(err))
-				}
-				assert.NotEmpty(t, ip)
-				t.Logf("IPv4: %s", ip)
-			}
-		})
-	}
+	testLiveLookup(t, c)
 }
 
 func TestCustomInterface(t *testing.T) {
@@ -70,49 +28,7 @@ func TestCustomInterface(t *testing.T) {
 	require.NoError(t, err)
 
 	c := New(WithInterfaceName(ifname), WithMaxRetries(3), WithUserAgent(ua))
-
-	cases := []struct {
-		name string
-		v6   bool
-	}{
-		{
-			name: "v4",
-			v6:   false,
-		},
-		{
-			name: "v6",
-			v6:   true,
-		},
-	}
-	for _, tt := range cases {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			if tt.v6 {
-				ip, err := c.IPv6()
-				if ip == nil && err == nil {
-					t.Skip("Skipping unsupported IPv6 on host")
-				}
-				if err != nil && isNetworkUnreachable(err) {
-					t.Skip("Skipping unsupported IPv6 on host")
-				}
-				if ip == nil && err != nil {
-					t.Logf("IPv6 errors: %+v", providerFailures(err))
-				}
-				assert.NotEmpty(t, ip)
-				t.Logf("IPv6: %s", ip)
-			} else {
-				ip, err := c.IPv4()
-				if err != nil && isNetworkUnreachable(err) {
-					t.Skip("Skipping unsupported IPv4 on host")
-				}
-				if ip == nil && err != nil {
-					t.Logf("IPv4 errors: %+v", providerFailures(err))
-				}
-				assert.NotEmpty(t, ip)
-				t.Logf("IPv4: %s", ip)
-			}
-		})
-	}
+	testLiveLookup(t, c)
 }
 
 func TestIPv6UnavailableReturnsProviderError(t *testing.T) {
@@ -207,6 +123,42 @@ func TestLookupRetriesProviderRequests(t *testing.T) {
 	require.NotNil(t, ip)
 	assert.Equal(t, "203.0.113.42", ip.String())
 	assert.EqualValues(t, 3, attempts.Load())
+}
+
+func testLiveLookup(t *testing.T, c *Client) {
+	t.Helper()
+
+	cases := []struct {
+		name   string
+		family string
+		lookup func() (net.IP, error)
+	}{
+		{
+			name:   "v4",
+			family: "IPv4",
+			lookup: c.IPv4,
+		},
+		{
+			name:   "v6",
+			family: "IPv6",
+			lookup: c.IPv6,
+		},
+	}
+
+	for _, tt := range cases {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			ip, err := tt.lookup()
+			if err != nil && isNetworkUnreachable(err) {
+				t.Skipf("Skipping unsupported %s on host", tt.family)
+			}
+			if ip == nil && err != nil {
+				t.Logf("%s errors: %+v", tt.family, providerFailures(err))
+			}
+			assert.NotEmpty(t, ip)
+			t.Logf("%s: %s", tt.family, ip)
+		})
+	}
 }
 
 func defaultIfname() (string, error) {

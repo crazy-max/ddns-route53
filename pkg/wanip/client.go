@@ -169,16 +169,18 @@ func interfaceAddress(interfaceName string, wantIPv6 bool) (net.IP, error) {
 		return nil, err
 	}
 	for _, addr := range addrs {
-		if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
-			if wantIPv6 {
-				if ipnet.IP.To16() != nil && ipnet.IP.To4() == nil {
-					return ipnet.IP, nil
-				}
-			} else {
-				if ipnet.IP.To16() != nil && ipnet.IP.To4() != nil {
-					return ipnet.IP, nil
-				}
+		ipnet, ok := addr.(*net.IPNet)
+		if !ok || ipnet.IP.IsLoopback() {
+			continue
+		}
+		if wantIPv6 {
+			if ipnet.IP.To16() != nil && ipnet.IP.To4() == nil {
+				return ipnet.IP, nil
 			}
+			continue
+		}
+		if ipnet.IP.To4() != nil {
+			return ipnet.IP, nil
 		}
 	}
 	return nil, errors.Wrapf(errNoSuitableAddress, "%s", interfaceName)
