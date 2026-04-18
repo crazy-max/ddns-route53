@@ -3,10 +3,10 @@
 AWS credentials are required to access and manage your Route 53 hosted zone.
 
 !!! note
-    When running ddns-route53 on an EC2 instance or in a Kubernetes cluster configured
-    with IAM roles for service accounts (IRSA), AWS credentials are not required.
-    ddns-route53 will automatically detect the presence of the configured IAM role
-    and use it to authenticate with Route 53.
+    The `credentials` section is optional. If it is not set, ddns-route53 uses
+    the AWS SDK default credential chain. This includes AWS environment variables,
+    the shared AWS config files (`~/.aws/credentials` and `~/.aws/config`),
+    and IAM roles such as EC2 instance roles, ECS task roles, or IRSA in Kubernetes.
 
 ```yaml
 credentials:
