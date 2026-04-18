@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"runtime"
 	"strings"
+	"syscall"
 	_ "time/tzdata"
 
 	"github.com/alecthomas/kong"
@@ -13,7 +14,6 @@ import (
 	"github.com/crazy-max/ddns-route53/v2/internal/config"
 	"github.com/crazy-max/ddns-route53/v2/internal/logging"
 	"github.com/crazy-max/ddns-route53/v2/internal/model"
-	"github.com/crazy-max/ddns-route53/v2/pkg/utl"
 	"github.com/rs/zerolog/log"
 )
 
@@ -33,7 +33,6 @@ var (
 
 func main() {
 	var err error
-	runtime.GOMAXPROCS(runtime.NumCPU())
 
 	meta.Version = version
 	meta.UserAgent = fmt.Sprintf("%s/%s go/%s %s", meta.ID, meta.Version, runtime.Version()[2:], strings.Title(runtime.GOOS)) //nolint:staticcheck // ignoring "SA1019: strings.Title is deprecated", as for our use we don't need full unicode support
@@ -57,7 +56,7 @@ func main() {
 
 	// Handle os signals
 	channel := make(chan os.Signal, 1)
-	signal.Notify(channel, os.Interrupt, utl.SIGTERM)
+	signal.Notify(channel, os.Interrupt, syscall.SIGTERM)
 	go func() {
 		sig := <-channel
 		ddnsRoute53.Close()

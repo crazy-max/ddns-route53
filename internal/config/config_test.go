@@ -5,7 +5,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/crazy-max/ddns-route53/v2/pkg/utl"
 	"github.com/crazy-max/gonfig/env"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -61,8 +60,8 @@ func TestLoadFile(t *testing.T) {
 							TTL:  600,
 						},
 					},
-					HandleIPv4: utl.NewTrue(),
-					HandleIPv6: utl.NewTrue(),
+					HandleIPv4: new(true),
+					HandleIPv6: new(true),
 				},
 			},
 		},
@@ -88,7 +87,7 @@ func TestLoadEnv(t *testing.T) {
 		desc     string
 		cli      Cli
 		environ  []string
-		expected interface{}
+		expected any
 		wantErr  bool
 	}{
 		{
@@ -121,8 +120,8 @@ func TestLoadEnv(t *testing.T) {
 							TTL:  300,
 						},
 					},
-					HandleIPv4: utl.NewTrue(),
-					HandleIPv6: utl.NewFalse(),
+					HandleIPv4: new(true),
+					HandleIPv6: new(false),
 				},
 			},
 			wantErr: false,
@@ -130,7 +129,6 @@ func TestLoadEnv(t *testing.T) {
 	}
 
 	for _, tt := range testCases {
-		tt := tt
 		t.Run(tt.desc, func(t *testing.T) {
 			if tt.environ != nil {
 				for _, environ := range tt.environ {
