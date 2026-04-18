@@ -14,7 +14,6 @@ import (
 
 // Client represents an active wanip object
 type Client struct {
-	hc         *http.Client
 	ifname     string
 	userAgent  string
 	maxRetries int
@@ -50,11 +49,6 @@ func New(opts ...Option) *Client {
 	for _, opt := range opts {
 		opt(c)
 	}
-
-	rc := retryablehttp.NewClient()
-	rc.RetryMax = c.maxRetries
-	rc.Logger = nil
-	c.hc = rc.StandardClient()
 	return c
 }
 
@@ -68,8 +62,8 @@ func (c *Client) IPv6() (net.IP, error) {
 	return c.lookup(defaultIPv6Providers, true)
 }
 
-func (c *Client) lookup(providers []provider, v6 bool) (net.IP, error) {
-	httpc, err := c.httpClient(v6)
+func (c *Client) lookup(providers []provider, wantIPv6 bool) (net.IP, error) {
+	httpc, err := c.httpClient(wantIPv6)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +78,7 @@ func (c *Client) lookup(providers []provider, v6 bool) (net.IP, error) {
 			})
 			continue
 		}
-		if ip != nil && ((v6 && ip.To16() != nil && ip.To4() == nil) || (!v6 && ip.To4() != nil)) {
+		if ip != nil && ((wantIPv6 && ip.To16() != nil && ip.To4() == nil) || (!wantIPv6 && ip.To4() != nil)) {
 			return ip, nil
 		}
 		failures = append(failures, ProviderFailure{
@@ -101,7 +95,7 @@ func (c *Client) getIP(httpc *http.Client, p provider) (net.IP, error) {
 		return nil, errors.Wrap(err, "request failed")
 	}
 	if c.userAgent != "" {
-		req.Header.Add("User-Agent", c.userAgent)
+		req.Header.Set("User-Agent", c.userAgent)
 	}
 
 	res, err := httpc.Do(req)
@@ -126,56 +120,57 @@ func (c *Client) getIP(httpc *http.Client, p provider) (net.IP, error) {
 	return ip, nil
 }
 
-func (c *Client) httpClient(v6 bool) (*http.Client, error) {
-	httpc := *c.hc
-	if t, err := c.transport(v6); err != nil {
+func (c *Client) httpClient(wantIPv6 bool) (*http.Client, error) {
+	rc := retryablehttp.NewClient()
+	rc.RetryMax = c.maxRetries
+	rc.Logger = nil
+	t, err := c.transport(rc.HTTPClient.Transport, wantIPv6)
+	if err != nil {
 		return nil, err
-	} else {
-		httpc.Transport = t
 	}
-	return &httpc, nil
+	rc.HTTPClient.Transport = t
+	return rc.StandardClient(), nil
 }
 
-func (c *Client) transport(v6 bool) (*http.Transport, error) {
+func (c *Client) transport(base http.RoundTripper, wantIPv6 bool) (*http.Transport, error) {
 	dialer := &net.Dialer{
 		Timeout:   30 * time.Second,
 		KeepAlive: 30 * time.Second,
 	}
 
 	if c.ifname != "" {
-		ifadrr, err := interfaceAddress(c.ifname, v6)
+		ifadrr, err := interfaceAddress(c.ifname, wantIPv6)
 		if err != nil {
 			return nil, err
 		}
 		dialer.LocalAddr = &net.TCPAddr{IP: ifadrr}
 	}
 
-	// same as http.DefaultTransport but with a custom dialer with local addr
-	return &http.Transport{
-		Proxy: http.ProxyFromEnvironment,
-		DialContext: func(ctx context.Context, _, addr string) (net.Conn, error) {
-			network := "tcp4"
-			if v6 {
-				network = "tcp6"
-			}
-			return dialer.DialContext(ctx, network, addr)
-		},
-		ForceAttemptHTTP2:     true,
-		MaxIdleConns:          100,
-		IdleConnTimeout:       90 * time.Second,
-		TLSHandshakeTimeout:   10 * time.Second,
-		ExpectContinueTimeout: 1 * time.Second,
-	}, nil
+	network := "tcp4"
+	if wantIPv6 {
+		network = "tcp6"
+	}
+
+	baseTransport, ok := base.(*http.Transport)
+	if !ok || baseTransport == nil {
+		baseTransport = http.DefaultTransport.(*http.Transport)
+	}
+
+	t := baseTransport.Clone()
+	t.DialContext = func(ctx context.Context, _, addr string) (net.Conn, error) {
+		return dialer.DialContext(ctx, network, addr)
+	}
+	return t, nil
 }
 
-func interfaceAddress(interfaceName string, v6 bool) (net.IP, error) {
+func interfaceAddress(interfaceName string, wantIPv6 bool) (net.IP, error) {
 	addrs, err := interfaceAddresses(interfaceName)
 	if err != nil {
 		return nil, err
 	}
 	for _, addr := range addrs {
 		if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
-			if v6 {
+			if wantIPv6 {
 				if ipnet.IP.To16() != nil && ipnet.IP.To4() == nil {
 					return ipnet.IP, nil
 				}

@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"runtime"
 	"strings"
+	"sync/atomic"
 	"testing"
 
 	"github.com/pkg/errors"
@@ -183,6 +184,29 @@ func TestIPv4FallsBackToCloudflareTrace(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, ip)
 	assert.Equal(t, "203.0.113.42", ip.String())
+}
+
+func TestLookupRetriesProviderRequests(t *testing.T) {
+	t.Parallel()
+
+	var attempts atomic.Int32
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		if attempts.Add(1) < 3 {
+			http.Error(w, "nope", http.StatusBadGateway)
+			return
+		}
+		_, _ = io.WriteString(w, "203.0.113.42")
+	}))
+	defer srv.Close()
+
+	c := New(WithMaxRetries(2))
+	ip, err := c.lookup([]provider{
+		{URL: srv.URL, Parse: parsePlainTextIP},
+	}, false)
+	require.NoError(t, err)
+	require.NotNil(t, ip)
+	assert.Equal(t, "203.0.113.42", ip.String())
+	assert.EqualValues(t, 3, attempts.Load())
 }
 
 func defaultIfname() (string, error) {
