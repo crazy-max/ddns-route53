@@ -24,7 +24,7 @@ more DNS records up to date without relying on a third-party dynamic DNS provide
 schedule, let it detect your public IPv4 and/or IPv6 address, and it will update the configured
 Route 53 records when they change.
 
-It is available as a [binary]({{ config.repo_url }}releases/latest) and a
+It is available as a [binary]({{ config.repo_url }}/releases/latest) and a
 [container image](https://hub.docker.com/r/crazymax/ddns-route53/).
 
 ## Features
