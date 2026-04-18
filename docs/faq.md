@@ -16,13 +16,12 @@ ddns-route53 --schedule "CRON_TZ=Asia/Tokyo */30 * * * *"
 The public IP address is retrieved from one of several providers. The first one to return a valid IP address is used.
 
 ### IPv4
+* https://checkip.global.api.aws
+* https://checkip.amazonaws.com
+* https://cloudflare.com/cdn-cgi/trace
 * https://ipv4.nsupdate.info/myip
-* https://v4.ident.me
-* https://ipv4.yunohost.org
-* https://ipv4.wtfismyip.com/text
 
 ### IPv6
+* https://checkip.global.api.aws
+* https://cloudflare.com/cdn-cgi/trace
 * https://ipv6.nsupdate.info/myip
-* https://v6.ident.me
-* https://ipv6.yunohost.org
-* https://ipv6.wtfismyip.com/text
