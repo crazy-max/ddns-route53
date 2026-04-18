@@ -95,7 +95,8 @@ plugins:
   - git-revision-date-localized:
       type: iso_datetime
       enable_creation_date: true
-  - macros
+  - macros:
+      module_name: hack/mkdocs_macros
   - search:
       lang:
         - en
