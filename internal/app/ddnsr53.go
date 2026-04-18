@@ -15,6 +15,7 @@ import (
 	"github.com/crazy-max/ddns-route53/v2/pkg/utl"
 	"github.com/crazy-max/ddns-route53/v2/pkg/wanip"
 	"github.com/dromara/carbon/v2"
+	"github.com/pkg/errors"
 	"github.com/robfig/cron/v3"
 	"github.com/rs/zerolog/log"
 )
@@ -111,28 +112,38 @@ func (c *DDNSRoute53) Run() {
 	}
 
 	if *c.cfg.Route53.HandleIPv4 {
-		var wanErrs wanip.Errors
-		wanIPv4, wanErrs = c.wip.IPv4()
+		var wanErr error
+		wanIPv4, wanErr = c.wip.IPv4()
 		wanLogger := log.Error()
 		if wanIPv4 != nil {
 			wanLogger = log.Debug()
 			log.Info().Msgf("Current WAN IPv4: %s", wanIPv4)
 		}
-		for _, wanIPErr := range wanErrs {
-			wanLogger.Err(wanIPErr.Err).Str("provider-url", wanIPErr.ProviderURL).Msg("Cannot retrieve WAN IPv4 address")
+		var lookupErr *wanip.ProviderError
+		if errors.As(wanErr, &lookupErr) {
+			for _, failure := range lookupErr.Failures {
+				wanLogger.Err(failure.Err).Str("provider-url", failure.URL).Msg("Cannot retrieve WAN IPv4 address")
+			}
+		} else if wanErr != nil {
+			wanLogger.Err(wanErr).Msg("Cannot retrieve WAN IPv4 address")
 		}
 	}
 
 	if *c.cfg.Route53.HandleIPv6 {
-		var wanErrs wanip.Errors
-		wanIPv6, wanErrs = c.wip.IPv6()
+		var wanErr error
+		wanIPv6, wanErr = c.wip.IPv6()
 		wanLogger := log.Error()
 		if wanIPv6 != nil {
 			wanLogger = log.Debug()
 			log.Info().Msgf("Current WAN IPv6: %s", wanIPv6)
 		}
-		for _, wanIPErr := range wanErrs {
-			wanLogger.Err(wanIPErr.Err).Str("provider-url", wanIPErr.ProviderURL).Msg("Cannot retrieve WAN IPv6 address")
+		var lookupErr *wanip.ProviderError
+		if errors.As(wanErr, &lookupErr) {
+			for _, failure := range lookupErr.Failures {
+				wanLogger.Err(failure.Err).Str("provider-url", failure.URL).Msg("Cannot retrieve WAN IPv6 address")
+			}
+		} else if wanErr != nil {
+			wanLogger.Err(wanErr).Msg("Cannot retrieve WAN IPv6 address")
 		}
 	}
 
