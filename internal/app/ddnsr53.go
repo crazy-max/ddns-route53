@@ -53,6 +53,20 @@ func New(meta model.Meta, cfg *config.Config) (*DDNSRoute53, error) {
 		return nil, err
 	}
 
+	wanOpts := []wanip.Option{
+		wanip.WithInterfaceName(cfg.Cli.Ifname),
+		wanip.WithUserAgent(meta.UserAgent),
+		wanip.WithMaxRetries(cfg.Cli.MaxRetries),
+	}
+	if cfg.WanIP != nil && cfg.WanIP.Providers != nil {
+		if len(cfg.WanIP.Providers.IPv4) > 0 {
+			wanOpts = append(wanOpts, wanip.WithIPv4Providers(cfg.WanIP.Providers.IPv4))
+		}
+		if len(cfg.WanIP.Providers.IPv6) > 0 {
+			wanOpts = append(wanOpts, wanip.WithIPv6Providers(cfg.WanIP.Providers.IPv6))
+		}
+	}
+
 	return &DDNSRoute53{
 		meta: meta,
 		cfg:  cfg,
@@ -60,11 +74,7 @@ func New(meta model.Meta, cfg *config.Config) (*DDNSRoute53, error) {
 			cron.SecondOptional | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow | cron.Descriptor),
 		)),
 		r53: r53,
-		wip: wanip.New(
-			wanip.WithInterfaceName(cfg.Cli.Ifname),
-			wanip.WithUserAgent(meta.UserAgent),
-			wanip.WithMaxRetries(cfg.Cli.MaxRetries),
-		),
+		wip: wanip.New(wanOpts...),
 	}, nil
 }
 

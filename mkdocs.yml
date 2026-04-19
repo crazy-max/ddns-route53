@@ -117,6 +117,7 @@ nav:
     - Overview: config/index.md
     - .credentials: config/credentials.md
     - .route53: config/route53.md
+    - .wanip: config/wanip.md
   - FAQ: faq.md
   - Changelog: changelog.md
   - Migration:

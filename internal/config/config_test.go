@@ -63,6 +63,12 @@ func TestLoadFile(t *testing.T) {
 					HandleIPv4: new(true),
 					HandleIPv6: new(true),
 				},
+				WanIP: &WanIP{
+					Providers: &WanIPProviders{
+						IPv4: []string{"https://ipv4.example.com"},
+						IPv6: []string{"https://ipv6.example.com"},
+					},
+				},
 			},
 		},
 	}
@@ -105,6 +111,8 @@ func TestLoadEnv(t *testing.T) {
 				"DDNSR53_ROUTE53_RECORDSSET_0_NAME=ddns.example.com.",
 				"DDNSR53_ROUTE53_RECORDSSET_0_TYPE=A",
 				"DDNSR53_ROUTE53_RECORDSSET_0_TTL=300",
+				"DDNSR53_WANIP_PROVIDERS_IPV4=https://ipv4.example.com,https://ipv4-backup.example.com",
+				"DDNSR53_WANIP_PROVIDERS_IPV6=https://ipv6.example.com,https://ipv6-backup.example.com",
 			},
 			expected: &Config{
 				Credentials: &Credentials{ //nolint:gosec // test asserts credential file paths, not embedded secrets
@@ -123,8 +131,25 @@ func TestLoadEnv(t *testing.T) {
 					HandleIPv4: new(true),
 					HandleIPv6: new(false),
 				},
+				WanIP: &WanIP{
+					Providers: &WanIPProviders{
+						IPv4: []string{"https://ipv4.example.com", "https://ipv4-backup.example.com"},
+						IPv6: []string{"https://ipv6.example.com", "https://ipv6-backup.example.com"},
+					},
+				},
 			},
 			wantErr: false,
+		},
+		{
+			desc: "invalid wanip provider URL",
+			environ: []string{
+				"DDNSR53_ROUTE53_HOSTEDZONEID=ABCEEFG123456789",
+				"DDNSR53_ROUTE53_RECORDSSET_0_NAME=ddns.example.com.",
+				"DDNSR53_ROUTE53_RECORDSSET_0_TYPE=A",
+				"DDNSR53_ROUTE53_RECORDSSET_0_TTL=300",
+				"DDNSR53_WANIP_PROVIDERS_IPV4=mailto:test@example.com",
+			},
+			wantErr: true,
 		},
 	}
 

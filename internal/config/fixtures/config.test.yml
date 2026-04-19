@@ -14,3 +14,10 @@ route53:
     - name: "another.example2.com."
       type: "A"
       ttl: 600
+
+wanip:
+  providers:
+    ipv4:
+      - "https://ipv4.example.com"
+    ipv6:
+      - "https://ipv6.example.com"

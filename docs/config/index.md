@@ -40,6 +40,13 @@ You can override this using the [`--config` flag or the `CONFIG` environment var
         - name: "another.example2.com."
           type: "A"
           ttl: 600
+    
+    wanip:
+      providers:
+        ipv4:
+          - "https://ipv4.example.com"
+        ipv6:
+          - "https://ipv6.example.com"
     ```
 
 ## Environment variables
@@ -83,9 +90,12 @@ Can be expressed as:
     DDNSR53_ROUTE53_RECORDSSET_2_NAME=another.example2.com.
     DDNSR53_ROUTE53_RECORDSSET_2_TYPE=A
     DDNSR53_ROUTE53_RECORDSSET_2_TTL=600
+    DDNSR53_WANIP_PROVIDERS_IPV4=https://ipv4.example.com,https://ipv4-backup.example.com
+    DDNSR53_WANIP_PROVIDERS_IPV6=https://ipv6.example.com,https://ipv6-backup.example.com
     ```
 
 ## Reference
 
 * [credentials](credentials.md)
 * [route53](route53.md)
+* [wanip](wanip.md)

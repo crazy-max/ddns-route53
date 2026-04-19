@@ -1,6 +1,7 @@
 package wanip
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net"
@@ -123,6 +124,43 @@ func TestLookupRetriesProviderRequests(t *testing.T) {
 	require.NotNil(t, ip)
 	assert.Equal(t, "203.0.113.42", ip.String())
 	assert.EqualValues(t, 3, attempts.Load())
+}
+
+func TestCustomIPv4ProvidersReplaceDefaults(t *testing.T) {
+	t.Parallel()
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = io.WriteString(w, "203.0.113.42")
+	}))
+	defer srv.Close()
+
+	c := New(WithIPv4Providers([]string{srv.URL}))
+	ip, err := c.IPv4()
+	require.NoError(t, err)
+	require.NotNil(t, ip)
+	assert.Equal(t, "203.0.113.42", ip.String())
+}
+
+func TestCustomIPv6ProvidersReplaceDefaults(t *testing.T) {
+	t.Parallel()
+
+	listener, err := (&net.ListenConfig{}).Listen(context.Background(), "tcp6", "[::1]:0")
+	if err != nil {
+		t.Skipf("Skipping IPv6 custom provider test: %v", err)
+	}
+
+	srv := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = io.WriteString(w, "2001:db8::42")
+	}))
+	srv.Listener = listener
+	srv.Start()
+	defer srv.Close()
+
+	c := New(WithIPv6Providers([]string{srv.URL}))
+	ip, err := c.IPv6()
+	require.NoError(t, err)
+	require.NotNil(t, ip)
+	assert.Equal(t, "2001:db8::42", ip.String())
 }
 
 func testLiveLookup(t *testing.T, c *Client) {
