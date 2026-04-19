@@ -196,3 +196,46 @@ func TestValidation(t *testing.T) {
 		})
 	}
 }
+
+func TestValidateRoute53Requirements(t *testing.T) {
+	t.Parallel()
+
+	t.Run("missing route53 config", func(t *testing.T) {
+		t.Parallel()
+
+		cfg := &Config{}
+		err := cfg.validate()
+		require.EqualError(t, err, "route53 configuration required")
+	})
+
+	t.Run("empty record set", func(t *testing.T) {
+		t.Parallel()
+
+		cfg := &Config{
+			Route53: &Route53{
+				HostedZoneID: "ABCEEFG123456789",
+			},
+		}
+		err := cfg.validate()
+		require.EqualError(t, err, "empty record set")
+	})
+}
+
+func TestValidateProviderURLs(t *testing.T) {
+	t.Parallel()
+
+	t.Run("host required", func(t *testing.T) {
+		t.Parallel()
+
+		err := validateProviderURLs("ipv4", []string{"https:///missing-host"})
+		require.EqualError(t, err, `invalid wanip.providers.ipv4[0]: host required`)
+	})
+
+	t.Run("invalid url syntax", func(t *testing.T) {
+		t.Parallel()
+
+		err := validateProviderURLs("ipv6", []string{":"})
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "invalid wanip.providers.ipv6[0]")
+	})
+}
