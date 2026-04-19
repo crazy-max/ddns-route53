@@ -9,10 +9,10 @@ ddns-route53 publishes automatically updated container images to several registr
 | [Docker Hub](https://hub.docker.com/r/crazymax/ddns-route53/)                                           | `crazymax/ddns-route53`          |
 | [GitHub Container Registry](https://github.com/users/crazy-max/packages/container/package/ddns-route53) | `ghcr.io/crazy-max/ddns-route53` |
 
-It is possible to always use the latest stable tag or to use another service that handles updating Docker images.
+You can follow the latest stable tag, or use another service to automate Docker image updates.
 
 !!! note
-    Want to be notified of new releases? Check out :bell: [Diun (Docker Image Update Notifier)](https://github.com/crazy-max/diun) project!
+    Want to be notified of new releases? See [Diun (Docker Image Update Notifier)](https://github.com/crazy-max/diun).
 
 The following platforms are available for this image:
 
@@ -30,7 +30,7 @@ Image: crazymax/ddns-route53:latest
 ```
 
 This reference setup uses `docker-compose`, but installing `docker-compose`
-is out of scope for this documentation. To install `docker-compose`, follow the official
+is out of scope for this documentation. To install it, follow the official
 [install instructions](https://docs.docker.com/compose/install/).
 
 ## Usage
@@ -54,14 +54,14 @@ services:
     restart: always
 ```
 
-Edit this example with your preferences and run the following commands to bring up ddns-route53:
+Adjust this example to match your environment, then run the following commands to start ddns-route53:
 
 ```shell
 docker-compose up -d
 docker-compose logs -f
 ```
 
-Or use the following command:
+Or run it directly:
 
 ```shell
 docker run -d --name ddns-route53 \
@@ -102,7 +102,7 @@ route53:
       ttl: 300
 ```
 
-And your docker composition:
+Then update your Compose configuration:
 
 ```yaml
 services:

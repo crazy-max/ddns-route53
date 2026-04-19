@@ -2,14 +2,14 @@
 
 ## Overview
 
-There are two different ways to define configuration in ddns-route53:
+There are two ways to configure ddns-route53:
 
 * In a [configuration file](#configuration-file)
 * As [environment variables](#environment-variables)
 
-These ways are evaluated in the order listed above.
+Configuration sources are evaluated in the order listed above.
 
-If no value was provided for a given option, a default value applies. Moreover, if an option has sub-options, and any of these sub-options is not specified, a default value will apply as well.
+If an option is not set, its default value is used. The same applies to any nested option that is not set.
 
 ## Configuration file
 

@@ -36,7 +36,7 @@ route53:
 AWS Route 53 record set name.
 
 !!! warning
-    Don't forget to suffix with a dot
+    Remember to end the record name with a trailing dot.
 
 !!! example "Config file"
     ```yaml

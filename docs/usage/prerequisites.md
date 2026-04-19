@@ -1,6 +1,6 @@
 # Prerequisites
 
-I assume you have already created a [Route 53 hosted zone](https://console.aws.amazon.com/route53/home#hosted-zones:)
+Before you continue, make sure you have already created a [Route 53 hosted zone](https://console.aws.amazon.com/route53/home#hosted-zones:)
 as a **Public Hosted Zone** and configured the Amazon name servers with your domain
 registrar.
 
@@ -14,7 +14,7 @@ registrar.
 Go to the [IAM Policies page](https://console.aws.amazon.com/iam/home#/policies)
 and click on **Create Policy**.
 
-Then click on **JSON** tab and paste the following content:
+Then open the **JSON** tab and paste the following content:
 
 ```json
 {
@@ -44,10 +44,10 @@ and click the **Add user** button.
 Enter a **User name**, check **Programmatic access** for _Access type_, and
 click **Next: Permissions**.
 
-Choose the last option **Attach existing policies directly** and fill in the
-**Search** field with the name of the policy you created before and click
+Choose **Attach existing policies directly**, enter the name of the policy you created in the
+**Search** field, then click
 **Next: Review** then **Create user**.
 
 An _Access Key ID_ and a _Secret Access Key_ will be displayed. These are the [credentials](../config/credentials.md)
-needed for ddns-route53. Save them somewhere since you will need them in the
+needed for ddns-route53. Save them somewhere safe, as you will need them in the
 [configuration](../config/index.md) step.

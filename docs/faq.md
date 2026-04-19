@@ -2,10 +2,10 @@
 
 ## Timezone
 
-By default, all interpretation and scheduling is done with your local timezone (`TZ` environment variable).
+By default, scheduling uses your local timezone, controlled by the `TZ` environment variable.
 
-Cron schedule may also override the timezone to be interpreted in by providing an additional space-separated field
-at the beginning of the cron spec, of the form `CRON_TZ=<timezone>`:
+You can also override the timezone in the cron expression by adding an extra space-separated field
+at the beginning of the cron spec in the form `CRON_TZ=<timezone>`:
 
 ```shell
 ddns-route53 --schedule "CRON_TZ=Asia/Tokyo */30 * * * *"
@@ -13,7 +13,8 @@ ddns-route53 --schedule "CRON_TZ=Asia/Tokyo */30 * * * *"
 
 ## Where is my public IP address sourced from?
 
-The public IP address is retrieved from one of several providers. The first one to return a valid IP address is used.
+The public IP address is retrieved from one of several providers. ddns-route53 uses the first one
+that returns a valid IP address.
 
 ### IPv4
 * https://checkip.global.api.aws
