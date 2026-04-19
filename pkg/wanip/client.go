@@ -14,9 +14,11 @@ import (
 
 // Client represents an active wanip object
 type Client struct {
-	ifname     string
-	userAgent  string
-	maxRetries int
+	ifname        string
+	userAgent     string
+	maxRetries    int
+	ipv4Providers []provider
+	ipv6Providers []provider
 }
 
 // Option provides a variadic option for configuring the client.
@@ -43,6 +45,20 @@ func WithMaxRetries(maxRetries int) Option {
 	}
 }
 
+// WithIPv4Providers sets custom IPv4 lookup providers.
+func WithIPv4Providers(urls []string) Option {
+	return func(b *Client) {
+		b.ipv4Providers = plainTextProviders(urls)
+	}
+}
+
+// WithIPv6Providers sets custom IPv6 lookup providers.
+func WithIPv6Providers(urls []string) Option {
+	return func(b *Client) {
+		b.ipv6Providers = plainTextProviders(urls)
+	}
+}
+
 // New initializes a new wanip client
 func New(opts ...Option) *Client {
 	c := &Client{}
@@ -54,12 +70,20 @@ func New(opts ...Option) *Client {
 
 // IPv4 returns your IPv4 address
 func (c *Client) IPv4() (net.IP, error) {
-	return c.lookup(defaultIPv4Providers, false)
+	providers := c.ipv4Providers
+	if len(providers) == 0 {
+		providers = defaultIPv4Providers
+	}
+	return c.lookup(providers, false)
 }
 
 // IPv6 returns your IPv6 address
 func (c *Client) IPv6() (net.IP, error) {
-	return c.lookup(defaultIPv6Providers, true)
+	providers := c.ipv6Providers
+	if len(providers) == 0 {
+		providers = defaultIPv6Providers
+	}
+	return c.lookup(providers, true)
 }
 
 func (c *Client) lookup(providers []provider, wantIPv6 bool) (net.IP, error) {

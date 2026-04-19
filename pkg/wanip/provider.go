@@ -62,3 +62,14 @@ func parseCloudflareTraceIP(body []byte) net.IP {
 	}
 	return nil
 }
+
+func plainTextProviders(urls []string) []provider {
+	providers := make([]provider, 0, len(urls))
+	for _, raw := range urls {
+		providers = append(providers, provider{
+			URL:   raw,
+			Parse: parsePlainTextIP,
+		})
+	}
+	return providers
+}

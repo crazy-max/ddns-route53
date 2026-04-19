@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"net/url"
 
 	r53types "github.com/aws/aws-sdk-go-v2/service/route53/types"
 	"github.com/crazy-max/gonfig"
@@ -16,6 +17,7 @@ type Config struct {
 
 	Credentials *Credentials `yaml:"credentials,omitempty" json:"credentials,omitempty" validate:"omitempty"`
 	Route53     *Route53     `yaml:"route53,omitempty" json:"route53,omitempty" validate:"required"`
+	WanIP       *WanIP       `yaml:"wanip,omitempty" json:"wanip,omitempty" validate:"omitempty"`
 }
 
 // Load returns Configuration struct
@@ -75,7 +77,32 @@ func (cfg *Config) validate() error {
 		}
 	}
 
+	if cfg.WanIP != nil && cfg.WanIP.Providers != nil {
+		if err := validateProviderURLs("ipv4", cfg.WanIP.Providers.IPv4); err != nil {
+			return err
+		}
+		if err := validateProviderURLs("ipv6", cfg.WanIP.Providers.IPv6); err != nil {
+			return err
+		}
+	}
+
 	return validator.New().Struct(cfg)
+}
+
+func validateProviderURLs(family string, values []string) error {
+	for i, raw := range values {
+		u, err := url.Parse(raw)
+		if err != nil {
+			return errors.Wrapf(err, "invalid wanip.providers.%s[%d]", family, i)
+		}
+		if u.Scheme != "http" && u.Scheme != "https" {
+			return errors.Errorf("invalid wanip.providers.%s[%d]: unsupported scheme %q", family, i, u.Scheme)
+		}
+		if u.Host == "" {
+			return errors.Errorf("invalid wanip.providers.%s[%d]: host required", family, i)
+		}
+	}
+	return nil
 }
 
 // String returns the string representation of configuration

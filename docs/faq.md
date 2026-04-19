@@ -15,6 +15,8 @@ ddns-route53 --schedule "CRON_TZ=Asia/Tokyo */30 * * * *"
 
 The public IP address is retrieved from one of several providers. ddns-route53 uses the first one
 that returns a valid IP address.
+You can override the default providers with the `wanip.providers.ipv4` and `wanip.providers.ipv6`
+configuration options. Custom providers must return a plain text IP address.
 
 ### IPv4
 * https://checkip.global.api.aws
