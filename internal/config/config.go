@@ -1,7 +1,6 @@
 package config
 
 import (
-	"encoding/json"
 	"net/url"
 
 	r53types "github.com/aws/aws-sdk-go-v2/service/route53/types"
@@ -103,10 +102,4 @@ func validateProviderURLs(family string, values []string) error {
 		}
 	}
 	return nil
-}
-
-// String returns the string representation of configuration
-func (cfg *Config) String() string {
-	b, _ := json.MarshalIndent(cfg, "", "  ")
-	return string(b)
 }

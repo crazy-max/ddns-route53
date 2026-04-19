@@ -37,7 +37,6 @@ func main() {
 	meta.Version = version
 	meta.UserAgent = fmt.Sprintf("%s/%s go/%s %s", meta.ID, meta.Version, runtime.Version()[2:], strings.Title(runtime.GOOS)) //nolint:staticcheck // ignoring "SA1019: strings.Title is deprecated", as for our use we don't need full unicode support
 
-	// Parse command line
 	_ = kong.Parse(&cli,
 		kong.Name(meta.ID),
 		kong.Description(fmt.Sprintf("%s. More info: %s", meta.Desc, meta.URL)),
@@ -50,11 +49,9 @@ func main() {
 			Summary: true,
 		}))
 
-	// Init
 	logging.Configure(cli)
 	log.Info().Str("version", version).Msgf("Starting %s", meta.Name)
 
-	// Handle os signals
 	channel := make(chan os.Signal, 1)
 	signal.Notify(channel, os.Interrupt, syscall.SIGTERM)
 	go func() {
@@ -64,19 +61,16 @@ func main() {
 		os.Exit(0)
 	}()
 
-	// Load and check configuration
 	cfg, err := config.Load(cli)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Cannot load configuration")
 	}
-	log.Debug().Msg(cfg.String())
+	log.Debug().Interface("config", cfg).Msg("Configuration")
 
-	// Init
 	if ddnsRoute53, err = app.New(meta, cfg); err != nil {
 		log.Fatal().Err(err).Msg("Cannot initialize ddns-route53")
 	}
 
-	// Start
 	if err = ddnsRoute53.Start(); err != nil {
 		log.Fatal().Err(err).Msg("Cannot start ddns-route53")
 	}
