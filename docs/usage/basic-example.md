@@ -1,13 +1,13 @@
 # Basic example
 
-In this section we quickly go over a basic way to run ddns-route53.
+This section shows a minimal way to run ddns-route53.
 
 ## Setup
 
 !!! warning
     Make sure to follow the instructions to [install from binary](../install/binary.md) before.
 
-First create a [`ddns-route53.yml` configuration](../config/index.md) file like this one:
+First, create a [`ddns-route53.yml` configuration](../config/index.md) file like this:
 
 ```yaml
 # ./ddns-route53.yml
@@ -23,7 +23,7 @@ route53:
       ttl: 300
 ```
 
-That's it. Now you can launch ddns-route53 with the following command:
+That's it. You can now start ddns-route53 with the following command:
 
 ```shell
 ddns-route53 --config ./ddns-route53.yml --schedule "*/30 * * * *"

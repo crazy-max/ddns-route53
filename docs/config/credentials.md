@@ -16,7 +16,7 @@ credentials:
 
 ## `accessKeyID`
 
-AWS Access Key.
+AWS access key ID.
 
 !!! example "Config file"
     ```yaml
@@ -31,7 +31,7 @@ AWS Access Key.
 
 ## `accessKeyIDFile`
 
-Use content of secret file as AWS Access Key if `accessKeyID` not defined.
+Use the contents of a secret file as the AWS access key ID if `accessKeyID` is not defined.
 
 !!! example "Config file"
     ```yaml
@@ -44,7 +44,7 @@ Use content of secret file as AWS Access Key if `accessKeyID` not defined.
 
 ## `secretAccessKey`
 
-AWS Secret Key.
+AWS secret access key.
 
 !!! example "Config file"
     ```yaml
@@ -59,7 +59,7 @@ AWS Secret Key.
 
 ## `secretAccessKeyFile`
 
-Use content of secret file as AWS Secret Key if `secretAccessKey` not defined.
+Use the contents of a secret file as the AWS secret access key if `secretAccessKey` is not defined.
 
 !!! example "Config file"
     ```yaml
