@@ -32,7 +32,7 @@ type DDNSRoute53 struct {
 }
 
 // New creates new ddns-route53 instance
-func New(meta model.Meta, cfg *config.Config) (*DDNSRoute53, error) {
+func New(ctx context.Context, meta model.Meta, cfg *config.Config) (*DDNSRoute53, error) {
 	var err error
 	var accessKeyID string
 	var secretAccessKey string
@@ -48,12 +48,13 @@ func New(meta model.Meta, cfg *config.Config) (*DDNSRoute53, error) {
 		}
 	}
 
-	r53, err := route53.New(context.Background(), accessKeyID, secretAccessKey, cfg.Route53.HostedZoneID, cfg.Cli.MaxRetries, cfg.Cli.MaxBackoffDelay)
+	r53, err := route53.New(ctx, accessKeyID, secretAccessKey, cfg.Route53.HostedZoneID, cfg.Cli.MaxRetries, cfg.Cli.MaxBackoffDelay)
 	if err != nil {
 		return nil, err
 	}
 
 	wanOpts := []wanip.Option{
+		wanip.WithContext(ctx),
 		wanip.WithInterfaceName(cfg.Cli.Ifname),
 		wanip.WithUserAgent(meta.UserAgent),
 		wanip.WithMaxRetries(cfg.Cli.MaxRetries),
@@ -79,31 +80,29 @@ func New(meta model.Meta, cfg *config.Config) (*DDNSRoute53, error) {
 }
 
 // Start starts ddns-route53
-func (c *DDNSRoute53) Start() error {
+func (c *DDNSRoute53) Start(ctx context.Context) error {
 	var err error
 
-	// Run on startup
 	c.Run()
 
-	// Check scheduler enabled
 	if c.cfg.Cli.Schedule == "" {
 		return nil
 	}
 
-	// Init scheduler
 	c.jobID, err = c.cron.AddJob(c.cfg.Cli.Schedule, c)
 	if err != nil {
 		return err
 	}
 	log.Info().Msgf("Cron initialized with schedule %s", c.cfg.Cli.Schedule)
 
-	// Start scheduler
 	c.cron.Start()
 	log.Info().Msgf("Next run in %s (%s)",
 		carbon.CreateFromStdTime(c.cron.Entry(c.jobID).Next).DiffAbsInString(),
 		c.cron.Entry(c.jobID).Next)
 
-	select {}
+	<-ctx.Done()
+	<-c.cron.Stop().Done()
+	return nil
 }
 
 // Run runs ddns-route53 process
@@ -206,7 +205,6 @@ func (c *DDNSRoute53) Run() {
 		return
 	}
 
-	// Update Route53 records set
 	resp, err := c.r53.Update(r53Changes, fmt.Sprintf("Updated by %s %s at %s",
 		c.meta.Name,
 		c.meta.Version,
@@ -218,11 +216,4 @@ func (c *DDNSRoute53) Run() {
 	}
 
 	log.Info().Interface("changes", resp).Msgf("%d record(s) set updated", len(r53Changes))
-}
-
-// Close closes ddns-route53
-func (c *DDNSRoute53) Close() {
-	if c.cron != nil {
-		c.cron.Stop()
-	}
 }

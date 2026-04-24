@@ -14,6 +14,7 @@ import (
 
 // Client represents an active wanip object
 type Client struct {
+	ctx           context.Context
 	ifname        string
 	userAgent     string
 	maxRetries    int
@@ -28,6 +29,13 @@ type Option func(b *Client)
 func WithInterfaceName(ifname string) Option {
 	return func(b *Client) {
 		b.ifname = ifname
+	}
+}
+
+// WithContext sets request context.
+func WithContext(ctx context.Context) Option {
+	return func(b *Client) {
+		b.ctx = ctx
 	}
 }
 
@@ -61,7 +69,9 @@ func WithIPv6Providers(urls []string) Option {
 
 // New initializes a new wanip client
 func New(opts ...Option) *Client {
-	c := &Client{}
+	c := &Client{
+		ctx: context.Background(),
+	}
 	for _, opt := range opts {
 		opt(c)
 	}
@@ -114,7 +124,7 @@ func (c *Client) lookup(providers []provider, wantIPv6 bool) (net.IP, error) {
 }
 
 func (c *Client) getIP(httpc *http.Client, p provider) (net.IP, error) {
-	req, err := http.NewRequestWithContext(context.Background(), "GET", p.URL, nil)
+	req, err := http.NewRequestWithContext(c.ctx, "GET", p.URL, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "request failed")
 	}
