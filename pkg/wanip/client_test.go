@@ -11,6 +11,7 @@ import (
 	"strings"
 	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -124,6 +125,50 @@ func TestLookupRetriesProviderRequests(t *testing.T) {
 	require.NotNil(t, ip)
 	assert.Equal(t, "203.0.113.42", ip.String())
 	assert.EqualValues(t, 3, attempts.Load())
+}
+
+func TestLookupHonorsContextCancellation(t *testing.T) {
+	t.Parallel()
+
+	ctx, cancel := context.WithCancelCause(context.Background())
+	defer cancel(nil)
+
+	started := make(chan struct{}, 1)
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		select {
+		case started <- struct{}{}:
+		default:
+		}
+		<-r.Context().Done()
+	}))
+	defer srv.Close()
+
+	c := New(
+		WithContext(ctx),
+		WithIPv4Providers([]string{srv.URL}),
+	)
+
+	done := make(chan error, 1)
+	go func() {
+		_, err := c.IPv4()
+		done <- err
+	}()
+
+	select {
+	case <-started:
+	case <-time.After(time.Second):
+		t.Fatal("lookup did not start request")
+	}
+
+	cancel(context.Canceled)
+
+	select {
+	case err := <-done:
+		require.Error(t, err)
+		require.ErrorIs(t, err, context.Canceled)
+	case <-time.After(time.Second):
+		t.Fatal("lookup did not stop after context cancellation")
+	}
 }
 
 func TestCustomIPv4ProvidersReplaceDefaults(t *testing.T) {
