@@ -57,6 +57,7 @@ COPY --link --from=build /usr/bin/ddns-route53 /ddns-route53.exe
 
 FROM binary-unix AS binary-darwin
 FROM binary-unix AS binary-freebsd
+FROM binary-unix AS binary-openbsd
 FROM binary-unix AS binary-linux
 FROM binary-$TARGETOS AS binary
 # enable scanning for this stage

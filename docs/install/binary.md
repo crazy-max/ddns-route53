@@ -10,6 +10,8 @@ Choose the archive matching the destination platform:
 * [`ddns-route53_{{ latest_stable_tag | trim('v') }}_darwin_amd64.tar.gz`]({{ config.repo_url }}/releases/download/{{ latest_stable_tag }}/ddns-route53_{{ latest_stable_tag | trim('v') }}_darwin_amd64.tar.gz)
 * [`ddns-route53_{{ latest_stable_tag | trim('v') }}_freebsd_386.tar.gz`]({{ config.repo_url }}/releases/download/{{ latest_stable_tag }}/ddns-route53_{{ latest_stable_tag | trim('v') }}_freebsd_386.tar.gz)
 * [`ddns-route53_{{ latest_stable_tag | trim('v') }}_freebsd_amd64.tar.gz`]({{ config.repo_url }}/releases/download/{{ latest_stable_tag }}/ddns-route53_{{ latest_stable_tag | trim('v') }}_freebsd_amd64.tar.gz)
+* [`ddns-route53_{{ latest_stable_tag | trim('v') }}_openbsd_amd64.tar.gz`]({{ config.repo_url }}/releases/download/{{ latest_stable_tag }}/ddns-route53_{{ latest_stable_tag | trim('v') }}_openbsd_amd64.tar.gz)
+* [`ddns-route53_{{ latest_stable_tag | trim('v') }}_openbsd_arm64.tar.gz`]({{ config.repo_url }}/releases/download/{{ latest_stable_tag }}/ddns-route53_{{ latest_stable_tag | trim('v') }}_openbsd_arm64.tar.gz)
 * [`ddns-route53_{{ latest_stable_tag | trim('v') }}_linux_386.tar.gz`]({{ config.repo_url }}/releases/download/{{ latest_stable_tag }}/ddns-route53_{{ latest_stable_tag | trim('v') }}_linux_386.tar.gz)
 * [`ddns-route53_{{ latest_stable_tag | trim('v') }}_linux_amd64.tar.gz`]({{ config.repo_url }}/releases/download/{{ latest_stable_tag }}/ddns-route53_{{ latest_stable_tag | trim('v') }}_linux_amd64.tar.gz)
 * [`ddns-route53_{{ latest_stable_tag | trim('v') }}_linux_arm64.tar.gz`]({{ config.repo_url }}/releases/download/{{ latest_stable_tag }}/ddns-route53_{{ latest_stable_tag | trim('v') }}_linux_arm64.tar.gz)
