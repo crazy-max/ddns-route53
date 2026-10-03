@@ -123,36 +123,36 @@ func (c *DDNSRoute53) Run() {
 	if *c.cfg.Route53.HandleIPv4 {
 		var wanErr error
 		wanIPv4, wanErr = c.wip.IPv4()
-		wanLogger := log.Error()
+		wanLogger := log.Error
 		if wanIPv4 != nil {
-			wanLogger = log.Debug()
+			wanLogger = log.Debug
 			log.Info().Msgf("Current WAN IPv4: %s", wanIPv4)
 		}
 		var lookupErr *wanip.ProviderError
 		if errors.As(wanErr, &lookupErr) {
 			for _, failure := range lookupErr.Failures {
-				wanLogger.Err(failure.Err).Str("provider-url", failure.URL).Msg("Cannot retrieve WAN IPv4 address")
+				wanLogger().Err(failure.Err).Str("provider-url", failure.URL).Msg("Cannot retrieve WAN IPv4 address")
 			}
 		} else if wanErr != nil {
-			wanLogger.Err(wanErr).Msg("Cannot retrieve WAN IPv4 address")
+			wanLogger().Err(wanErr).Msg("Cannot retrieve WAN IPv4 address")
 		}
 	}
 
 	if *c.cfg.Route53.HandleIPv6 {
 		var wanErr error
 		wanIPv6, wanErr = c.wip.IPv6()
-		wanLogger := log.Error()
+		wanLogger := log.Error
 		if wanIPv6 != nil {
-			wanLogger = log.Debug()
+			wanLogger = log.Debug
 			log.Info().Msgf("Current WAN IPv6: %s", wanIPv6)
 		}
 		var lookupErr *wanip.ProviderError
 		if errors.As(wanErr, &lookupErr) {
 			for _, failure := range lookupErr.Failures {
-				wanLogger.Err(failure.Err).Str("provider-url", failure.URL).Msg("Cannot retrieve WAN IPv6 address")
+				wanLogger().Err(failure.Err).Str("provider-url", failure.URL).Msg("Cannot retrieve WAN IPv6 address")
 			}
 		} else if wanErr != nil {
-			wanLogger.Err(wanErr).Msg("Cannot retrieve WAN IPv6 address")
+			wanLogger().Err(wanErr).Msg("Cannot retrieve WAN IPv6 address")
 		}
 	}
 
