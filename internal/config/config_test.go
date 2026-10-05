@@ -59,6 +59,13 @@ func TestLoadFile(t *testing.T) {
 							Type: "A",
 							TTL:  600,
 						},
+						RecordSet{
+							Name:   "_ssh._tcp.ddns.example.com.",
+							Type:   "SRV",
+							TTL:    300,
+							Port:   2032,
+							Target: "ddns.example.com.",
+						},
 					},
 					HandleIPv4: new(true),
 					HandleIPv6: new(true),
@@ -136,6 +143,37 @@ func TestLoadEnv(t *testing.T) {
 				},
 			},
 			wantErr: false,
+		},
+		{
+			desc: "SRV record set",
+			environ: []string{
+				"DDNSR53_ROUTE53_HOSTEDZONEID=ABCEEFG123456789",
+				"DDNSR53_ROUTE53_RECORDSSET_0_NAME=_ssh._tcp.ddns.example.com.",
+				"DDNSR53_ROUTE53_RECORDSSET_0_TYPE=SRV",
+				"DDNSR53_ROUTE53_RECORDSSET_0_TTL=300",
+				"DDNSR53_ROUTE53_RECORDSSET_0_PRIORITY=10",
+				"DDNSR53_ROUTE53_RECORDSSET_0_WEIGHT=20",
+				"DDNSR53_ROUTE53_RECORDSSET_0_PORT=2032",
+				"DDNSR53_ROUTE53_RECORDSSET_0_TARGET=ddns.example.com.",
+			},
+			expected: &Config{
+				Route53: &Route53{
+					HostedZoneID: "ABCEEFG123456789",
+					RecordsSet: RecordsSet{
+						RecordSet{
+							Name:     "_ssh._tcp.ddns.example.com.",
+							Type:     "SRV",
+							TTL:      300,
+							Priority: 10,
+							Weight:   20,
+							Port:     2032,
+							Target:   "ddns.example.com.",
+						},
+					},
+					HandleIPv4: new(false),
+					HandleIPv6: new(false),
+				},
+			},
 		},
 		{
 			desc: "invalid wanip provider URL",

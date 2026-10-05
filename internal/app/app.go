@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"slices"
 	"sync/atomic"
 	"time"
 
@@ -156,7 +157,9 @@ func (c *DDNSRoute53) Run() {
 		}
 	}
 
-	if wanIPv4 == nil && wanIPv6 == nil {
+	if wanIPv4 == nil && wanIPv6 == nil && !slices.ContainsFunc(c.cfg.Route53.RecordsSet, func(rs config.RecordSet) bool {
+		return rs.Type == awsr53types.RRTypeSrv
+	}) {
 		return
 	}
 
@@ -188,6 +191,16 @@ func (c *DDNSRoute53) Run() {
 				continue
 			}
 			recordValue = aws.String(wanIPv6.String())
+		} else if rs.Type == awsr53types.RRTypeSrv {
+			recordValue = aws.String(fmt.Sprintf("%d %d %d %s", rs.Priority, rs.Weight, rs.Port, rs.Target))
+			if slices.ContainsFunc(records, func(record awsr53types.ResourceRecordSet) bool {
+				return record.Type == rs.Type && aws.ToString(record.Name) == rs.Name &&
+					aws.ToInt64(record.TTL) == rs.TTL && len(record.ResourceRecords) == 1 &&
+					aws.ToString(record.ResourceRecords[0].Value) == *recordValue
+			}) {
+				log.Info().Msgf("SRV record has not changed for %s record set", rs.Name)
+				continue
+			}
 		}
 		r53Changes = append(r53Changes, awsr53types.Change{
 			Action: awsr53types.ChangeActionUpsert,

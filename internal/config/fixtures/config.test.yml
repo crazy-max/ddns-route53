@@ -14,6 +14,13 @@ route53:
     - name: "another.example2.com."
       type: "A"
       ttl: 600
+    - name: "_ssh._tcp.ddns.example.com."
+      type: "SRV"
+      ttl: 300
+      priority: 0
+      weight: 0
+      port: 2032
+      target: "ddns.example.com."
 
 wanip:
   providers:
