@@ -1,14 +1,68 @@
 package app
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"io"
 	"testing"
 	"time"
 
 	"github.com/crazy-max/ddns-route53/v2/internal/config"
+	"github.com/crazy-max/ddns-route53/v2/pkg/wanip"
 	"github.com/robfig/cron/v3"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
 )
+
+func TestRunLogsEachWANProviderFailure(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		ipv4 bool
+		ipv6 bool
+	}{
+		{name: "IPv4", ipv4: true},
+		{name: "IPv6", ipv6: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var output bytes.Buffer
+			previousLogger := log.Logger
+			log.Logger = zerolog.New(&output)
+			t.Cleanup(func() {
+				log.Logger = previousLogger
+			})
+
+			providers := []string{":first-provider", ":second-provider"}
+			ddns := testApp("")
+			ddns.cfg.Route53.HandleIPv4 = new(tc.ipv4)
+			ddns.cfg.Route53.HandleIPv6 = new(tc.ipv6)
+			ddns.wip = wanip.New(
+				wanip.WithIPv4Providers(providers),
+				wanip.WithIPv6Providers(providers),
+			)
+
+			require.NotPanics(t, ddns.Run)
+
+			decoder := json.NewDecoder(&output)
+			for _, provider := range providers {
+				var record struct {
+					Level       string `json:"level"`
+					Message     string `json:"message"`
+					Error       string `json:"error"`
+					ProviderURL string `json:"provider-url"`
+				}
+				require.NoError(t, decoder.Decode(&record))
+				require.Equal(t, "error", record.Level)
+				require.Equal(t, "Cannot retrieve WAN "+tc.name+" address", record.Message)
+				require.Equal(t, provider, record.ProviderURL)
+				require.Contains(t, record.Error, provider)
+			}
+			var extraRecord any
+			require.ErrorIs(t, decoder.Decode(&extraRecord), io.EOF)
+		})
+	}
+}
 
 func TestStartWithoutScheduleReturns(t *testing.T) {
 	t.Parallel()
