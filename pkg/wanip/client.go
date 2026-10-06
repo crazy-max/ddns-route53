@@ -78,7 +78,8 @@ func New(opts ...Option) *Client {
 	return c
 }
 
-// IPv4 returns your IPv4 address
+// IPv4 returns your IPv4 address and any failures from earlier providers.
+// A non-nil error does not imply that the returned IP is nil.
 func (c *Client) IPv4() (net.IP, error) {
 	providers := c.ipv4Providers
 	if len(providers) == 0 {
@@ -87,7 +88,8 @@ func (c *Client) IPv4() (net.IP, error) {
 	return c.lookup(providers, false)
 }
 
-// IPv6 returns your IPv6 address
+// IPv6 returns your IPv6 address and any failures from earlier providers.
+// A non-nil error does not imply that the returned IP is nil.
 func (c *Client) IPv6() (net.IP, error) {
 	providers := c.ipv6Providers
 	if len(providers) == 0 {
@@ -113,6 +115,9 @@ func (c *Client) lookup(providers []provider, wantIPv6 bool) (net.IP, error) {
 			continue
 		}
 		if ip != nil && ((wantIPv6 && ip.To16() != nil && ip.To4() == nil) || (!wantIPv6 && ip.To4() != nil)) {
+			if len(failures) > 0 {
+				return ip, &ProviderError{Failures: failures}
+			}
 			return ip, nil
 		}
 		failures = append(failures, ProviderFailure{

@@ -99,7 +99,13 @@ func TestIPv4FallsBackToCloudflareTrace(t *testing.T) {
 		{URL: cloudflare.URL, Parse: parseCloudflareTraceIP},
 		{URL: nsupdate.URL, Parse: parsePlainTextIP},
 	}, false)
-	require.NoError(t, err)
+	var providerErr *ProviderError
+	require.ErrorAs(t, err, &providerErr)
+	require.Len(t, providerErr.Failures, 2)
+	assert.Equal(t, awsGlobal.URL, providerErr.Failures[0].URL)
+	assert.Contains(t, providerErr.Failures[0].Err.Error(), awsGlobal.URL)
+	assert.Equal(t, awsLegacy.URL, providerErr.Failures[1].URL)
+	assert.Contains(t, providerErr.Failures[1].Err.Error(), "failed to parse IP address")
 	require.NotNil(t, ip)
 	assert.Equal(t, "203.0.113.42", ip.String())
 }
@@ -231,10 +237,10 @@ func testLiveLookup(t *testing.T, c *Client) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			ip, err := tt.lookup()
-			if err != nil && isNetworkUnreachable(err) {
+			if ip == nil && err != nil && isNetworkUnreachable(err) {
 				t.Skipf("Skipping unsupported %s on host", tt.family)
 			}
-			if ip == nil && err != nil {
+			if err != nil {
 				t.Logf("%s errors: %+v", tt.family, providerFailures(err))
 			}
 			assert.NotEmpty(t, ip)
