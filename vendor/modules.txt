@@ -120,7 +120,7 @@ github.com/crazy-max/gonfig/file
 github.com/crazy-max/gonfig/flag
 github.com/crazy-max/gonfig/parser
 github.com/crazy-max/gonfig/types
-# github.com/dromara/carbon/v2 v2.6.16
+# github.com/dromara/carbon/v2 v2.6.18
 ## explicit; go 1.18
 github.com/dromara/carbon/v2
 github.com/dromara/carbon/v2/calendar
