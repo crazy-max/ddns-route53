@@ -18,7 +18,7 @@ func (e *ProviderError) Error() string {
 	if e == nil {
 		return ""
 	}
-	return "all WAN IP providers failed"
+	return "WAN IP providers failed"
 }
 
 func (e *ProviderError) Unwrap() []error {

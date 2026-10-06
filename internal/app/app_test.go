@@ -5,10 +5,14 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"net"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
 	"github.com/crazy-max/ddns-route53/v2/internal/config"
+	"github.com/crazy-max/ddns-route53/v2/pkg/route53"
 	"github.com/crazy-max/ddns-route53/v2/pkg/wanip"
 	"github.com/robfig/cron/v3"
 	"github.com/rs/zerolog"
@@ -18,12 +22,15 @@ import (
 
 func TestRunLogsEachWANProviderFailure(t *testing.T) {
 	for _, tc := range []struct {
-		name string
-		ipv4 bool
-		ipv6 bool
+		name     string
+		ipv4     bool
+		ipv6     bool
+		fallback bool
 	}{
 		{name: "IPv4", ipv4: true},
 		{name: "IPv6", ipv6: true},
+		{name: "IPv4 fallback", ipv4: true, fallback: true},
+		{name: "IPv6 fallback", ipv6: true, fallback: true},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			var output bytes.Buffer
@@ -35,6 +42,39 @@ func TestRunLogsEachWANProviderFailure(t *testing.T) {
 
 			providers := []string{":first-provider", ":second-provider"}
 			ddns := testApp("")
+			family := "IPv4"
+			if tc.ipv6 {
+				family = "IPv6"
+			}
+			expectedLevel := "error"
+			if tc.fallback {
+				expectedLevel = "debug"
+				ip := "203.0.113.42"
+				network, address := "tcp4", "127.0.0.1:0"
+				if tc.ipv6 {
+					ip = "2001:db8::42"
+					network, address = "tcp6", "[::1]:0"
+				}
+				listener, err := (&net.ListenConfig{}).Listen(context.Background(), network, address)
+				if err != nil && tc.ipv6 {
+					t.Skipf("IPv6 loopback unavailable: %v", err)
+				}
+				require.NoError(t, err)
+				srv := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+					_, _ = io.WriteString(w, ip)
+				}))
+				srv.Listener = listener
+				srv.Start()
+				t.Cleanup(srv.Close)
+				providers = append(providers, srv.URL)
+
+				// Prevent Route53 requests after a successful WAN lookup.
+				ctx, cancel := context.WithCancelCause(context.Background())
+				t.Cleanup(func() { cancel(nil) })
+				ddns.r53, err = route53.New(ctx, "test", "test", "test", 0, 0)
+				require.NoError(t, err)
+				cancel(nil)
+			}
 			ddns.cfg.Route53.HandleIPv4 = new(tc.ipv4)
 			ddns.cfg.Route53.HandleIPv6 = new(tc.ipv6)
 			ddns.wip = wanip.New(
@@ -45,21 +85,28 @@ func TestRunLogsEachWANProviderFailure(t *testing.T) {
 			require.NotPanics(t, ddns.Run)
 
 			decoder := json.NewDecoder(&output)
-			for _, provider := range providers {
+			var loggedProviders []string
+			for {
 				var record struct {
 					Level       string `json:"level"`
 					Message     string `json:"message"`
 					Error       string `json:"error"`
 					ProviderURL string `json:"provider-url"`
 				}
-				require.NoError(t, decoder.Decode(&record))
-				require.Equal(t, "error", record.Level)
-				require.Equal(t, "Cannot retrieve WAN "+tc.name+" address", record.Message)
-				require.Equal(t, provider, record.ProviderURL)
-				require.Contains(t, record.Error, provider)
+				err := decoder.Decode(&record)
+				if err == io.EOF {
+					break
+				}
+				require.NoError(t, err)
+				if record.ProviderURL == "" {
+					continue
+				}
+				require.Equal(t, expectedLevel, record.Level)
+				require.Equal(t, "Cannot retrieve WAN "+family+" address", record.Message)
+				require.Contains(t, record.Error, record.ProviderURL)
+				loggedProviders = append(loggedProviders, record.ProviderURL)
 			}
-			var extraRecord any
-			require.ErrorIs(t, decoder.Decode(&extraRecord), io.EOF)
+			require.Equal(t, providers[:2], loggedProviders)
 		})
 	}
 }
