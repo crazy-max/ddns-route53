@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/config v1.32.15
 	github.com/aws/aws-sdk-go-v2/credentials v1.19.14
 	github.com/aws/aws-sdk-go-v2/service/route53 v1.62.5
-	github.com/crazy-max/gonfig v0.8.0
+	github.com/crazy-max/gonfig v0.9.0
 	github.com/dromara/carbon/v2 v2.6.18
 	github.com/go-playground/validator/v10 v10.30.5
 	github.com/hashicorp/go-retryablehttp v0.7.8
@@ -41,5 +41,4 @@ require (
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
 	golang.org/x/crypto v0.57.0 // indirect
 	golang.org/x/text v0.42.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
