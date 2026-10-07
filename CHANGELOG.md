@@ -1,5 +1,27 @@
 # Changelog
 
+## 2.16.0 (2026/10/07)
+
+* Preserve WAN provider failures after successful fallback by @crazy-max in #1440
+* Avoid reusing log events for WAN provider failures by @bensynapse in #1437
+* Simplify shutdown lifecycle by @crazy-max in #1377
+* Add support for OpenBSD architectures by @atmosx in #1382
+* Bump github.com/alecthomas/kong to 1.16.1 in #1428
+* Bump github.com/aws/aws-sdk-go-v2 dependencies in #1373
+    * github.com/aws/aws-sdk-go-v2 to 1.47.1
+    * github.com/aws/aws-sdk-go-v2/config to 1.33.6
+    * github.com/aws/aws-sdk-go-v2/credentials to 1.20.6
+    * github.com/aws/aws-sdk-go-v2/service/route53 to 1.70.1
+* Bump github.com/crazy-max/gonfig to 0.9.0 by @crazy-max in #1448
+* Bump github.com/dromara/carbon/v2 to 2.6.18 in #1436
+* Bump github.com/go-playground/validator/v10 to 10.30.5 in #1434
+* Bump github.com/rs/zerolog to 1.35.1 in #1375
+* Bump github.com/stretchr/testify to 1.12.1 in #1431
+* Bump golang.org/x/crypto to 0.52.0 in #1413
+* Bump golang.org/x/sys to 0.48.0 in #1433
+
+**Full Changelog**: [`v2.15.0...v2.16.0`](https://github.com/crazy-max/ddns-route53/compare/v2.15.0...v2.16.0)
+
 ## 2.15.0 (2026/04/19)
 
 * Add configurable WAN IP providers by @crazy-max in #1369
