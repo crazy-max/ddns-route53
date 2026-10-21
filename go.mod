@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.20.6
 	github.com/aws/aws-sdk-go-v2/service/route53 v1.70.1
 	github.com/crazy-max/gonfig v0.9.0
-	github.com/dromara/carbon/v2 v2.6.18
+	github.com/dromara/carbon/v2 v2.7.0
 	github.com/go-playground/validator/v10 v10.30.5
 	github.com/hashicorp/go-retryablehttp v0.7.8
 	github.com/pkg/errors v0.9.1
