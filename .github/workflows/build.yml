@@ -11,13 +11,13 @@ on:
   push:
     branches:
       - 'master'
+      - 'feat/multi-hz'
     tags:
       - 'v*'
   pull_request:
 
 env:
-  DOCKERHUB_SLUG: crazymax/ddns-route53
-  GHCR_SLUG: ghcr.io/crazy-max/ddns-route53
+  GHCR_SLUG: ghcr.io/solacelost/ddns-route53
   DESTDIR: ./bin
   DOCKER_BUILD_SUMMARY: false
 
@@ -90,12 +90,6 @@ jobs:
           source: .
           targets: test
           pull: true
-      -
-        name: Upload coverage
-        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
-        with:
-          directory: ${{ env.DESTDIR }}/coverage
-          token: ${{ secrets.CODECOV_TOKEN }}
 
   artifact:
     runs-on: ubuntu-latest
@@ -221,7 +215,6 @@ jobs:
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           images: |
-            ${{ env.DOCKERHUB_SLUG }}
             ${{ env.GHCR_SLUG }}
           tags: |
             type=semver,pattern={{version}}
@@ -237,13 +230,6 @@ jobs:
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
-      -
-        name: Login to DockerHub
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
       -
         name: Login to GHCR
         if: github.event_name != 'pull_request'
@@ -269,13 +255,10 @@ jobs:
         name: Check manifest
         if: github.event_name != 'pull_request'
         run: |
-          docker buildx imagetools inspect ${{ env.DOCKERHUB_SLUG }}:${{ steps.meta.outputs.version }}
           docker buildx imagetools inspect ${{ env.GHCR_SLUG }}:${{ steps.meta.outputs.version }}
       -
         name: Inspect image
         if: github.event_name != 'pull_request'
         run: |
-          docker pull ${{ env.DOCKERHUB_SLUG }}:${{ steps.meta.outputs.version }}
-          docker image inspect ${{ env.DOCKERHUB_SLUG }}:${{ steps.meta.outputs.version }}
           docker pull ${{ env.GHCR_SLUG }}:${{ steps.meta.outputs.version }}
           docker image inspect ${{ env.GHCR_SLUG }}:${{ steps.meta.outputs.version }}
