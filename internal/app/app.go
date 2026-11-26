@@ -209,7 +209,7 @@ func (c *DDNSRoute53) Run() {
 		}
 		if len(r53Changes) == 0 {
 			log.Warn().Msgf("No Route53 record set to update. Skipping...")
-			return
+			continue
 		}
 
 		resp, err := c.r53.Update(r53Changes, hz.HostedZoneID, fmt.Sprintf("Updated by %s %s at %s",
@@ -219,7 +219,7 @@ func (c *DDNSRoute53) Run() {
 		))
 		if err != nil {
 			log.Error().Err(err).Msg("Cannot update records set")
-			return
+			continue
 		}
 
 		log.Info().Interface("changes", resp).Msgf("%d record(s) set updated", len(r53Changes))
