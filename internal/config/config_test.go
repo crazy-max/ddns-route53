@@ -63,8 +63,6 @@ func TestLoadFile(t *testing.T) {
 						},
 					},
 				},
-				HandleIPv4: new(true),
-				HandleIPv6: new(true),
 				WanIP: &WanIP{
 					Providers: &WanIPProviders{
 						IPv4: []string{"https://ipv4.example.com"},
@@ -130,8 +128,6 @@ func TestLoadEnv(t *testing.T) {
 						},
 					},
 				},
-				HandleIPv4: new(true),
-				HandleIPv6: new(false),
 				WanIP: &WanIP{
 					Providers: &WanIPProviders{
 						IPv4: []string{"https://ipv4.example.com", "https://ipv4-backup.example.com"},

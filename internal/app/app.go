@@ -29,6 +29,8 @@ type DDNSRoute53 struct {
 	wip    *wanip.Client
 	jobID  cron.EntryID
 	locker uint32
+	ipv4   bool
+	ipv6   bool
 }
 
 // New creates new ddns-route53 instance
@@ -68,14 +70,18 @@ func New(ctx context.Context, meta model.Meta, cfg *config.Config) (*DDNSRoute53
 		}
 	}
 
+	ipv4, ipv6 := configIpFamilies(cfg)
+
 	return &DDNSRoute53{
 		meta: meta,
 		cfg:  cfg,
 		cron: cron.New(cron.WithParser(cron.NewParser(
 			cron.SecondOptional | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow | cron.Descriptor),
 		)),
-		r53: r53,
-		wip: wanip.New(wanOpts...),
+		r53:  r53,
+		wip:  wanip.New(wanOpts...),
+		ipv4: ipv4,
+		ipv6: ipv6,
 	}, nil
 }
 
@@ -120,7 +126,7 @@ func (c *DDNSRoute53) Run() {
 			c.cron.Entry(c.jobID).Next)
 	}
 
-	if *c.cfg.HandleIPv4 {
+	if c.ipv4 {
 		var wanErr error
 		wanIPv4, wanErr = c.wip.IPv4()
 		wanLogger := log.Error
@@ -138,7 +144,7 @@ func (c *DDNSRoute53) Run() {
 		}
 	}
 
-	if *c.cfg.HandleIPv6 {
+	if c.ipv6 {
 		var wanErr error
 		wanIPv6, wanErr = c.wip.IPv6()
 		wanLogger := log.Error
@@ -218,4 +224,18 @@ func (c *DDNSRoute53) Run() {
 
 		log.Info().Interface("changes", resp).Msgf("%d record(s) set updated", len(r53Changes))
 	}
+}
+
+func configIpFamilies(cfg *config.Config) (ipv4, ipv6 bool) {
+	for _, hz := range cfg.HostedZones {
+		for _, rs := range hz.RecordsSet {
+			switch rs.Type {
+			case awsr53types.RRTypeA:
+				ipv4 = true
+			case awsr53types.RRTypeAaaa:
+				ipv6 = true
+			}
+		}
+	}
+	return ipv4, ipv6
 }

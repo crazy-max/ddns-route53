@@ -3,7 +3,6 @@ package config
 import (
 	"net/url"
 
-	r53types "github.com/aws/aws-sdk-go-v2/service/route53/types"
 	"github.com/crazy-max/gonfig"
 	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
@@ -23,21 +22,6 @@ type Config struct {
 	Credentials *Credentials `yaml:"credentials,omitempty" json:"credentials,omitempty" validate:"omitempty"`
 	HostedZones []HostedZone `yaml:"hostedZones,omitempty" json:"hostedZones,omitempty" validate:"dive"`
 	WanIP       *WanIP       `yaml:"wanip,omitempty" json:"wanip,omitempty" validate:"omitempty"`
-	HandleIPv4  *bool        `yaml:"-" json:"-" label:"-" file:"-"`
-	HandleIPv6  *bool        `yaml:"-" json:"-" label:"-" file:"-"`
-}
-
-// GetDefaults gets the default values
-func (cfg *Config) GetDefaults() *Config {
-	n := &Config{}
-	n.SetDefaults()
-	return n
-}
-
-// SetDefaults sets the default values
-func (cfg *Config) SetDefaults() {
-	cfg.HandleIPv4 = new(false)
-	cfg.HandleIPv6 = new(false)
 }
 
 // Load returns Configuration struct
@@ -87,14 +71,6 @@ func (cfg *Config) validate() error {
 	for _, hz := range cfg.HostedZones {
 		if len(hz.RecordsSet) == 0 {
 			return errors.New("empty record set")
-		}
-		for _, rs := range hz.RecordsSet {
-			switch rs.Type {
-			case r53types.RRTypeA:
-				cfg.HandleIPv4 = new(true)
-			case r53types.RRTypeAaaa:
-				cfg.HandleIPv6 = new(true)
-			}
 		}
 	}
 
