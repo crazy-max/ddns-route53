@@ -10,13 +10,34 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// HostedZone holds AWS Route53 HostedZone data
+type HostedZone struct {
+	HostedZoneID string     `yaml:"hostedZoneID,omitempty" json:"hostedZoneID,omitempty" validate:"required"`
+	RecordsSet   RecordsSet `yaml:"recordsSet,omitempty" json:"recordsSet,omitempty" validate:"dive"`
+}
+
 // Config holds configuration details
 type Config struct {
 	Cli Cli `yaml:"-" json:"-" label:"-" file:"-"`
 
 	Credentials *Credentials `yaml:"credentials,omitempty" json:"credentials,omitempty" validate:"omitempty"`
-	Route53     *Route53     `yaml:"route53,omitempty" json:"route53,omitempty" validate:"required"`
+	HostedZones []HostedZone `yaml:"hostedZones,omitempty" json:"hostedZones,omitempty" validate:"dive"`
 	WanIP       *WanIP       `yaml:"wanip,omitempty" json:"wanip,omitempty" validate:"omitempty"`
+	HandleIPv4  *bool        `yaml:"-" json:"-" label:"-" file:"-"`
+	HandleIPv6  *bool        `yaml:"-" json:"-" label:"-" file:"-"`
+}
+
+// GetDefaults gets the default values
+func (s *Config) GetDefaults() *Config {
+	n := &Config{}
+	n.SetDefaults()
+	return n
+}
+
+// SetDefaults sets the default values
+func (s *Config) SetDefaults() {
+	s.HandleIPv4 = new(false)
+	s.HandleIPv6 = new(false)
 }
 
 // Load returns Configuration struct
@@ -59,20 +80,21 @@ func Load(cli Cli) (*Config, error) {
 }
 
 func (cfg *Config) validate() error {
-	if cfg.Route53 == nil {
-		return errors.New("route53 configuration required")
+	if len(cfg.HostedZones) == 0 {
+		return errors.New("empty hosted zone list")
 	}
 
-	if len(cfg.Route53.RecordsSet) == 0 {
-		return errors.New("empty record set")
-	}
-
-	for _, rs := range cfg.Route53.RecordsSet {
-		switch rs.Type {
-		case r53types.RRTypeA:
-			cfg.Route53.HandleIPv4 = new(true)
-		case r53types.RRTypeAaaa:
-			cfg.Route53.HandleIPv6 = new(true)
+	for _, hz := range cfg.HostedZones {
+		if len(hz.RecordsSet) == 0 {
+			return errors.New("empty record set")
+		}
+		for _, rs := range hz.RecordsSet {
+			switch rs.Type {
+			case r53types.RRTypeA:
+				cfg.HandleIPv4 = new(true)
+			case r53types.RRTypeAaaa:
+				cfg.HandleIPv6 = new(true)
+			}
 		}
 	}
 

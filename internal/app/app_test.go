@@ -71,12 +71,12 @@ func TestRunLogsEachWANProviderFailure(t *testing.T) {
 				// Prevent Route53 requests after a successful WAN lookup.
 				ctx, cancel := context.WithCancelCause(context.Background())
 				t.Cleanup(func() { cancel(nil) })
-				ddns.r53, err = route53.New(ctx, "test", "test", "test", 0, 0)
+				ddns.r53, err = route53.New(ctx, "test", "test", 0, 0)
 				require.NoError(t, err)
 				cancel(nil)
 			}
-			ddns.cfg.Route53.HandleIPv4 = new(tc.ipv4)
-			ddns.cfg.Route53.HandleIPv6 = new(tc.ipv6)
+			ddns.cfg.HandleIPv4 = new(tc.ipv4)
+			ddns.cfg.HandleIPv6 = new(tc.ipv6)
 			ddns.wip = wanip.New(
 				wanip.WithIPv4Providers(providers),
 				wanip.WithIPv6Providers(providers),
@@ -160,10 +160,8 @@ func testApp(schedule string) *DDNSRoute53 {
 			Cli: config.Cli{
 				Schedule: schedule,
 			},
-			Route53: &config.Route53{
-				HandleIPv4: new(false),
-				HandleIPv6: new(false),
-			},
+			HandleIPv4: new(false),
+			HandleIPv6: new(false),
 		},
 		cron: cron.New(cron.WithParser(cron.NewParser(
 			cron.SecondOptional | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow | cron.Descriptor),

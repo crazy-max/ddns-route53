@@ -35,7 +35,6 @@ func newTestClient(t *testing.T, httpClient httpClientFunc) *Client {
 		}, func(o *awsr53.Options) {
 			o.BaseEndpoint = aws.String("https://route53.test")
 		}),
-		hostedZoneID: "ZTEST123",
 	}
 }
 
@@ -114,7 +113,7 @@ func TestListRecordsPaginates(t *testing.T) {
 		}
 	})
 
-	records, err := client.ListRecords()
+	records, err := client.ListRecords("ZTEST123")
 	require.NoError(t, err)
 	require.Len(t, records, 2)
 	assert.Equal(t, "ipv4.example.com.", aws.ToString(records[0].Name))
@@ -141,7 +140,7 @@ func TestListRecordsWrapsFetchErrors(t *testing.T) {
 </ErrorResponse>`), nil
 	})
 
-	records, err := client.ListRecords()
+	records, err := client.ListRecords("123")
 	require.Nil(t, records)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to fetch records")
@@ -183,7 +182,7 @@ func TestUpdateSendsHostedZoneAndChangeBatch(t *testing.T) {
 				},
 			},
 		},
-	}, "updated from test")
+	}, "ZTEST123", "updated from test")
 	require.NoError(t, err)
 	require.NotNil(t, resp)
 	require.NotNil(t, resp.ChangeInfo)

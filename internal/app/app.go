@@ -48,7 +48,7 @@ func New(ctx context.Context, meta model.Meta, cfg *config.Config) (*DDNSRoute53
 		}
 	}
 
-	r53, err := route53.New(ctx, accessKeyID, secretAccessKey, cfg.Route53.HostedZoneID, cfg.Cli.MaxRetries, cfg.Cli.MaxBackoffDelay)
+	r53, err := route53.New(ctx, accessKeyID, secretAccessKey, cfg.Cli.MaxRetries, cfg.Cli.MaxBackoffDelay)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func (c *DDNSRoute53) Run() {
 			c.cron.Entry(c.jobID).Next)
 	}
 
-	if *c.cfg.Route53.HandleIPv4 {
+	if *c.cfg.HandleIPv4 {
 		var wanErr error
 		wanIPv4, wanErr = c.wip.IPv4()
 		wanLogger := log.Error
@@ -138,7 +138,7 @@ func (c *DDNSRoute53) Run() {
 		}
 	}
 
-	if *c.cfg.Route53.HandleIPv6 {
+	if *c.cfg.HandleIPv6 {
 		var wanErr error
 		wanIPv6, wanErr = c.wip.IPv6()
 		wanLogger := log.Error
@@ -160,60 +160,62 @@ func (c *DDNSRoute53) Run() {
 		return
 	}
 
-	records, err := c.r53.ListRecords()
-	if err != nil {
-		log.Warn().Err(err).Msg("Cannot list records")
-	}
-
-	var r53Changes []awsr53types.Change
-	for _, rs := range c.cfg.Route53.RecordsSet {
-		var recordValue *string
-		if rs.Type == awsr53types.RRTypeA {
-			if wanIPv4 == nil {
-				log.Error().Msgf("No WAN IPv4 address available to update %s record set", rs.Name)
-				continue
-			}
-			if recordCurrentIP, err := c.r53.RecordIP(records, aws.String(rs.Name), rs.Type); err == nil && wanIPv4.Equal(recordCurrentIP) {
-				log.Info().Msgf("WAN IPv4 has not changed for %s record set", rs.Name)
-				continue
-			}
-			recordValue = aws.String(wanIPv4.String())
-		} else if rs.Type == awsr53types.RRTypeAaaa {
-			if wanIPv6 == nil {
-				log.Error().Msgf("No WAN IPv6 address available to update %s record set", rs.Name)
-				continue
-			}
-			if recordCurrentIP, err := c.r53.RecordIP(records, aws.String(rs.Name), rs.Type); err == nil && wanIPv6.Equal(recordCurrentIP) {
-				log.Info().Msgf("WAN IPv6 has not changed for %s record set", rs.Name)
-				continue
-			}
-			recordValue = aws.String(wanIPv6.String())
+	for _, hz := range c.cfg.HostedZones {
+		records, err := c.r53.ListRecords(hz.HostedZoneID)
+		if err != nil {
+			log.Warn().Err(err).Msg("Cannot list records")
 		}
-		r53Changes = append(r53Changes, awsr53types.Change{
-			Action: awsr53types.ChangeActionUpsert,
-			ResourceRecordSet: &awsr53types.ResourceRecordSet{
-				Name:            aws.String(rs.Name),
-				Type:            rs.Type,
-				TTL:             aws.Int64(rs.TTL),
-				ResourceRecords: []awsr53types.ResourceRecord{{Value: recordValue}},
-			},
-		})
-	}
 
-	if len(r53Changes) == 0 {
-		log.Warn().Msgf("No Route53 record set to update. Skipping...")
-		return
-	}
+		var r53Changes []awsr53types.Change
+		for _, rs := range hz.RecordsSet {
+			log.Info().Msgf("Now processing records for Hosted Zone ID %s", hz.HostedZoneID)
+			var recordValue *string
+			if rs.Type == awsr53types.RRTypeA {
+				if wanIPv4 == nil {
+					log.Error().Msgf("No WAN IPv4 address available to update %s record set", rs.Name)
+					continue
+				}
+				if recordCurrentIP, err := c.r53.RecordIP(records, aws.String(rs.Name), rs.Type); err == nil && wanIPv4.Equal(recordCurrentIP) {
+					log.Info().Msgf("WAN IPv4 has not changed for %s record set", rs.Name)
+					continue
+				}
+				recordValue = aws.String(wanIPv4.String())
+			} else if rs.Type == awsr53types.RRTypeAaaa {
+				if wanIPv6 == nil {
+					log.Error().Msgf("No WAN IPv6 address available to update %s record set", rs.Name)
+					continue
+				}
+				if recordCurrentIP, err := c.r53.RecordIP(records, aws.String(rs.Name), rs.Type); err == nil && wanIPv6.Equal(recordCurrentIP) {
+					log.Info().Msgf("WAN IPv6 has not changed for %s record set", rs.Name)
+					continue
+				}
+				recordValue = aws.String(wanIPv6.String())
+			}
+			r53Changes = append(r53Changes, awsr53types.Change{
+				Action: awsr53types.ChangeActionUpsert,
+				ResourceRecordSet: &awsr53types.ResourceRecordSet{
+					Name:            aws.String(rs.Name),
+					Type:            rs.Type,
+					TTL:             aws.Int64(rs.TTL),
+					ResourceRecords: []awsr53types.ResourceRecord{{Value: recordValue}},
+				},
+			})
+		}
+		if len(r53Changes) == 0 {
+			log.Warn().Msgf("No Route53 record set to update. Skipping...")
+			return
+		}
 
-	resp, err := c.r53.Update(r53Changes, fmt.Sprintf("Updated by %s %s at %s",
-		c.meta.Name,
-		c.meta.Version,
-		time.Now().Format("2006-01-02 15:04:05"),
-	))
-	if err != nil {
-		log.Error().Err(err).Msg("Cannot update records set")
-		return
-	}
+		resp, err := c.r53.Update(r53Changes, hz.HostedZoneID, fmt.Sprintf("Updated by %s %s at %s",
+			c.meta.Name,
+			c.meta.Version,
+			time.Now().Format("2006-01-02 15:04:05"),
+		))
+		if err != nil {
+			log.Error().Err(err).Msg("Cannot update records set")
+			return
+		}
 
-	log.Info().Interface("changes", resp).Msgf("%d record(s) set updated", len(r53Changes))
+		log.Info().Interface("changes", resp).Msgf("%d record(s) set updated", len(r53Changes))
+	}
 }

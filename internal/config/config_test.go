@@ -41,28 +41,30 @@ func TestLoadFile(t *testing.T) {
 					AccessKeyID:     "ABCDEFGHIJKLMNO123456",
 					SecretAccessKey: "abcdefgh123456IJKLMN+OPQRS7890+ABCDEFGH",
 				},
-				Route53: &Route53{
-					HostedZoneID: "ABCEEFG123456789",
-					RecordsSet: RecordsSet{
-						RecordSet{
-							Name: "ddns.example.com.",
-							Type: "A",
-							TTL:  300,
-						},
-						RecordSet{
-							Name: "ddns.example.com.",
-							Type: "AAAA",
-							TTL:  300,
-						},
-						RecordSet{
-							Name: "another.example2.com.",
-							Type: "A",
-							TTL:  600,
+				HostedZones: []HostedZone{
+					{
+						HostedZoneID: "ABCEEFG123456789",
+						RecordsSet: RecordsSet{
+							RecordSet{
+								Name: "ddns.example.com.",
+								Type: "A",
+								TTL:  300,
+							},
+							RecordSet{
+								Name: "ddns.example.com.",
+								Type: "AAAA",
+								TTL:  300,
+							},
+							RecordSet{
+								Name: "another.example2.com.",
+								Type: "A",
+								TTL:  600,
+							},
 						},
 					},
-					HandleIPv4: new(true),
-					HandleIPv6: new(true),
 				},
+				HandleIPv4: new(true),
+				HandleIPv6: new(true),
 				WanIP: &WanIP{
 					Providers: &WanIPProviders{
 						IPv4: []string{"https://ipv4.example.com"},
@@ -104,10 +106,10 @@ func TestLoadEnv(t *testing.T) {
 			environ: []string{
 				"DDNSR53_CREDENTIALS_ACCESSKEYIDFILE=./fixtures/run_fixture_id",
 				"DDNSR53_CREDENTIALS_SECRETACCESSKEYFILE=./fixtures/run_fixture_key",
-				"DDNSR53_ROUTE53_HOSTEDZONEID=ABCEEFG123456789",
-				"DDNSR53_ROUTE53_RECORDSSET_0_NAME=ddns.example.com.",
-				"DDNSR53_ROUTE53_RECORDSSET_0_TYPE=A",
-				"DDNSR53_ROUTE53_RECORDSSET_0_TTL=300",
+				"DDNSR53_HOSTEDZONES_0_HOSTEDZONEID=ABCEEFG123456789",
+				"DDNSR53_HOSTEDZONES_0_RECORDSSET_0_NAME=ddns.example.com.",
+				"DDNSR53_HOSTEDZONES_0_RECORDSSET_0_TYPE=A",
+				"DDNSR53_HOSTEDZONES_0_RECORDSSET_0_TTL=300",
 				"DDNSR53_WANIP_PROVIDERS_IPV4=https://ipv4.example.com,https://ipv4-backup.example.com",
 				"DDNSR53_WANIP_PROVIDERS_IPV6=https://ipv6.example.com,https://ipv6-backup.example.com",
 			},
@@ -116,18 +118,20 @@ func TestLoadEnv(t *testing.T) {
 					AccessKeyIDFile:     "./fixtures/run_fixture_id",
 					SecretAccessKeyFile: "./fixtures/run_fixture_key",
 				},
-				Route53: &Route53{
-					HostedZoneID: "ABCEEFG123456789",
-					RecordsSet: RecordsSet{
-						RecordSet{
-							Name: "ddns.example.com.",
-							Type: "A",
-							TTL:  300,
+				HostedZones: []HostedZone{
+					{
+						HostedZoneID: "ABCEEFG123456789",
+						RecordsSet: RecordsSet{
+							RecordSet{
+								Name: "ddns.example.com.",
+								Type: "A",
+								TTL:  300,
+							},
 						},
 					},
-					HandleIPv4: new(true),
-					HandleIPv6: new(false),
 				},
+				HandleIPv4: new(true),
+				HandleIPv6: new(false),
 				WanIP: &WanIP{
 					Providers: &WanIPProviders{
 						IPv4: []string{"https://ipv4.example.com", "https://ipv4-backup.example.com"},
@@ -138,12 +142,50 @@ func TestLoadEnv(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			desc: "two hosted zones",
+			environ: []string{
+				"DDNSR53_HOSTEDZONES_0_HOSTEDZONEID=ABCEEFG123456789",
+				"DDNSR53_HOSTEDZONES_0_RECORDSSET_0_NAME=ddns.example.com.",
+				"DDNSR53_HOSTEDZONES_0_RECORDSSET_0_TYPE=A",
+				"DDNSR53_HOSTEDZONES_0_RECORDSSET_0_TTL=300",
+				"DDNSR53_HOSTEDZONES_1_HOSTEDZONEID=987654321GFEDCBA",
+				"DDNSR53_HOSTEDZONES_1_RECORDSSET_0_NAME=ddns.example2.com.",
+				"DDNSR53_HOSTEDZONES_1_RECORDSSET_0_TYPE=A",
+				"DDNSR53_HOSTEDZONES_1_RECORDSSET_0_TTL=300",
+			},
+			expected: &Config{
+				HostedZones: []HostedZone{
+					{
+						HostedZoneID: "ABCEEFG123456789",
+						RecordsSet: RecordsSet{
+							RecordSet{
+								Name: "ddns.example.com.",
+								Type: "A",
+								TTL:  300,
+							},
+						},
+					},
+					{
+						HostedZoneID: "987654321GFEDCBA",
+						RecordsSet: RecordsSet{
+							RecordSet{
+								Name: "ddns.example2.com.",
+								Type: "A",
+								TTL:  300,
+							},
+						},
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
 			desc: "invalid wanip provider URL",
 			environ: []string{
-				"DDNSR53_ROUTE53_HOSTEDZONEID=ABCEEFG123456789",
-				"DDNSR53_ROUTE53_RECORDSSET_0_NAME=ddns.example.com.",
-				"DDNSR53_ROUTE53_RECORDSSET_0_TYPE=A",
-				"DDNSR53_ROUTE53_RECORDSSET_0_TTL=300",
+				"DDNSR53_HOSTEDZONES_0_HOSTEDZONEID=ABCEEFG123456789",
+				"DDNSR53_HOSTEDZONES_0_RECORDSSET_0_NAME=ddns.example.com.",
+				"DDNSR53_HOSTEDZONES_0_RECORDSSET_0_TYPE=A",
+				"DDNSR53_HOSTEDZONES_0_RECORDSSET_0_TTL=300",
 				"DDNSR53_WANIP_PROVIDERS_IPV4=mailto:test@example.com",
 			},
 			wantErr: true,
@@ -205,15 +247,17 @@ func TestValidateRoute53Requirements(t *testing.T) {
 
 		cfg := &Config{}
 		err := cfg.validate()
-		require.EqualError(t, err, "route53 configuration required")
+		require.EqualError(t, err, "empty hosted zone list")
 	})
 
 	t.Run("empty record set", func(t *testing.T) {
 		t.Parallel()
 
 		cfg := &Config{
-			Route53: &Route53{
-				HostedZoneID: "ABCEEFG123456789",
+			HostedZones: []HostedZone{
+				{
+					HostedZoneID: "ABCEEFG123456789",
+				},
 			},
 		}
 		err := cfg.validate()

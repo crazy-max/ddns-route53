@@ -15,13 +15,12 @@ import (
 )
 
 type Client struct {
-	ctx          context.Context
-	client       *awsr53.Client
-	hostedZoneID string
+	ctx    context.Context
+	client *awsr53.Client
 }
 
 // New initializes a new route53 client
-func New(ctx context.Context, accessKey, secretKey, hostedZoneID string, maxRetries int, maxBackoffDelay time.Duration) (*Client, error) {
+func New(ctx context.Context, accessKey string, secretKey string, maxRetries int, maxBackoffDelay time.Duration) (*Client, error) {
 	cfg, err := config.LoadDefaultConfig(ctx,
 		// Route53 uses a global endpoint and route53domains
 		// currently only has a single regional endpoint in us-east-1
@@ -40,19 +39,18 @@ func New(ctx context.Context, accessKey, secretKey, hostedZoneID string, maxRetr
 		cfg.Credentials = credentials.NewStaticCredentialsProvider(accessKey, secretKey, "")
 	}
 	return &Client{
-		ctx:          ctx,
-		client:       awsr53.NewFromConfig(cfg),
-		hostedZoneID: hostedZoneID,
+		ctx:    ctx,
+		client: awsr53.NewFromConfig(cfg),
 	}, nil
 }
 
-func (r *Client) Update(changes []awsr53types.Change, comment string) (*awsr53.ChangeResourceRecordSetsOutput, error) {
+func (r *Client) Update(changes []awsr53types.Change, hostedZoneID string, comment string) (*awsr53.ChangeResourceRecordSetsOutput, error) {
 	return r.client.ChangeResourceRecordSets(r.ctx, &awsr53.ChangeResourceRecordSetsInput{
 		ChangeBatch: &awsr53types.ChangeBatch{
 			Comment: aws.String(comment),
 			Changes: changes,
 		},
-		HostedZoneId: aws.String(r.hostedZoneID),
+		HostedZoneId: aws.String(hostedZoneID),
 	})
 }
 
@@ -71,10 +69,10 @@ func (r *Client) RecordIP(records []awsr53types.ResourceRecordSet, name *string,
 	return net.ParseIP(*record.ResourceRecords[0].Value), nil
 }
 
-func (r *Client) ListRecords() ([]awsr53types.ResourceRecordSet, error) {
+func (r *Client) ListRecords(hostedZoneID string) ([]awsr53types.ResourceRecordSet, error) {
 	var records []awsr53types.ResourceRecordSet
 	req := &awsr53.ListResourceRecordSetsInput{
-		HostedZoneId: aws.String(r.hostedZoneID),
+		HostedZoneId: aws.String(hostedZoneID),
 	}
 	for {
 		resp, err := r.client.ListResourceRecordSets(r.ctx, req)
