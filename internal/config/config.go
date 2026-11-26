@@ -28,16 +28,16 @@ type Config struct {
 }
 
 // GetDefaults gets the default values
-func (s *Config) GetDefaults() *Config {
+func (cfg *Config) GetDefaults() *Config {
 	n := &Config{}
 	n.SetDefaults()
 	return n
 }
 
 // SetDefaults sets the default values
-func (s *Config) SetDefaults() {
-	s.HandleIPv4 = new(false)
-	s.HandleIPv6 = new(false)
+func (cfg *Config) SetDefaults() {
+	cfg.HandleIPv4 = new(false)
+	cfg.HandleIPv6 = new(false)
 }
 
 // Load returns Configuration struct
