@@ -27,20 +27,20 @@ You can override this using the [`--config` flag or the `CONFIG` environment var
     credentials:
       accessKeyID: "ABCDEFGHIJKLMNO123456"
       secretAccessKey: "abcdefgh123456IJKLMN+OPQRS7890+ABCDEFGH"
-    
-    route53:
-      hostedZoneID: "ABCEEFG123456789"
-      recordsSet:
-        - name: "ddns.example.com."
-          type: "A"
-          ttl: 300
-        - name: "ddns.example.com."
-          type: "AAAA"
-          ttl: 300
-        - name: "another.example2.com."
-          type: "A"
-          ttl: 600
-    
+
+    hostedZones:
+      - hostedZoneID: "ABCEEFG123456789"
+        recordsSet:
+          - name: "ddns.example.com."
+            type: "A"
+            ttl: 300
+          - name: "ddns.example.com."
+            type: "AAAA"
+            ttl: 300
+          - name: "another.example2.com."
+            type: "A"
+            ttl: 600
+
     wanip:
       providers:
         ipv4:
@@ -58,19 +58,19 @@ All file-based configuration can be mapped to environment variables. For example
     credentials:
       accessKeyID: "ABCDEFGHIJKLMNO123456"
       secretAccessKey: "abcdefgh123456IJKLMN+OPQRS7890+ABCDEFGH"
-    
-    route53:
-      hostedZoneID: "ABCEEFG123456789"
-      recordsSet:
-        - name: "ddns.example.com."
-          type: "A"
-          ttl: 300
-        - name: "ddns.example.com."
-          type: "AAAA"
-          ttl: 300
-        - name: "another.example2.com."
-          type: "A"
-          ttl: 600
+
+    hostedZones:
+      - hostedZoneID: "ABCEEFG123456789"
+        recordsSet:
+          - name: "ddns.example.com."
+            type: "A"
+            ttl: 300
+          - name: "ddns.example.com."
+            type: "AAAA"
+            ttl: 300
+          - name: "another.example2.com."
+            type: "A"
+            ttl: 600
     ```
 
 Can be expressed as:
@@ -79,17 +79,17 @@ Can be expressed as:
     ```
     DDNSR53_CREDENTIALS_ACCESSKEYID=ABCDEFGHIJKLMNO123456
     DDNSR53_CREDENTIALS_SECRETACCESSKEY=abcdefgh123456IJKLMN+OPQRS7890+ABCDEFGH
-    
-    DDNSR53_ROUTE53_HOSTEDZONEID=ABCEEFG123456789
-    DDNSR53_ROUTE53_RECORDSSET_0_NAME=ddns.example.com.
-    DDNSR53_ROUTE53_RECORDSSET_0_TYPE=A
-    DDNSR53_ROUTE53_RECORDSSET_0_TTL=300
-    DDNSR53_ROUTE53_RECORDSSET_1_NAME=ddns.example.com.
-    DDNSR53_ROUTE53_RECORDSSET_1_TYPE=AAAA
-    DDNSR53_ROUTE53_RECORDSSET_1_TTL=300
-    DDNSR53_ROUTE53_RECORDSSET_2_NAME=another.example2.com.
-    DDNSR53_ROUTE53_RECORDSSET_2_TYPE=A
-    DDNSR53_ROUTE53_RECORDSSET_2_TTL=600
+
+    DDNSR53_HOSTEDZONES_0_HOSTEDZONEID=ABCEEFG123456789
+    DDNSR53_HOSTEDZONES_0_RECORDSSET_0_NAME=ddns.example.com.
+    DDNSR53_HOSTEDZONES_0_RECORDSSET_0_TYPE=A
+    DDNSR53_HOSTEDZONES_0_RECORDSSET_0_TTL=300
+    DDNSR53_HOSTEDZONES_0_RECORDSSET_1_NAME=ddns.example.com.
+    DDNSR53_HOSTEDZONES_0_RECORDSSET_1_TYPE=AAAA
+    DDNSR53_HOSTEDZONES_0_RECORDSSET_1_TTL=300
+    DDNSR53_HOSTEDZONES_0_RECORDSSET_2_NAME=another.example2.com.
+    DDNSR53_HOSTEDZONES_0_RECORDSSET_2_TYPE=A
+    DDNSR53_HOSTEDZONES_0_RECORDSSET_2_TTL=600
     DDNSR53_WANIP_PROVIDERS_IPV4=https://ipv4.example.com,https://ipv4-backup.example.com
     DDNSR53_WANIP_PROVIDERS_IPV6=https://ipv6.example.com,https://ipv6-backup.example.com
     ```
@@ -97,5 +97,5 @@ Can be expressed as:
 ## Reference
 
 * [credentials](credentials.md)
-* [route53](route53.md)
+* [hostedzones](hostedzones.md)
 * [wanip](wanip.md)
