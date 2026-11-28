@@ -2,7 +2,7 @@
 
 ARG GO_VERSION="1.26"
 # renovate: datasource=docker depName=alpine versioning=docker
-ARG ALPINE_VERSION="3.23"
+ARG ALPINE_VERSION="3.24"
 
 FROM golang:${GO_VERSION}-alpine${ALPINE_VERSION} AS base
 ENV GOFLAGS="-mod=vendor"
