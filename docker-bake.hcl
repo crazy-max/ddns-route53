@@ -125,14 +125,6 @@ target "docs" {
   output = ["${DESTDIR}/site"]
 }
 
-target "gomod-outdated" {
-  inherits = ["_common"]
-  dockerfile = "./hack/vendor.Dockerfile"
-  target = "outdated"
-  no-cache-filter = ["outdated"]
-  output = ["type=cacheonly"]
-}
-
 group "validate" {
   targets = ["lint", "vendor-validate"]
 }
