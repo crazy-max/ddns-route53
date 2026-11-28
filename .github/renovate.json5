@@ -1,0 +1,40 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "helpers:pinGitHubActionDigestsToSemver",
+    "helpers:githubDigestChangelogs"
+  ],
+  "enabledManagers": ["gomod", "github-actions"],
+  "ignorePaths": ["vendor/**"],
+  "postUpdateOptions": ["gomodTidy", "gomodUpdateImportPaths", "gomodVendor"],
+  "env": {
+    "GOFLAGS": "-mod=mod -modcacherw"
+  },
+  "prHourlyLimit": 0,
+  "minimumReleaseAge": "2 days",
+  "internalChecksFilter": "strict",
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "commitMessageSuffix": ""
+  },
+  "labels": ["kind/dependencies", "bot"],
+  "semanticCommits": "disabled",
+  "commitMessagePrefix": "deps{{#if isVulnerabilityAlert}}(security){{/if}}:",
+  "packageRules": [
+    {
+      "matchManagers": ["gomod"],
+      "commitMessagePrefix": "deps(go{{#if isVulnerabilityAlert}},security{{/if}}):"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "commitMessagePrefix": "deps(ci{{#if isVulnerabilityAlert}},security{{/if}}):"
+    },
+    {
+      "matchUpdateTypes": ["major", "minor", "patch"],
+      "commitMessageAction": "bump",
+      "commitMessageTopic": "{{{depName}}}",
+      "commitMessageExtra": "from {{{replace '^v' '' currentValue}}} to {{{replace '^v' '' newValue}}}"
+    }
+  ]
+}
