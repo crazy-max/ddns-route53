@@ -5,7 +5,7 @@
     "helpers:pinGitHubActionDigestsToSemver",
     "helpers:githubDigestChangelogs"
   ],
-  "enabledManagers": ["gomod", "github-actions"],
+  "enabledManagers": ["gomod", "github-actions", "custom.regex"],
   "ignorePaths": ["vendor/**"],
   "postUpdateOptions": ["gomodTidy", "gomodUpdateImportPaths", "gomodVendor"],
   "env": {
@@ -21,13 +21,26 @@
   "labels": ["kind/dependencies", "bot"],
   "semanticCommits": "disabled",
   "commitMessagePrefix": "deps{{#if isVulnerabilityAlert}}(security){{/if}}:",
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["**/*Dockerfile*"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)(?: versioning=(?<versioning>\\S+))?[ \\t]*\\r?\\n[ \\t]*ARG[ \\t]+\\w+=\"?(?<currentValue>[^\\s\"]+)\"?"
+      ]
+    }
+  ],
   "packageRules": [
     {
       "matchManagers": ["gomod"],
       "commitMessagePrefix": "deps(go{{#if isVulnerabilityAlert}},security{{/if}}):"
     },
     {
-      "matchManagers": ["github-actions"],
+      "matchFileNames": ["**/*Dockerfile*"],
+      "commitMessagePrefix": "deps(dockerfile{{#if isVulnerabilityAlert}},security{{/if}}):"
+    },
+    {
+      "matchFileNames": [".github/workflows/**"],
       "commitMessagePrefix": "deps(ci{{#if isVulnerabilityAlert}},security{{/if}}):"
     },
     {
