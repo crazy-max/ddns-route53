@@ -118,7 +118,7 @@ func (lang *Language) SetLocale(locale string) *Language {
 	entry.once.Do(func() {
 		bs, err := fs.ReadFile(fileName)
 		if err != nil {
-			entry.err = fmt.Errorf("%w: %w", ErrNotExistLocale(fileName), err)
+			entry.err = fmt.Errorf("%v: %w", ErrNotExistLocale(fileName), err)
 			return
 		}
 
@@ -188,7 +188,7 @@ func (lang *Language) translate(unit string, value int64) string {
 		resources = lang.resources
 		lang.rw.RUnlock()
 	}
-	if resources == nil || len(resources) == 0 {
+	if len(resources) == 0 {
 		return ""
 	}
 	resource, exists := resources[unit]
