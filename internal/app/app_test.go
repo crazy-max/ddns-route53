@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	awsr53types "github.com/aws/aws-sdk-go-v2/service/route53/types"
 	"github.com/crazy-max/ddns-route53/v2/internal/config"
 	"github.com/crazy-max/ddns-route53/v2/pkg/route53"
 	"github.com/crazy-max/ddns-route53/v2/pkg/wanip"
@@ -71,12 +72,12 @@ func TestRunLogsEachWANProviderFailure(t *testing.T) {
 				// Prevent Route53 requests after a successful WAN lookup.
 				ctx, cancel := context.WithCancelCause(context.Background())
 				t.Cleanup(func() { cancel(nil) })
-				ddns.r53, err = route53.New(ctx, "test", "test", "test", 0, 0)
+				ddns.r53, err = route53.New(ctx, "test", "test", 0, 0)
 				require.NoError(t, err)
 				cancel(nil)
 			}
-			ddns.cfg.Route53.HandleIPv4 = new(tc.ipv4)
-			ddns.cfg.Route53.HandleIPv6 = new(tc.ipv6)
+			ddns.ipv4 = tc.ipv4
+			ddns.ipv6 = tc.ipv6
 			ddns.wip = wanip.New(
 				wanip.WithIPv4Providers(providers),
 				wanip.WithIPv6Providers(providers),
@@ -154,15 +155,46 @@ func TestStartWaitsForContextCancellation(t *testing.T) {
 	}
 }
 
+func TestConfigIpFamilies(t *testing.T) {
+	t.Parallel()
+
+	hz := func(id string, types ...awsr53types.RRType) config.HostedZone {
+		rs := make(config.RecordsSet, len(types))
+		for i, typ := range types {
+			rs[i] = config.RecordSet{Name: "ddns.example.com.", Type: typ, TTL: 300}
+		}
+		return config.HostedZone{HostedZoneID: id, RecordsSet: rs}
+	}
+
+	testCases := []struct {
+		name        string
+		hostedZones []config.HostedZone
+		ipv4, ipv6  bool
+	}{
+		{"A only", []config.HostedZone{hz("Z1", awsr53types.RRTypeA)}, true, false},
+		{"AAAA only", []config.HostedZone{hz("Z1", awsr53types.RRTypeAaaa)}, false, true},
+		{"both in one zone", []config.HostedZone{hz("Z1", awsr53types.RRTypeA, awsr53types.RRTypeAaaa)}, true, true},
+		{"families across zones", []config.HostedZone{
+			hz("Z1", awsr53types.RRTypeA),
+			hz("Z2", awsr53types.RRTypeAaaa),
+		}, true, true},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			ipv4, ipv6 := configIpFamilies(&config.Config{HostedZones: tc.hostedZones})
+			require.Equal(t, tc.ipv4, ipv4)
+			require.Equal(t, tc.ipv6, ipv6)
+		})
+	}
+}
+
 func testApp(schedule string) *DDNSRoute53 {
 	return &DDNSRoute53{
 		cfg: &config.Config{
 			Cli: config.Cli{
 				Schedule: schedule,
-			},
-			Route53: &config.Route53{
-				HandleIPv4: new(false),
-				HandleIPv6: new(false),
 			},
 		},
 		cron: cron.New(cron.WithParser(cron.NewParser(

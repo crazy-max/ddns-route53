@@ -5,14 +5,14 @@
 ddns-route53 publishes automatically updated container images to several registries:
 
 | Registry                                                                                                | Image                            |
-|---------------------------------------------------------------------------------------------------------|----------------------------------|
+| ------------------------------------------------------------------------------------------------------- | -------------------------------- |
 | [Docker Hub](https://hub.docker.com/r/crazymax/ddns-route53/)                                           | `crazymax/ddns-route53`          |
 | [GitHub Container Registry](https://github.com/users/crazy-max/packages/container/package/ddns-route53) | `ghcr.io/crazy-max/ddns-route53` |
 
 You can follow the latest stable tag, or use another service to automate Docker image updates.
 
-!!! note
-    Want to be notified of new releases? See [Diun (Docker Image Update Notifier)](https://github.com/crazy-max/diun).
+!!! note Want to be notified of new releases? See
+[Diun (Docker Image Update Notifier)](https://github.com/crazy-max/diun).
 
 The following platforms are available for this image:
 
@@ -29,9 +29,8 @@ Image: crazymax/ddns-route53:latest
    - linux/ppc64le
 ```
 
-This reference setup uses `docker-compose`, but installing `docker-compose`
-is out of scope for this documentation. To install it, follow the official
-[install instructions](https://docs.docker.com/compose/install/).
+This reference setup uses `docker-compose`, but installing `docker-compose` is out of scope for this documentation. To
+install it, follow the official [install instructions](https://docs.docker.com/compose/install/).
 
 ## Usage
 
@@ -47,10 +46,10 @@ services:
       - "LOG_JSON=false"
       - "DDNSR53_CREDENTIALS_ACCESSKEYID=ABCDEFGHIJKLMNO123456"
       - "DDNSR53_CREDENTIALS_SECRETACCESSKEY=abcdefgh123456IJKLMN+OPQRS7890+ABCDEFGH"
-      - "DDNSR53_ROUTE53_HOSTEDZONEID=ABCEEFG123456789"
-      - "DDNSR53_ROUTE53_RECORDSSET_0_NAME=ddns.example.com."
-      - "DDNSR53_ROUTE53_RECORDSSET_0_TYPE=A"
-      - "DDNSR53_ROUTE53_RECORDSSET_0_TTL=300"
+      - "DDNSR53_HOSTEDZONES_0_HOSTEDZONEID=ABCEEFG123456789"
+      - "DDNSR53_HOSTEDZONES_0_RECORDSSET_0_NAME=ddns.example.com."
+      - "DDNSR53_HOSTEDZONES_0_RECORDSSET_0_TYPE=A"
+      - "DDNSR53_HOSTEDZONES_0_RECORDSSET_0_TTL=300"
     restart: always
 ```
 
@@ -71,10 +70,10 @@ docker run -d --name ddns-route53 \
   -e "LOG_JSON=false" \
   -e "DDNSR53_CREDENTIALS_ACCESSKEYID=ABCDEFGHIJKLMNO123456" \
   -e "DDNSR53_CREDENTIALS_SECRETACCESSKEY=abcdefgh123456IJKLMN+OPQRS7890+ABCDEFGH" \
-  -e "DDNSR53_ROUTE53_HOSTEDZONEID=ABCEEFG123456789" \
-  -e "DDNSR53_ROUTE53_RECORDSSET_0_NAME=ddns.example.com." \
-  -e "DDNSR53_ROUTE53_RECORDSSET_0_TYPE=A" \
-  -e "DDNSR53_ROUTE53_RECORDSSET_0_TTL=300" \
+  -e "DDNSR53_HOSTEDZONES_0_HOSTEDZONEID=ABCEEFG123456789" \
+  -e "DDNSR53_HOSTEDZONES_0_RECORDSSET_0_NAME=ddns.example.com." \
+  -e "DDNSR53_HOSTEDZONES_0_RECORDSSET_0_TYPE=A" \
+  -e "DDNSR53_HOSTEDZONES_0_RECORDSSET_0_TTL=300" \
   crazymax/ddns-route53:latest
 ```
 
@@ -85,8 +84,8 @@ docker-compose pull
 docker-compose up -d
 ```
 
-If you prefer to rely on the [`configuration file`](../config/index.md#configuration-file) instead of
-environment variables:
+If you prefer to rely on the [`configuration file`](../config/index.md#configuration-file) instead of environment
+variables:
 
 ```yaml
 # ./ddns-route53.yml
