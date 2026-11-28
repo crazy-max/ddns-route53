@@ -6,7 +6,7 @@ ARG XX_VERSION="1.9.0"
 # renovate: datasource=docker depName=alpine versioning=docker
 ARG ALPINE_VERSION="3.23"
 # renovate: datasource=github-releases depName=golangci/golangci-lint
-ARG GOLANGCI_LINT_VERSION="v2.11.4"
+ARG GOLANGCI_LINT_VERSION="v2.15.0"
 ARG GOLANGCI_FROM_SOURCE="true"
 
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
